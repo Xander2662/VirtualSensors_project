@@ -3,13 +3,14 @@
 SensorManager Manager = SensorManager();
 
 int main() {
-    std::string configData = "?id=0=ADC&Resolution=10";
-    std::string configData1 = "?&Resolution=10";
-    std::string configData2 = "?id=X&Resolution=10";
-    std::string updateData = "?id=0&Value=255";
-    std::string updateData1 = "?id=0&Value=255";
-
-    std::string initRequest = "?0:ADC&1:ADC&2:TH";
+    //request testing
+    //"?id=0=ADC&Resolution=10";
+    //"?&Resolution=10";
+    //"?id=X&Resolution=10";
+    // "?id=0&Value=255";
+    //"?id=0&Value=255";
+    
+    //"?0:ADC&1:ADC&2:TH";
 
     //Manager.init();
     Manager.init(true);
