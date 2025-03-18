@@ -9,6 +9,9 @@
  * 
  */
 
+ extern "C" {
+    #include "lvgl.h"
+    }
 #ifndef SENSORS_HPP
 #define SENSORS_HPP
 
@@ -873,5 +876,424 @@ class PhotoInterrupter : public BaseSensor {
             redrawPenging = false; // Reset flag to redraw sensor.
         }
 };
+/**************************************************************************/
+// I2C
+/**************************************************************************/
+/**************************************************************************/
+/**
+ * @class TP
+ * @brief Temperature/Pressure sensor class derived from BaseSensor.
+ * 
+ * Represents a Temperature/Pressure sensor. Implements initialization, configuration, updating, and printing
+ * specific to Temperature/Pressure sensors.
+ */
 
+ class TP : public BaseSensor {
+    public:
+        /**
+         * @brief Constructs a new TP object.
+         * 
+         * Initializes default values and sets the sensor type and description.
+         * 
+         * @param uid The unique sensor identifier.
+         */
+        TP(std::string uid) : BaseSensor(uid)
+        {
+            init();
+        }
+    
+        /**
+         * @brief Virtual destructor.
+         */
+        virtual ~TP() {}
+        lv_obj_t* ui_Label1;
+        lv_obj_t* ui_temp;
+        lv_obj_t* ui_pres;
+        lv_obj_t * ui_Panel3;
+
+    
+        /**
+         * @brief Initializes the sensor.
+         * 
+         * Additional initialization code can be added here.
+         * 
+         * @throws Exception if initialization fails.
+         */
+        virtual void init() override {
+            // Additional initialization for sensor can be added here.
+            Type = "TP";
+            Description = "Temperature & Pressure Sensor";
+            Error = nullptr;
+    
+            try
+            {
+                // Default configs
+                addConfigParameter("Precision", {"2", "decimals", DataType::INT});
+                // Default values
+                addValueParameter("Temperature", {"0", "°C", DataType::FLOAT});
+                addValueParameter("Pressure", {"0", "hPa", DataType::FLOAT});
+            }
+            catch(const std::exception& e)
+            {
+                throw;
+            }
+        }
+    
+        /**
+         * @brief Draw sensor.
+         * 
+         * This function draws the sensor.
+         */
+        virtual void draw() override {
+            if (!redrawPenging)
+            {
+                return;
+            }
+            // Draw sensor
+            lv_label_set_text(ui_pres,"0 hPa");
+            lv_label_set_text(ui_temp,"Temp: 0 °C");
+            // Call draw function here
+            //TODO: Implement draw function
+
+            
+            redrawPenging = false; // Reset flag to redraw sensor.
+        }
+
+         /**
+     * @brief Construct UI elements.
+     * 
+     * This function constructs the sensor-specific GUI.
+     */
+    virtual void construct() override {
+        // Construct sensor UI
+        
+        
+    ui_Panel3= lv_obj_create(lv_scr_act());
+    lv_obj_set_width(ui_Panel3, 140);
+    lv_obj_set_height(ui_Panel3, 190);
+    lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
+    lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+    lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE); 
+
+    ui_Label1 = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+
+    ui_pres = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_pres, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_pres, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_pres, LV_ALIGN_CENTER);
+
+    ui_temp = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_temp, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_temp, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_temp, LV_ALIGN_CENTER);
+
+
+    lv_label_set_text(ui_Label1,"BMP280 (TP)");
+    lv_label_set_text(ui_pres,"0 hPa");
+    lv_label_set_text(ui_temp,"Temp: 0 °C");
+        // Call construct LVGL functions here
+    }
+};
+
+/**************************************************************************/
+/**
+ * @class GAT
+ * @brief Gyroscope/Accelerometr/Temperature sensor class derived from BaseSensor.
+ * 
+ * Represents a Gyroscope/Accelerometr/Temperature sensor. Implements initialization, configuration, updating, and printing
+ * specific to Gyroscope/Accelerometr/Temperature sensors.
+ */
+
+ class GAT : public BaseSensor {
+    public:
+        /**
+         * @brief Constructs a new GAT object.
+         * 
+         * Initializes default values and sets the sensor type and description.
+         * 
+         * @param uid The unique sensor identifier.
+         */
+        GAT(std::string uid) : BaseSensor(uid)
+        {
+            init();
+        }
+    
+        /**
+         * @brief Virtual destructor.
+         */
+        virtual ~GAT() {}
+
+        lv_obj_t* ui_Label1;
+        lv_obj_t* ui_Label2;
+        lv_obj_t* ui_acm_x;
+        lv_obj_t* ui_acm_y;
+        lv_obj_t* ui_acm_z;
+        lv_obj_t* ui_Label6;
+        lv_obj_t* ui_gyr_x;
+        lv_obj_t* ui_gyr_y;
+        lv_obj_t* ui_gyr_z;
+        lv_obj_t* ui_temp;
+        lv_obj_t * ui_Panel3;
+
+    
+        /**
+         * @brief Initializes the sensor.
+         * 
+         * Additional initialization code can be added here.
+         * 
+         * @throws Exception if initialization fails.
+         */
+        virtual void init() override {
+            // Additional initialization for sensor can be added here.
+            Type = "GAT";
+            Description = "Gyroscope/Accelerometr/Temperature sensor";
+            Error = nullptr;
+    
+            try
+            {
+                // Default configs
+                addConfigParameter("Precision", {"2", "decimals", DataType::INT});
+                // Default values
+                addValueParameter("Temperature", {"0", "°C", DataType::FLOAT});
+                addValueParameter("G", {"0", "g", DataType::FLOAT});
+                addValueParameter("degrees per second", {"0", "°/s", DataType::FLOAT});
+
+            }
+            catch(const std::exception& e)
+            {
+                throw;
+            }
+        }
+    
+        /**
+         * @brief Draw sensor.
+         * 
+         * This function draws the sensor.
+         */
+        virtual void draw() override {
+            if (!redrawPenging)
+            {
+                return;
+            }
+            // Draw sensor
+
+    lv_label_set_text(ui_acm_x,"x: 0 G");
+    lv_label_set_text(ui_acm_y,"y: 0 G");
+    lv_label_set_text(ui_acm_z,"z: 0 G");
+    lv_label_set_text(ui_gyr_x,"x: 0 °/s");
+    lv_label_set_text(ui_gyr_y,"y: 0 °/s");
+    lv_label_set_text(ui_gyr_z,"z: 0 °/s");
+    lv_label_set_text(ui_temp,"Temp: 0 °C");
+
+            // Call draw function here
+            //TODO: Implement draw function
+
+            
+            redrawPenging = false; // Reset flag to redraw sensor.
+        }
+
+         /**
+     * @brief Construct UI elements.
+     * 
+     * This function constructs the sensor-specific GUI.
+     */
+    virtual void construct() override {
+        // Construct sensor UI
+        
+        
+    ui_Panel3= lv_obj_create(lv_scr_act());
+    lv_obj_set_width(ui_Panel3, 140);
+    lv_obj_set_height(ui_Panel3, 190);
+    lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+    lv_obj_set_scroll_dir(ui_Panel3, LV_DIR_VER);
+    lv_obj_add_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+    
+
+    ui_Label1 = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+
+    ui_Label2 = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_Label2, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_Label2, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
+
+    ui_acm_x = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_acm_x, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_acm_x, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_acm_x, LV_ALIGN_CENTER);
+
+    ui_acm_y = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_acm_y, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_acm_y, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_acm_y, LV_ALIGN_CENTER);
+
+    ui_acm_z = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_acm_z, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_acm_z, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_acm_z, LV_ALIGN_CENTER);
+
+    ui_Label6 = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_Label6, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_Label6, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_Label6, LV_ALIGN_CENTER);
+
+    ui_gyr_x = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_gyr_x, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_gyr_x, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_gyr_x, LV_ALIGN_CENTER);
+
+    ui_gyr_y = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_gyr_y, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_gyr_y, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_gyr_y, LV_ALIGN_CENTER);
+
+    ui_gyr_z = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_gyr_z, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_gyr_z, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_gyr_z, LV_ALIGN_CENTER);
+
+    ui_temp = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_temp, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_temp, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_temp, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_Label1,"GY-521 (GAT)");
+    lv_label_set_text(ui_Label2,"Accelerometr");
+    lv_label_set_text(ui_acm_x,"x: 0 G");
+    lv_label_set_text(ui_acm_y,"y: 0 G");
+    lv_label_set_text(ui_acm_z,"z: 0 G");
+    lv_label_set_text(ui_Label6,"Gyroscope");
+    lv_label_set_text(ui_gyr_x,"x: 0 °/s");
+    lv_label_set_text(ui_gyr_y,"y: 0 °/s");
+    lv_label_set_text(ui_gyr_z,"z: 0 °/s");
+    lv_label_set_text(ui_temp,"Temp: 0 °C");
+
+
+
+    
+        // Call construct LVGL functions here
+    }
+};
+
+
+/**************************************************************************/
+/**
+ * @class TOF
+ * @brief Time of flight sensor class derived from BaseSensor.
+ * 
+ * Represents a Time of flight sensor. Implements initialization, configuration, updating, and printing
+ * specific to Time of flight sensors.
+ */
+
+ class TOF : public BaseSensor {
+    public:
+        /**
+         * @brief Constructs a new GAT object.
+         * 
+         * Initializes default values and sets the sensor type and description.
+         * 
+         * @param uid The unique sensor identifier.
+         */
+        TOF(std::string uid) : BaseSensor(uid)
+        {
+            init();
+        }
+    
+        /**
+         * @brief Virtual destructor.
+         */
+        virtual ~TOF() {}
+        lv_obj_t* ui_Label1;
+        lv_obj_t* ui_distance;
+        lv_obj_t * ui_Panel3;
+    
+        /**
+         * @brief Initializes the sensor.
+         * 
+         * Additional initialization code can be added here.
+         * 
+         * @throws Exception if initialization fails.
+         */
+        virtual void init() override {
+            // Additional initialization for sensor can be added here.
+            Type = "TOF";
+            Description = "Time of flight sensor";
+            Error = nullptr;
+    
+            try
+            {
+                // Default configs
+                addConfigParameter("Precision", {"2", "decimals", DataType::INT});
+                // Default values
+                addValueParameter("Distance", {"0", "meters", DataType::FLOAT});
+                
+    
+
+
+            }
+            catch(const std::exception& e)
+            {
+                throw;
+            }
+        }
+    
+        /**
+         * @brief Draw sensor.
+         * 
+         * This function draws the sensor.
+         */
+        virtual void draw() override {
+            if (!redrawPenging)
+            {
+                return;
+            }
+            // Draw sensor
+            lv_label_set_text(ui_distance,"110 mm");
+            // Call draw function here
+            //TODO: Implement draw function
+
+            
+            redrawPenging = false; // Reset flag to redraw sensor.
+        }
+
+        /**
+     * @brief Construct UI elements.
+     * 
+     * This function constructs the sensor-specific GUI.
+     */
+    virtual void construct() override {
+        // Construct sensor UI
+        
+        
+    ui_Panel3= lv_obj_create(lv_scr_act());
+    lv_obj_set_width(ui_Panel3, 140);
+    lv_obj_set_height(ui_Panel3, 190);
+    lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
+    lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+    lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE); 
+
+    ui_Label1 = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+
+    ui_distance = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_distance, LV_SIZE_CONTENT);   
+    lv_obj_set_height(ui_distance, LV_SIZE_CONTENT);    
+    lv_obj_set_align(ui_distance, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_Label1,"VL53L0X (TOF)");
+    lv_label_set_text(ui_distance,"0 mm");
+        // Call construct LVGL functions here
+    }
+};
 #endif //SENSORS_HPP
