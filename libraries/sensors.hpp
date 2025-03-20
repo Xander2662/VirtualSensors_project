@@ -68,9 +68,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"12", "bits", DataType::INT});
+            addConfigParameter("resolution", {"12", "bits", DataType::INT, 0});
             // Default values
-            addValueParameter("value", {"0", "", DataType::INT});
+            addValueParameter("value", {"0", "", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -166,9 +166,9 @@ public:
             // Default configs
                 // If there are no configs, you can skip this step
             // Default values
-            addValueParameter("XCoordination", {"50", "%", DataType::INT});
-            addValueParameter("YCoordination", {"50", "%", DataType::INT});
-            addValueParameter("Button", {"0", "ON/OFF", DataType::INT});
+            addValueParameter("XCoordination", {"50", "%", DataType::INT, 0});
+            addValueParameter("YCoordination", {"50", "%", DataType::INT, 0});
+            addValueParameter("Button", {"0", "ON/OFF", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -296,10 +296,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"3", "digits", DataType::INT});
+            addConfigParameter("resolution", {"3", "digits", DataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::INT});
-            addValueParameter("Humidity", {"0", "%", DataType::INT});
+            addValueParameter("Temperature", {"0", "°C", DataType::INT, 0});
+            addValueParameter("Humidity", {"0", "%", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -415,10 +415,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("milliTesla Meter", {"0", "mT", DataType::FLOAT});
-            addValueParameter("Magnet Detector", {"0", "", DataType::INT});
+            addValueParameter("milliTesla Meter", {"0", "mT", DataType::FLOAT, 0});
+            addValueParameter("Magnet Detector", {"0", "", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -532,9 +532,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"5", "digits", DataType::INT});
+            addConfigParameter("resolution", {"5", "digits", DataType::INT, 0});
             // Default values
-            addValueParameter("Lux Meter", {"0", "Lux", DataType::INT});
+            addValueParameter("Lux Meter", {"0", "Lux", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -642,9 +642,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("milliTesla Meter", {"0", "milliTesla", DataType::FLOAT});
+            addValueParameter("milliTesla Meter", {"0", "milliTesla", DataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -753,10 +753,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT});
-            addValueParameter("Threshold", {"0", "", DataType::INT});
+            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
+            addValueParameter("Threshold", {"0", "", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -870,9 +870,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT});
+            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -978,10 +978,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("temperature", {"0", "Celsia", DataType::FLOAT});
-            addValueParameter("humidity", {"0", "%", DataType::INT});
+            addValueParameter("temperature", {"0", "Celsia", DataType::FLOAT, 0});
+            addValueParameter("humidity", {"0", "%", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -1071,9 +1071,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"1", "bits", DataType::INT});
+            addConfigParameter("resolution", {"1", "bits", DataType::INT, 0});
             // Default values
-            addValueParameter("Magnet Detector", {"0", "", DataType::INT});
+            addValueParameter("Magnet Detector", {"0", "", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -1181,9 +1181,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"1", "bits", DataType::INT});
+            addConfigParameter("resolution", {"1", "bits", DataType::INT, 0});
             // Default values
-            addValueParameter("Motion Detector", {"0", "", DataType::INT});
+            addValueParameter("Motion Detector", {"0", "", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -1296,10 +1296,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT});
-            addValueParameter("Pressure", {"0", "hPa", DataType::FLOAT});
+            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
+            addValueParameter("Pressure", {"0", "hPa", DataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -1423,11 +1423,11 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT});
-            addValueParameter("G", {"0", "g", DataType::FLOAT});
-            addValueParameter("degrees per second", {"0", "°/s", DataType::FLOAT});
+            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
+            addValueParameter("G", {"0", "g", DataType::FLOAT, 0});
+            addValueParameter("degrees per second", {"0", "°/s", DataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -1594,9 +1594,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Precision", {"2", "decimals", DataType::INT});
+            addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("Distance", {"0", "meters", DataType::FLOAT});
+            addValueParameter("Distance", {"0", "meters", DataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {

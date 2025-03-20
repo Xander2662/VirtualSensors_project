@@ -87,8 +87,8 @@ struct SensorParam
     std::string Value;  ///< Parameter value.
     std::string Unit;   ///< Parameter unit.
     DataType DataType; ///< Parameter data type.
-    std::string History[HISTORY_CAP]; ///< Parameter history.
     int lastHistoryIndex; ///< Last history index.
+    std::string History[HISTORY_CAP]; ///< Parameter history.
 };
 
 /**
