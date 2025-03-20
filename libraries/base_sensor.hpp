@@ -27,6 +27,8 @@
 #include <unordered_map>
 #include <map>
 
+#define HISTORY_CAP 50 ///< History capacity.
+
 /**
  * @enum SensorStatus
  * @brief Enumeration representing possible sensor statuses.
@@ -85,6 +87,8 @@ struct SensorParam
     std::string Value;  ///< Parameter value.
     std::string Unit;   ///< Parameter unit.
     DataType DataType; ///< Parameter data type.
+    std::string History[HISTORY_CAP]; ///< Parameter history.
+    int lastHistoryIndex; ///< Last history index.
 };
 
 /**
@@ -483,6 +487,10 @@ public:
             value = getValueFromKeyValueLikeString(upd, c.first, '&');
             if(!value.empty()) {
                 c.second.Value = value;
+                c.second.History[c.second.lastHistoryIndex++] = value;
+                if( c.second.lastHistoryIndex >= HISTORY_CAP ) {
+                    c.second.lastHistoryIndex = 0;
+                }
             }
         }
     }

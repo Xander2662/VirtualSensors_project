@@ -122,6 +122,14 @@ public:
  */
 class Joystick : public BaseSensor
 {
+protected:
+    //Container
+    lv_obj_t *ui_Widget;
+    lv_obj_t *ui_Label;
+    //Parametrs
+    lv_obj_t *ui_Value_X;
+    lv_obj_t *ui_Value_Y;
+    lv_obj_t *ui_Value_SW;
 public:
     /**
      * @brief Constructs a new Joystick object.
@@ -139,11 +147,6 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~Joystick() {}
-    lv_obj_t *ui_Label1;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Value1;
-    lv_obj_t *ui_Value2;
-    lv_obj_t *ui_Panel3;
     /**
      * @brief Initializes the sensor.
      *
@@ -161,7 +164,7 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"8", "bits", DataType::INT});
+                // If there are no configs, you can skip this step
             // Default values
             addValueParameter("XCoordination", {"50", "%", DataType::INT});
             addValueParameter("YCoordination", {"50", "%", DataType::INT});
@@ -188,7 +191,13 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string x = "X: " + getValue("XCoordination");
+        std::string y = "Y: " + getValue("YCoordination");
+        std::string sw = "SW: " + getValue("Button");
+        lv_label_set_text(ui_Value, x.c_str());
+        lv_label_set_text(ui_Value1, y.c_str());
+        lv_label_set_text(ui_Value_SW, sw.c_str());
+        
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -201,39 +210,39 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_X = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_X, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_X, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_X, LV_ALIGN_CENTER);
 
-        ui_Value1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Value1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value1, LV_ALIGN_CENTER);
+        ui_Value_Y = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_Y, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_Y, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_Y, LV_ALIGN_CENTER);
 
-        ui_Value2 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Value2, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value2, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value2, LV_ALIGN_CENTER);
+        ui_Value_SW = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_SW, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_SW, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_SW, LV_ALIGN_CENTER);
     
 
-        lv_label_set_text(ui_Label1, Type.c_str());
-        lv_label_set_text(ui_Value, "X: 0");
-        lv_label_set_text(ui_Value1, "Y: 0");
-        lv_label_set_text(ui_Value2, "SW: 0");
+        lv_label_set_text(ui_Label, Type.c_str());
+        lv_label_set_text(ui_Value_X, "X: 0");
+        lv_label_set_text(ui_Value_Y, "Y: 0");
+        lv_label_set_text(ui_Value_SW, "SW: 0");
         // Call construct LVGL functions here
     }
 };
@@ -266,10 +275,10 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~DHT11() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
     lv_obj_t *ui_Value1;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -326,30 +335,30 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        ui_Value1 = lv_label_create(ui_Panel3);
+        ui_Value1 = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value1, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value1, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value1, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "Temperature: 0 °C");
         lv_label_set_text(ui_Value1, "Humidity: 0 %");
 
@@ -385,10 +394,10 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~LinearHallAndDigital() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
     lv_obj_t *ui_Value1;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -445,30 +454,30 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        ui_Value1 = lv_label_create(ui_Panel3);
+        ui_Value1 = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value1, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value1, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value1, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "0 mT");
         lv_label_set_text(ui_Value1, "Threshold: 0");
         // Call construct LVGL functions here
@@ -503,9 +512,9 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~PhotoResistor() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -561,25 +570,25 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "0 lux");
         // Call construct LVGL functions here
     }
@@ -613,9 +622,9 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~LinearHall() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -671,25 +680,25 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "0 mT");
         // Call construct LVGL functions here
     }
@@ -723,10 +732,10 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~DigitalTemperature() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
     lv_obj_t *ui_Value1;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -783,30 +792,30 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        ui_Value1 = lv_label_create(ui_Panel3);
+        ui_Value1 = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value1, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value1, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value1, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "0 °C");
         lv_label_set_text(ui_Value1, "Threshold: 0");
         // Call construct LVGL functions here
@@ -841,9 +850,9 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~AnalogTemperature() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -899,25 +908,25 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "0 °C");
         // Call construct LVGL functions here
     }
@@ -1041,9 +1050,9 @@ public:
      */
     virtual ~DigitalHall() {}
 
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
 
     /**
      * @brief Initializes the sensor.
@@ -1100,25 +1109,25 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "OFF");
         // Call construct LVGL functions here
     }
@@ -1152,9 +1161,9 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~PhotoInterrupter() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Value;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -1210,25 +1219,25 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Panel3);
+        ui_Value = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Value, "OFF");
         // Call construct LVGL functions here
     }
@@ -1265,10 +1274,10 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~TP() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_temp;
     lv_obj_t *ui_pres;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
 
     /**
      * @brief Initializes the sensor.
@@ -1326,30 +1335,30 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_pres = lv_label_create(ui_Panel3);
+        ui_pres = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_pres, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_pres, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_pres, LV_ALIGN_CENTER);
 
-        ui_temp = lv_label_create(ui_Panel3);
+        ui_temp = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_temp, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_temp, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_temp, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_pres, "0 hPa");
         lv_label_set_text(ui_temp, "Temp: 0 °C");
         // Call construct LVGL functions here
@@ -1385,7 +1394,7 @@ public:
      */
     virtual ~GAT() {}
 
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_Label2;
     lv_obj_t *ui_acm_x;
     lv_obj_t *ui_acm_y;
@@ -1395,7 +1404,7 @@ public:
     lv_obj_t *ui_gyr_y;
     lv_obj_t *ui_gyr_z;
     lv_obj_t *ui_temp;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
 
     /**
      * @brief Initializes the sensor.
@@ -1462,66 +1471,66 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_set_scroll_dir(ui_Panel3, LV_DIR_VER);
-        lv_obj_add_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_set_scroll_dir(ui_Widget, LV_DIR_VER);
+        lv_obj_add_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Label2 = lv_label_create(ui_Panel3);
+        ui_Label2 = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Label2, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Label2, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
 
-        ui_acm_x = lv_label_create(ui_Panel3);
+        ui_acm_x = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_acm_x, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_acm_x, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_acm_x, LV_ALIGN_CENTER);
 
-        ui_acm_y = lv_label_create(ui_Panel3);
+        ui_acm_y = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_acm_y, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_acm_y, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_acm_y, LV_ALIGN_CENTER);
 
-        ui_acm_z = lv_label_create(ui_Panel3);
+        ui_acm_z = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_acm_z, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_acm_z, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_acm_z, LV_ALIGN_CENTER);
 
-        ui_Label6 = lv_label_create(ui_Panel3);
+        ui_Label6 = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_Label6, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Label6, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label6, LV_ALIGN_CENTER);
 
-        ui_gyr_x = lv_label_create(ui_Panel3);
+        ui_gyr_x = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_gyr_x, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_gyr_x, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_gyr_x, LV_ALIGN_CENTER);
 
-        ui_gyr_y = lv_label_create(ui_Panel3);
+        ui_gyr_y = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_gyr_y, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_gyr_y, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_gyr_y, LV_ALIGN_CENTER);
 
-        ui_gyr_z = lv_label_create(ui_Panel3);
+        ui_gyr_z = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_gyr_z, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_gyr_z, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_gyr_z, LV_ALIGN_CENTER);
 
-        ui_temp = lv_label_create(ui_Panel3);
+        ui_temp = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_temp, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_temp, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_temp, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_Label2, "Accelerometr");
         lv_label_set_text(ui_acm_x, "x: 0 G");
         lv_label_set_text(ui_acm_y, "y: 0 G");
@@ -1564,9 +1573,9 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~TOF() {}
-    lv_obj_t *ui_Label1;
+    lv_obj_t *ui_Label;
     lv_obj_t *ui_distance;
-    lv_obj_t *ui_Panel3;
+    lv_obj_t *ui_Widget;
 
     /**
      * @brief Initializes the sensor.
@@ -1623,25 +1632,25 @@ public:
     {
         // Construct sensor UI
 
-        ui_Panel3 = lv_obj_create(lv_scr_act());
-        lv_obj_set_width(ui_Panel3, 180);
-        lv_obj_set_height(ui_Panel3, 210);
-        lv_obj_set_align(ui_Panel3, LV_ALIGN_CENTER);
-        lv_obj_set_flex_flow(ui_Panel3, LV_FLEX_FLOW_COLUMN_WRAP);
-        lv_obj_set_flex_align(ui_Panel3, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-        lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);
+        ui_Widget = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_Widget, 180);
+        lv_obj_set_height(ui_Widget, 210);
+        lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
+        lv_obj_set_flex_flow(ui_Widget, LV_FLEX_FLOW_COLUMN_WRAP);
+        lv_obj_set_flex_align(ui_Widget, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+        lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_SCROLLABLE);
 
-        ui_Label1 = lv_label_create(ui_Panel3);
-        lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+        ui_Label = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_distance = lv_label_create(ui_Panel3);
+        ui_distance = lv_label_create(ui_Widget);
         lv_obj_set_width(ui_distance, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_distance, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_distance, LV_ALIGN_CENTER);
 
-        lv_label_set_text(ui_Label1, Type.c_str());
+        lv_label_set_text(ui_Label, Type.c_str());
         lv_label_set_text(ui_distance, "0 mm");
         // Call construct LVGL functions here
     }
