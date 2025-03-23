@@ -1319,7 +1319,10 @@ public:
             return;
         }
         // Draw sensor
-
+        std::string temp = "temp: " + getValue<std::string>("Temperature")+" °C";
+        std::string pres = "pres: " + getValue<std::string>("Pressure")+" hPa";
+        lv_label_set_text(ui_pres, pres.c_str());
+        lv_label_set_text(ui_temp, temp.c_str());
         // Call draw function here
         // TODO: Implement draw function
 
@@ -1426,8 +1429,12 @@ public:
             addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
             // Default values
             addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
-            addValueParameter("G", {"0", "g", DataType::FLOAT, 0});
-            addValueParameter("degrees per second", {"0", "°/s", DataType::FLOAT, 0});
+            addValueParameter("acm_x",{"0", "g", DataType::FLOAT, 0});
+            addValueParameter("acm_y",{"0", "g", DataType::FLOAT, 0});
+            addValueParameter("acm_z",{"0", "g", DataType::FLOAT, 0});
+            addValueParameter("gyr_x",{"0", "°/s", DataType::FLOAT, 0});
+            addValueParameter("gyr_y",{"0", "°/s", DataType::FLOAT, 0});
+            addValueParameter("gyr_z",{"0", "°/s", DataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -1447,14 +1454,21 @@ public:
             return;
         }
         // Draw sensor
-
-        lv_label_set_text(ui_acm_x, "x: 0 G");
-        lv_label_set_text(ui_acm_y, "y: 0 G");
-        lv_label_set_text(ui_acm_z, "z: 0 G");
-        lv_label_set_text(ui_gyr_x, "x: 0 °/s");
-        lv_label_set_text(ui_gyr_y, "y: 0 °/s");
-        lv_label_set_text(ui_gyr_z, "z: 0 °/s");
-        lv_label_set_text(ui_temp, "Temp: 0 °C");
+        std::string acm_x = "acm_x: " + getValue<std::string>("acm_x")+" g";
+        std::string acm_y = "acm_y: " + getValue<std::string>("acm_y")+" g";
+        std::string acm_z = "acm_z: " + getValue<std::string>("acm_z")+" g";
+        std::string gyr_x = "gyr_x: " + getValue<std::string>("gyr_x")+" °/s";
+        std::string gyr_y = "gyr_y: " + getValue<std::string>("gyr_y")+" °/s";
+        std::string gyr_z = "gyr_z: " + getValue<std::string>("gyr_z")+" °/s";
+        std::string temp = "Temp: " + getValue<std::string>("Temperature")+" °C";
+        
+        lv_label_set_text(ui_acm_x, acm_x.c_str());
+        lv_label_set_text(ui_acm_y, acm_y.c_str());
+        lv_label_set_text(ui_acm_z, acm_z.c_str());
+        lv_label_set_text(ui_gyr_x, gyr_x.c_str());
+        lv_label_set_text(ui_gyr_y, gyr_y.c_str());
+        lv_label_set_text(ui_gyr_z, gyr_z.c_str());
+        lv_label_set_text(ui_temp,  temp.c_str());
 
         // Call draw function here
         // TODO: Implement draw function
@@ -1596,7 +1610,7 @@ public:
             // Default configs
             addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
             // Default values
-            addValueParameter("Distance", {"0", "meters", DataType::FLOAT, 0});
+            addValueParameter("Distance", {"0", "milimeters", DataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -1616,7 +1630,8 @@ public:
             return;
         }
         // Draw sensor
-        lv_label_set_text(ui_distance, "110 meters");
+        std::string dist = "dist: " + getValue<std::string>("Distance")+"mm";
+        lv_label_set_text(ui_distance, dist.c_str());
         // Call draw function here
         // TODO: Implement draw function
 
@@ -1651,7 +1666,7 @@ public:
         lv_obj_set_align(ui_distance, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_distance, "0 mm");
+        lv_label_set_text(ui_distance, "dist: 0 mm");
         // Call construct LVGL functions here
     }
 };
