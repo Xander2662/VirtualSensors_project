@@ -830,7 +830,7 @@ public:
         lv_obj_set_align(ui_Value_TA, LV_ALIGN_CENTER);
 
         ui_Value_TD = lv_label_create(ui_Widget);
-        lv_obj_s_TAt_width(ui_Value_TD, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_width(ui_Value_TD, LV_SIZE_CONTENT);  /// 1
         lv_obj_set_height(ui_Value_TD, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Value_TD, LV_ALIGN_CENTER);
 
@@ -1419,7 +1419,7 @@ public:
         ui_Chart_series_1 = lv_chart_add_series(ui_Chart, lv_color_hex(0xFF7F00), LV_CHART_AXIS_PRIMARY_Y);
         lv_coord_t ui_Chart_series_temp[HISTORY_CAP];
         lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_1, ui_Chart_series_temp);
-        
+
         ui_Chart_series_2 = lv_chart_add_series(ui_Chart, lv_color_hex(0x7205FF),
                                                                     LV_CHART_AXIS_SECONDARY_Y);
         lv_coord_t ui_Chart_series_press[HISTORY_CAP];
