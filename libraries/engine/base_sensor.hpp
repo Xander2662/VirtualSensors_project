@@ -86,7 +86,7 @@ struct SensorParam
 {
     std::string Value;  ///< Parameter value.
     std::string Unit;   ///< Parameter unit.
-    DataType DataType; ///< Parameter data type.
+    DataType DType; ///< Parameter data type.
     int lastHistoryIndex; ///< Last history index.
     std::string History[HISTORY_CAP]; ///< Parameter history.
 };
@@ -491,6 +491,8 @@ public:
                 if( c.second.lastHistoryIndex >= HISTORY_CAP ) {
                     c.second.lastHistoryIndex = 0;
                 }
+
+                redrawPenging = true; // Set flag to redraw sensor - values updated.
             }
         }
     }

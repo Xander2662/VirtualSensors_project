@@ -188,20 +188,30 @@ void setup ()
     ui_init();
     //lcd.fillScreen(TFT_BLACK);
     Manager.init(false);
-  Manager.print();
+    Manager.print();
 
-  Manager.reconstruct();
+    Manager.reconstruct();
 
     Serial.println( "Setup done" );
 }
 
+const int FPS = 30;
+const int CYCLE_DRAW_MS = (1000/FPS);
+const int CYCLE_SYNC_MS = 100;
+
+const int LOOP_SYNC_TH = CYCLE_SYNC_MS/CYCLE_DRAW_MS;
+int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 
 void loop ()
 {
-  Manager.resync();
-  delay(50);
-  Manager.redraw();
-  lv_timer_handler(); /* let the GUI do its work */
-    //delay(5);
+    if( LOOP_SYNC_COUNTER-- < 0)
+    {
+      Manager.resync();
+      LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
+      delay(100);
+    }
+    Manager.redraw();
+    lv_timer_handler(); /* let the GUI do its work */
+    delay(CYCLE_DRAW_MS);
 }
 

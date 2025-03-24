@@ -26,12 +26,6 @@ void createSensorList(std::vector<BaseSensor*> &memory)
     memory.push_back(new AnalogTemperature("13"));
     memory.push_back(new DigitalHall("14"));
     memory.push_back(new PhotoInterrupter("15"));
-
-
-
-
-
-
 }
 
 void createSensorList(std::vector<BaseSensor*> &memory, std::string stringSource)

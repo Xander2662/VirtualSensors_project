@@ -13,15 +13,18 @@
 #define CONFIG_H
 
 /// Uncomment to enable logging for Arduino-based environments
-// #define ARDUINO_H 
+#define ARDUINO_H 
 #define UART1_PORT 0
 #define UART1_BAUDRATE 9600
 #define UART1_RX -1
 #define UART1_TX -1
 #define UART_TIMEOUT 100
 
+///Set whatever the sync is case sensitive
+#define CASE_SENSITIVE_SYNC true
+
 
 /// Uncomment to enable logging for standard console applications (PC/Linux)
-#define STDIO_H 
+//#define STDIO_H 
 
 #endif // CONFIG_H 

@@ -215,7 +215,7 @@ public:
        for(std::string resp : responses)
        {
            //logMessage("Response: %s\n", resp.c_str());
-           SensorMetadata metadata = ParseMetadata(resp);
+           SensorMetadata metadata = ParseMetadata(resp, CASE_SENSITIVE_SYNC);
            //logMessage("Metadata: %s\n", metadata.Data.c_str());
            if(CheckMetadata(&metadata))
            {
