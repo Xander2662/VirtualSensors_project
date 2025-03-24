@@ -258,6 +258,13 @@ public:
  */
 class DHT11 : public BaseSensor
 {
+protected:
+    //Container
+    lv_obj_t *ui_Widget;
+    lv_obj_t *ui_Label;
+    //Parametrs
+    lv_obj_t *ui_Value_T;
+    lv_obj_t *ui_Value_H;
 public:
     /**
      * @brief Constructs a new DHT11 object.
@@ -275,10 +282,6 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~DHT11() {}
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Value1;
-    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -322,7 +325,10 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string t = "Temperature: " + getValue<std::string>("Temperature") + " °C";
+        std::string h = "Humidity: " + getValue<std::string>("Humidity") + " %";
+        lv_label_set_text(ui_Value_T, t.c_str());
+        lv_label_set_text(ui_Value_H, h.c_str());
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -348,19 +354,19 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_T = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_T, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_T, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_T, LV_ALIGN_CENTER);
 
-        ui_Value1 = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value1, LV_ALIGN_CENTER);
+        ui_Value_H = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_H, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_H, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_H, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "Temperature: 0 °C");
-        lv_label_set_text(ui_Value1, "Humidity: 0 %");
+        lv_label_set_text(ui_Value_T, "Temperature: 0 °C");
+        lv_label_set_text(ui_Value_H, "Humidity: 0 %");
 
         // Call construct LVGL functions here
     }
@@ -377,6 +383,13 @@ public:
  */
 class LinearHallAndDigital : public BaseSensor
 {
+    protected:
+    //Container
+    lv_obj_t *ui_Widget;
+    lv_obj_t *ui_Label;
+    //Parameters
+    lv_obj_t *ui_Value_MT; // MilliTesla
+    lv_obj_t *ui_Value_MD; // Magnet Detector
 public:
     /**
      * @brief Constructs a new LinearHallAndDigital object.
@@ -394,10 +407,6 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~LinearHallAndDigital() {}
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Value1;
-    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -441,7 +450,11 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string t = "milliTesla Meter: " + getValue<std::string>("milliTesla Meter") + " mT";
+        std::string h = "Magnet Detector: " + getValue<std::string>("Magnet Detector");
+        lv_label_set_text(ui_Value_MT, t.c_str());
+        lv_label_set_text(ui_Value_MD, h.c_str());
+
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -467,19 +480,19 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_MT = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_MT, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_MT, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_MT, LV_ALIGN_CENTER);
 
-        ui_Value1 = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value1, LV_ALIGN_CENTER);
+        ui_Value_MD = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_MD, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_MD, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_MD, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "0 mT");
-        lv_label_set_text(ui_Value1, "Threshold: 0");
+        lv_label_set_text(ui_Value_MT, "milliTesla Meter: 0 mT");
+        lv_label_set_text(ui_Value_MD, "Magnet Detector: 0");
         // Call construct LVGL functions here
     }
 };
@@ -495,6 +508,10 @@ public:
  */
 class PhotoResistor : public BaseSensor
 {
+protected:
+lv_obj_t *ui_Widget;
+lv_obj_t *ui_Label;
+lv_obj_t *ui_Value_Lux;
 public:
     /**
      * @brief Constructs a new PhotoResistor object.
@@ -512,9 +529,6 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~PhotoResistor() {}
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -557,7 +571,9 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string t = "Lux Meter: " + getValue<std::string>("Lux Meter") + " Lux";
+        lv_label_set_text(ui_Value_Lux, t.c_str());
+
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -583,13 +599,13 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_Lux = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_Lux, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_Lux, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_Lux, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "0 lux");
+        lv_label_set_text(ui_Value_Lux, "Lux Meter: 0 Lux");
         // Call construct LVGL functions here
     }
 };
@@ -605,6 +621,10 @@ public:
  */
 class LinearHall : public BaseSensor
 {
+protected:
+lv_obj_t *ui_Label;
+lv_obj_t *ui_Value_MT;
+lv_obj_t *ui_Widget;
 public:
     /**
      * @brief Constructs a new LinearHall object.
@@ -622,9 +642,7 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~LinearHall() {}
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Widget;
+
     /**
      * @brief Initializes the sensor.
      *
@@ -667,7 +685,8 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string t = "milliTesla Meter: " + getValue<std::string>("milliTesla Meter") + " mT";
+        lv_label_set_text(ui_Value_MT, t.c_str());
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -693,13 +712,13 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_MT = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_MT, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_MT, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_MT, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "0 mT");
+        lv_label_set_text(ui_Value_MT, "milliTesla Meter: 0 mT");
         // Call construct LVGL functions here
     }
 };
@@ -715,6 +734,11 @@ public:
  */
 class DigitalTemperature : public BaseSensor
 {
+protected:
+lv_obj_t *ui_Widget;
+lv_obj_t *ui_Label;
+lv_obj_t *ui_Value_TD; //Temperature Digital
+lv_obj_t *ui_Value_TA; //Temperature Analog
 public:
     /**
      * @brief Constructs a new DigitalTemperature object.
@@ -732,10 +756,6 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~DigitalTemperature() {}
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Value1;
-    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -779,7 +799,10 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string ta = "Temperature: " + getValue<std::string>("Temperature") + " °C";
+        std::string td = "Threshold: " + getValue<std::string>("Threshold");
+        lv_label_set_text(ui_Value_TA, ta.c_str());
+        lv_label_set_text(ui_Value_TD, td.c_str());
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -805,19 +828,19 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_TA = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_TA, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_TA, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_TA, LV_ALIGN_CENTER);
 
-        ui_Value1 = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value1, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value1, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value1, LV_ALIGN_CENTER);
+        ui_Value_TD = lv_label_create(ui_Widget);
+        lv_obj_s_TAt_width(ui_Value_TD, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_TD, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_TD, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "0 °C");
-        lv_label_set_text(ui_Value1, "Threshold: 0");
+        lv_label_set_text(ui_Value_TA, "Temperature: 0 °C");
+        lv_label_set_text(ui_Value_TD, "Threshold: 0");
         // Call construct LVGL functions here
     }
 };
@@ -833,6 +856,10 @@ public:
  */
 class AnalogTemperature : public BaseSensor
 {
+protected:
+lv_obj_t *ui_Widget;
+lv_obj_t *ui_Label;
+lv_obj_t *ui_Value_T;
 public:
     /**
      * @brief Constructs a new AnalogTemperature object.
@@ -850,9 +877,6 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~AnalogTemperature() {}
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Widget;
     /**
      * @brief Initializes the sensor.
      *
@@ -895,7 +919,8 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string t = "Temperature: " + getValue<std::string>("Temperature") + " °C";
+        lv_label_set_text(ui_Value_T, t.c_str());
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -921,13 +946,13 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_T = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_T, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_T, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_T, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "0 °C");
+        lv_label_set_text(ui_Value_T, "Temperature: 0 °C");
         // Call construct LVGL functions here
     }
 };
@@ -1032,6 +1057,10 @@ public:
  */
 class DigitalHall : public BaseSensor
 {
+protected:
+lv_obj_t *ui_Widget;
+lv_obj_t *ui_Label;
+lv_obj_t *ui_Value_D; //Digital
 public:
     /**
      * @brief Constructs a new DigitalHall object.
@@ -1049,10 +1078,6 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~DigitalHall() {}
-
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Widget;
 
     /**
      * @brief Initializes the sensor.
@@ -1096,7 +1121,8 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string d = "Magnet Detector: " + getValue<std::string>("Magnet Detector");
+        lv_label_set_text(ui_Value_D, d.c_str());
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -1122,13 +1148,13 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_D = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_D, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_D, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_D, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "OFF");
+        lv_label_set_text(ui_Value_D, "Magnet Detector: 0");
         // Call construct LVGL functions here
     }
 };
@@ -1144,6 +1170,10 @@ public:
  */
 class PhotoInterrupter : public BaseSensor
 {
+    protected:
+    lv_obj_t *ui_Widget;
+    lv_obj_t *ui_Label;
+    lv_obj_t *ui_Value_D; //Digital
 public:
     /**
      * @brief Constructs a new PhotoInterrupter object.
@@ -1161,9 +1191,7 @@ public:
      * @brief Virtual destructor.
      */
     virtual ~PhotoInterrupter() {}
-    lv_obj_t *ui_Label;
-    lv_obj_t *ui_Value;
-    lv_obj_t *ui_Widget;
+
     /**
      * @brief Initializes the sensor.
      *
@@ -1180,8 +1208,6 @@ public:
 
         try
         {
-            // Default configs
-            addConfigParameter("resolution", {"1", "bits", DataType::INT, 0});
             // Default values
             addValueParameter("Motion Detector", {"0", "", DataType::INT, 0});
         }
@@ -1206,7 +1232,8 @@ public:
         // Draw sensor
 
         // Call draw function here
-        // TODO: Implement draw function
+        std::string d = "Motion Detector: " + getValue<std::string>("Motion Detector");
+        lv_label_set_text(ui_Value_D, d.c_str());
 
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -1232,13 +1259,13 @@ public:
         lv_obj_set_height(ui_Label, LV_SIZE_CONTENT); /// 1
         lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
 
-        ui_Value = lv_label_create(ui_Widget);
-        lv_obj_set_width(ui_Value, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_Value, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ui_Value, LV_ALIGN_CENTER);
+        ui_Value_D = lv_label_create(ui_Widget);
+        lv_obj_set_width(ui_Value_D, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_Value_D, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_align(ui_Value_D, LV_ALIGN_CENTER);
 
         lv_label_set_text(ui_Label, Type.c_str());
-        lv_label_set_text(ui_Value, "OFF");
+        lv_label_set_text(ui_Value_D, "Motion Detector: 0");
         // Call construct LVGL functions here
     }
     // put me here12
