@@ -10,10 +10,6 @@
  */
 #ifndef SENSORS_HPP
 #define SENSORS_HPP
-extern "C"
-{
-#include "lvgl.h"
-}
 /*********************
  *      INCLUDES
  *********************/
@@ -1277,6 +1273,11 @@ public:
     lv_obj_t *ui_Label;
     lv_obj_t *ui_temp;
     lv_obj_t *ui_pres;
+
+    lv_obj_t *ui_Chart;
+    lv_chart_series_t * ui_Chart_series_1;
+    lv_chart_series_t * ui_Chart_series_2;
+
     lv_obj_t *ui_Widget;
 
     /**
@@ -1324,8 +1325,17 @@ public:
         lv_label_set_text(ui_pres, pres.c_str());
         lv_label_set_text(ui_temp, temp.c_str());
         // Call draw function here
-        // TODO: Implement draw function
+        // TODO: Implement draw function¨
 
+        //Example of update chart
+        static lv_coord_t ui_Chart_series_temp[HISTORY_CAP];
+        getHistory<float>("Temperature", ui_Chart_series_temp);
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_2, ui_Chart_series_temp);
+
+        static lv_coord_t ui_Chart_series_press[HISTORY_CAP];
+        getHistory<float>("Pressure", ui_Chart_series_press);
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_1, ui_Chart_series_press);
+        
         redrawPenging = false; // Reset flag to redraw sensor.
     }
 
@@ -1365,6 +1375,28 @@ public:
         lv_label_set_text(ui_pres, "0 hPa");
         lv_label_set_text(ui_temp, "Temp: 0 °C");
         // Call construct LVGL functions here
+
+        //Example of add chart
+        ui_Chart = lv_chart_create(ui_Widget);
+        lv_obj_set_width(ui_Chart, 75);
+        lv_obj_set_height(ui_Chart, 50);
+        lv_obj_set_x(ui_Chart, 10);
+        lv_obj_set_y(ui_Chart, 100);
+        lv_obj_set_align(ui_Chart, LV_ALIGN_CENTER);
+        lv_chart_set_type(ui_Chart, LV_CHART_TYPE_LINE);
+        lv_chart_set_range(ui_Chart, LV_CHART_AXIS_SECONDARY_Y, 500, 1200);
+        lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 5, 2, true, 50);
+        lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 5, 2, true, 50);
+        lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_SECONDARY_Y, 10, 5, 5, 2, true, 25);
+
+        ui_Chart_series_1 = lv_chart_add_series(ui_Chart, lv_color_hex(0xFF7F00), LV_CHART_AXIS_PRIMARY_Y);
+        lv_coord_t ui_Chart_series_temp[HISTORY_CAP];
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_1, ui_Chart_series_temp);
+        
+        ui_Chart_series_2 = lv_chart_add_series(ui_Chart, lv_color_hex(0x7205FF),
+                                                                    LV_CHART_AXIS_SECONDARY_Y);
+        lv_coord_t ui_Chart_series_press[HISTORY_CAP];
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_2, ui_Chart_series_press);
     }
 };
 

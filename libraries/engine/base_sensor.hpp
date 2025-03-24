@@ -26,8 +26,12 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+extern "C"
+{
+#include "lvgl.h"
+}
 
-#define HISTORY_CAP 50 ///< History capacity.
+#define HISTORY_CAP 10 ///< History capacity.
 
 /**
  * @enum SensorStatus
@@ -303,6 +307,37 @@ public:
             throw InvalidDataTypeException("BaseSensor::getValue", e.what());
         } 
     }
+
+    /**
+     * @brief Get history from sensor.
+     * 
+     * This function retrieves the history of a sensor parameter by key.
+     * 
+     * @param key The key of the sensor parameter.
+     * @param history The history array to store the history.
+     */
+    template <typename T>
+    void getHistory(const std::string &key, lv_coord_t *history) {
+        if( history == nullptr ) {
+            return;
+        }
+        if (Values.find(key) == Values.end()) {
+            return;
+        }
+
+        for (int i = 0; i < HISTORY_CAP; i++)
+        {
+            try
+            {
+                history[i] = convertStringToType<T>(Values[key].History[i]); 
+            }
+            catch(const std::exception& e)
+            {
+                throw InvalidDataTypeException("BaseSensor::getValue", e.what());
+            }   
+        }
+    }
+
 
     /**
      * @brief Set sensor value.
