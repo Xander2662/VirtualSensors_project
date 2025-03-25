@@ -1347,8 +1347,8 @@ public:
             return;
         }
         // Draw sensor
-        std::string temp = "temp: " + getValue<std::string>("Temperature")+" °C";
-        std::string pres = "pres: " + getValue<std::string>("Pressure")+" hPa";
+        std::string temp = "T: " + getValue<std::string>("Temperature")+" "+getValueUnits("Temperature");
+        std::string pres = "P: " + getValue<std::string>("Pressure")+" "+getValueUnits("Pressure");
         lv_label_set_text(ui_pres, pres.c_str());
         lv_label_set_text(ui_temp, temp.c_str());
         // Call draw function here

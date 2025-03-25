@@ -195,7 +195,7 @@ void setup ()
     Serial.println( "Setup done" );
 }
 
-const int FPS = 30;
+const int FPS = 60;
 const int CYCLE_DRAW_MS = (1000/FPS);
 const int CYCLE_SYNC_MS = 100;
 
@@ -208,7 +208,7 @@ void loop ()
     {
       Manager.resync();
       LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
-      delay(100);
+      delay(10);
     }
     Manager.redraw();
     lv_timer_handler(); /* let the GUI do its work */
