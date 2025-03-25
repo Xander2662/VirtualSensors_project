@@ -1357,11 +1357,11 @@ public:
         //Example of update chart
         static lv_coord_t ui_Chart_series_temp[HISTORY_CAP];
         getHistory<float>("Temperature", ui_Chart_series_temp);
-        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_2, ui_Chart_series_temp);
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_1, ui_Chart_series_temp);
 
         static lv_coord_t ui_Chart_series_press[HISTORY_CAP];
         getHistory<float>("Pressure", ui_Chart_series_press);
-        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_1, ui_Chart_series_press);
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_2, ui_Chart_series_press);
         
         redrawPenging = false; // Reset flag to redraw sensor.
     }
@@ -1405,10 +1405,10 @@ public:
 
         //Example of add chart
         ui_Chart = lv_chart_create(ui_Widget);
-        lv_obj_set_width(ui_Chart, 75);
-        lv_obj_set_height(ui_Chart, 50);
-        lv_obj_set_x(ui_Chart, 10);
-        lv_obj_set_y(ui_Chart, 100);
+        lv_obj_set_width(ui_Chart, 85);
+        lv_obj_set_height(ui_Chart, 60);
+        lv_obj_set_x(ui_Chart, 40);
+        lv_obj_set_y(ui_Chart, 120);
         lv_obj_set_align(ui_Chart, LV_ALIGN_CENTER);
         lv_chart_set_type(ui_Chart, LV_CHART_TYPE_LINE);
         lv_chart_set_range(ui_Chart, LV_CHART_AXIS_SECONDARY_Y, 500, 1200);
