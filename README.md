@@ -11,6 +11,7 @@ This is a project about the **virtualization** of real **sensors**, in the form 
 
 - **Visual Studio Code** (.vscode) 
 - **Code Block** (.cbp, .depend, .layout)
+- **Arduino IDE** (.ino)
 
 # Arduino project for Elecrow DIS08070H ESP32 HMI with 7" Resistive Touch Display
 
