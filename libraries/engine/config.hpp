@@ -15,7 +15,7 @@
 /// Uncomment to enable logging for Arduino-based environments
 #define ARDUINO_H 
 #define UART1_PORT 0
-#define UART1_BAUDRATE 9600
+#define UART1_BAUDRATE 115200
 #define UART1_RX -1
 #define UART1_TX -1
 #define UART_TIMEOUT 100

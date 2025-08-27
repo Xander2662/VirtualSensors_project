@@ -29,6 +29,8 @@
 extern "C"
 {
 #include "lvgl.h"
+void vs_nextSensor();
+void vs_prevSensor();
 }
 
 #define HISTORY_CAP 10 ///< History capacity.
@@ -315,28 +317,59 @@ public:
      * 
      * @param key The key of the sensor parameter.
      * @param history The history array to store the history.
-     */
+     */ 
     template <typename T>
     void getHistory(const std::string &key, lv_coord_t *history) {
-        if( history == nullptr ) {
-            return;
+        if (!history) return;
+        auto it = Values.find(key);
+        if (it == Values.end()) return;
+    
+        // statické úložiště mezi voláními
+        static std::map<std::string, std::array<lv_coord_t, HISTORY_CAP>> bufMap;
+        static std::map<std::string, bool> initedMap;
+    
+        auto &buf    = bufMap[key];
+        bool &inited = initedMap[key];
+    
+        // 1) Místo čtení z History[], načti aktuální hodnotu jako string a převeď
+        lv_coord_t curr;
+        try {
+            // getValue vrací string, kterej jste dřív ukládali např. "100"
+            std::string s = getValue<std::string>(key);
+            curr = convertStringToType<T>(s);
         }
-        if (Values.find(key) == Values.end()) {
-            return;
+        catch (const std::exception &e) {
+            throw InvalidDataTypeException("BaseSensor::getValue", e.what());
         }
-
-        for (int i = 0; i < HISTORY_CAP; i++)
-        {
-            try
-            {
-                history[i] = convertStringToType<T>(Values[key].History[i]); 
+    
+        if (!inited) {
+            // první volání: celý buffer naplň aktuální hodnotou
+            for (int i = 0; i < HISTORY_CAP; ++i) {
+                buf[i] = curr;
             }
-            catch(const std::exception& e)
-            {
+            inited = true;
+        }
+        else {
+            // posuň doleva o jednu pozici …
+            for (int i = 0; i < HISTORY_CAP - 1; ++i) {
+                buf[i] = buf[i + 1];
+            }
+            // … a na konec vlož okamžitý curr
+            buf[HISTORY_CAP - 1] = curr;
+        }
+    
+        // 2) Zkopíruj celý buffer do výstupního pole
+        for (int i = 0; i < HISTORY_CAP; ++i) {
+            try {
+                history[i] = buf[i];
+            }
+            catch (const std::exception &e) {
                 throw InvalidDataTypeException("BaseSensor::getValue", e.what());
-            }   
+            }
         }
     }
+    
+    
 
 
     /**
@@ -579,6 +612,51 @@ public:
      * This function should be overridden by derived classes to construct sensor-specific GUI.
     */
     virtual void construct() = 0;
+
+    /** @brief Show this sensor’s UI widget (implemented by derived classes) */
+    virtual void show() = 0;
+
+    /** @brief Hide this sensor’s UI widget (implemented by derived classes) */
+    virtual void hide() = 0;    
+
+    void addNavButtonsToWidget(lv_obj_t* parentWidget) {
+        lv_obj_t* btnPrev = lv_btn_create(parentWidget);
+        lv_obj_set_width(btnPrev, 80);
+        lv_obj_set_height(btnPrev, 40);
+        lv_obj_set_x(btnPrev, 35);
+        lv_obj_set_y(btnPrev, -40);
+        lv_obj_set_align(btnPrev, LV_ALIGN_BOTTOM_LEFT);
+        lv_obj_add_flag(btnPrev, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+        lv_obj_clear_flag(btnPrev, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                          LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                          LV_OBJ_FLAG_SCROLL_CHAIN);lv_obj_add_event_cb(btnPrev, [](lv_event_t* e){
+            vs_prevSensor();
+        }, LV_EVENT_CLICKED, nullptr);
+        lv_obj_t* lblPrev = lv_label_create(btnPrev);
+        lv_label_set_text(lblPrev, "Prev");
+        lv_obj_set_width(lblPrev, LV_SIZE_CONTENT);   /// 1
+        lv_obj_set_height(lblPrev, LV_SIZE_CONTENT);    /// 1
+        lv_obj_set_align(lblPrev, LV_ALIGN_CENTER);
+
+        lv_obj_t* btnNext = lv_btn_create(parentWidget);
+        lv_obj_set_width(btnNext, 80);
+        lv_obj_set_height(btnNext, 40);
+        lv_obj_set_x(btnNext, 183);
+        lv_obj_set_y(btnNext, -40);
+        lv_obj_set_align(btnNext, LV_ALIGN_BOTTOM_LEFT);
+        lv_obj_add_flag(btnNext, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+        lv_obj_clear_flag(btnNext, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                          LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                          LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+        lv_obj_add_event_cb(btnNext, [](lv_event_t* e){
+            vs_nextSensor();
+        }, LV_EVENT_CLICKED, nullptr);
+        lv_obj_t* lblNext = lv_label_create(btnNext);
+        lv_label_set_text(lblNext, "Next");
+        lv_obj_set_width(lblNext, LV_SIZE_CONTENT);   /// 1
+        lv_obj_set_height(lblNext, LV_SIZE_CONTENT);    /// 1
+        lv_obj_set_align(lblNext, LV_ALIGN_CENTER);
+    }
 };
 
 /**************************************************************************/

@@ -14,18 +14,9 @@ void createSensorList(std::vector<BaseSensor*> &memory)
 {
     memory.clear();
     //Add sensors here
-    memory.push_back(new TOF("3"));
-    memory.push_back(new GAT("4"));
-    memory.push_back(new TP("5"));
-    memory.push_back(new Joystick("7"));
-    memory.push_back(new DHT11("8"));
-    memory.push_back(new LinearHallAndDigital("9"));
     memory.push_back(new PhotoResistor("10"));
     memory.push_back(new LinearHall("11"));
-    memory.push_back(new DigitalTemperature("12"));
-    memory.push_back(new AnalogTemperature("13"));
-    memory.push_back(new DigitalHall("14"));
-    memory.push_back(new PhotoInterrupter("15"));
+    memory.push_back(new DHT11("12"));
 }
 
 void createSensorList(std::vector<BaseSensor*> &memory, std::string stringSource)
@@ -58,18 +49,5 @@ void createSensorList(std::vector<BaseSensor*> &memory, std::string stringSource
 
 BaseSensor* createSensorByType(std::string type, std::string uid)
 {
-    //For ADC
-    if (type == "ADC")
-    {
-        return createSensor<ADC>(uid);
-    }
-    //For TH
-    else if (type == "TH")
-    {
-        return createSensor<TH>(uid);
-    }
-    else
-    {
-        return nullptr;
-    }
+    return nullptr;
 }
