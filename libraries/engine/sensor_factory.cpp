@@ -15,7 +15,7 @@ void createSensorList(std::vector<BaseSensor*> &memory)
     memory.clear();
     //Add sensors here
     memory.push_back(new PhotoResistor("10"));
-    memory.push_back(new LinearHall("11"));
+   // memory.push_back(new LinearHall("11"));
     memory.push_back(new DHT11("12"));
 }
 

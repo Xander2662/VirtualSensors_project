@@ -9,6 +9,7 @@
 #include <ui.h>
 #include "config.hpp"
 #include "manager.hpp"
+#include "main_menu.hpp"
 
 /*Don't forget to set Sketchbook location in File/Preferences to the path of your UI project (the parent foder of this INO file)*/
 
@@ -146,7 +147,7 @@ void my_touchpad_read (lv_indev_drv_t * indev_driver, lv_indev_data_t * data)
     delay(15);
 }
 
-SensorManager Manager = SensorManager();
+SensorManager& sensorManager = SensorManager::getInstance();
 void setup ()
 {
     Serial.begin( 115200 ); /* prepare for possible serial debug */
@@ -187,11 +188,12 @@ void setup ()
 
     ui_init();
     //lcd.fillScreen(TFT_BLACK);
-    Manager.init(false);
-    Manager.print();
-
-    Manager.reconstruct();
-
+    
+    sensorManager.init(false);
+    MainMenu::getInstance().show();
+    //sensorManager;.print();
+    //SensorManager::getInstance().reconstruct();
+    //sensorManager.hideAllExceptFirst();
     Serial.println( "Setup done" );
 }
 
@@ -204,14 +206,21 @@ int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 
 void loop ()
 {
-    if( LOOP_SYNC_COUNTER-- < 0)
-    {
-      Manager.resync();
-      LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
-      delay(10);
-    }
-    Manager.redraw();
-    lv_timer_handler(); /* let the GUI do its work */
-    delay(CYCLE_DRAW_MS);
+if (LOOP_SYNC_COUNTER-- < 0) {
+    //if (SensorManager::getInstance().isInitialized()) {
+        sensorManager.resync();
+    //}
+    LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
+    delay(10);
+}
+
+// Always attempt redraw (safe on empty list)
+//if (SensorManager::getInstance().isInitialized()) {
+sensorManager.redraw();  
+//}
+
+lv_timer_handler();
+delay(CYCLE_DRAW_MS);
+
 }
 

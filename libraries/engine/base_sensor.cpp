@@ -88,13 +88,17 @@
         }
     }
 
-    void constructSensor(BaseSensor *sensor) {
+    void constructSensor(BaseSensor *sensor,bool isVisualisation) {
         if(sensor == nullptr) {
             return;
         }
-
         try {
-            sensor->construct();
+            if(isVisualisation){
+                sensor->construct();
+            } else {
+                sensor->constructWiki();
+            }
+            
         } catch (const Exception &ex) {
             ex.print();
             sensor->setError(new Exception(ex));

@@ -5,67 +5,135 @@
  * This source defines the manager functions and implementations.
  * 
  * @copyright 2025 MTA
- * @author 
- * Ing. Jiri Konecny
+ * @author Ing. Jiri Konecny, Ondřej Wrubel
  */
 
 /*********************
  *      INCLUDES
  *********************/
+
+#include <sstream>
 #include "manager.hpp"
 #include "sensor_factory.hpp"
 #include "messenger.hpp"
 #include "parser.hpp"
 #include "helpers.hpp"
 #include "base_sensor.hpp"
+#include "main_menu.hpp"
 
 SensorManager& SensorManager::getInstance() {
     static SensorManager instance;
     return instance;
 }
 
-SensorManager::SensorManager()
- : Sensors(), currentIndex(0)
-{
+SensorManager::SensorManager() : Sensors(), currentIndex(0) {
+    PinMap.fill(nullptr);
 }
 
 SensorManager::~SensorManager() {
     for (auto* s : Sensors) delete s;
 }
 
-void SensorManager::hideAllExceptFirst() {
-    for (auto* s : Sensors) {
-        constructSensor(s);
+//the isVisualisation makes sure that the proper version of construct is made
+void SensorManager::hideAllExceptFirst(bool isVisualisation) {
+    if (!isVisualisation) {
+        for (auto* s : Sensors) {
+            constructSensor(s, false);
+        }
+        for (size_t i = 1; i < Sensors.size(); ++i) {
+            Sensors[i]->hide();
+        }
+        if (!Sensors.empty()) {
+            Sensors[0]->show();
+            currentIndex = 0;
+        }
+    } else {
+        for (auto* s : PinMap) {
+            constructSensor(s, true);
+        }
+        for (size_t i = 1; i < PinMap.size(); ++i) {
+            if (PinMap[i]) PinMap[i]->hide();
+        }
+        if (PinMap[0]) {
+            PinMap[0]->show();
+            currentIndex = 0;
+        }
     }
-    for (size_t i = 1; i < Sensors.size(); ++i) {
-        Sensors[i]->hide();
-    }
-    if (!Sensors.empty()) {
-        Sensors[0]->show();
-        currentIndex = 0;
+}
+void SensorManager::nextSensor(bool isVisualisation) {
+    if (isVisualisation) {
+        if (Sensors.empty()) return;
+        Sensors[currentIndex]->hide();
+        currentIndex = (currentIndex + 1) % Sensors.size();
+        Sensors[currentIndex]->show();
+    } else {
+        if (PinMap.empty()) return;
+        size_t count = 0;
+        for (auto* s : PinMap) if (s) count++;
+        if (count == 0) return;
+
+        // Find next valid pin
+        PinMap[currentIndex]->hide();
+        do {
+            currentIndex = (currentIndex + 1) % PinMap.size();
+        } while (!PinMap[currentIndex]);
+        PinMap[currentIndex]->show();
     }
 }
 
-void SensorManager::nextSensor() {
-    if (Sensors.empty()) {
-        return;
+void SensorManager::prevSensor(bool isVisualisation) {
+    if (isVisualisation) {
+        if (Sensors.empty()) return;
+        Sensors[currentIndex]->hide();
+        currentIndex = (currentIndex + Sensors.size() - 1) % Sensors.size();
+        Sensors[currentIndex]->show();
+    } else {
+        if (PinMap.empty()) return;
+        size_t count = 0;
+        for (auto* s : PinMap) if (s) count++;
+        if (count == 0) return;
+
+        // Find previous valid pin
+        PinMap[currentIndex]->hide();
+        do {
+            currentIndex = (currentIndex + PinMap.size() - 1) % PinMap.size();
+        } while (!PinMap[currentIndex]);
+        PinMap[currentIndex]->show();
     }
-    Sensors[currentIndex]->hide();
-    currentIndex = (currentIndex + 1) % Sensors.size();
-    Sensors[currentIndex]->show();
 }
 
-void SensorManager::prevSensor() {
+void SensorManager::confirmSensor() {
+    if (Sensors.empty()) return;
+    assignSensorToPin(Sensors[currentIndex]);
+    sendPinsOnSerial();
+    MainMenu::getInstance().update_pin_label_text(activePin);
+    goBack();
+}
+
+void SensorManager::goBack() {
     if (Sensors.empty()) {
         return;
     }
+
     Sensors[currentIndex]->hide();
-    currentIndex = (currentIndex + Sensors.size() - 1) % Sensors.size();
-    Sensors[currentIndex]->show();
+    PinMap[currentIndex]->hide();
+
+    currentIndex = 0;
+    activePin = NUM_PINS;
+    initialized = false;
+
+
+    MainMenu::getInstance().show();
+}
+
+void SensorManager::setInitialized(bool start){
+    initialized = start;
 }
 
 void SensorManager::init(bool fromRequest) {
     initMessenger();
+    initialized = true;
+
     if (!fromRequest) {
         logMessage("Initializing manager via fixed sensors list...\n");
         createSensorList(Sensors);
@@ -134,4 +202,37 @@ void SensorManager::resync() {
 void SensorManager::erase() {
     for (auto* sensor : Sensors) delete sensor;
     Sensors.clear();
+}
+
+/////////////////////////
+// pin management
+/////////////////////////
+
+/*void SensorManager::assignSensorToPin(size_t pinIndex, BaseSensor* sensor) {
+    if (pinIndex >= NUM_PINS) return;
+    PinMap[pinIndex] = sensor;
+}*/
+void SensorManager::assignSensorToPin(BaseSensor* sensor) {
+    if (activePin > NUM_PINS) return;
+    PinMap[activePin] = sensor;
+}
+
+
+BaseSensor* SensorManager::getAssignedSensor(size_t pinIndex) const {
+    if (pinIndex > NUM_PINS) return nullptr;
+    return PinMap[pinIndex];
+}
+
+void SensorManager::sendPinsOnSerial() const {
+    std::ostringstream ss;
+    ss << "?PINS:";
+    for (size_t i = 0; i < NUM_PINS; ++i) {
+        const BaseSensor* s = PinMap[i];
+        if (s) ss << i << "=" << s->UID;
+        else ss << i << "=UNUSED";
+        if (i + 1 < NUM_PINS) ss << "&";
+    }
+    std::string out = ss.str();
+    logMessage(out.c_str());
+
 }
