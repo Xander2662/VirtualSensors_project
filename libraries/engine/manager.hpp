@@ -29,13 +29,6 @@ public:
     SensorManager(const SensorManager&) = delete;
     SensorManager& operator=(const SensorManager&) = delete;
 
-    // Public API
-    void hideAllExceptFirst(bool isVisualisation = true);
-    void nextSensor(bool isVisualisation);
-    void prevSensor(bool isVisualisation);
-    void confirmSensor();
-    void goBack();
-
     void setInitialized(bool start);
     void init(bool fromRequest = false);
 
@@ -51,15 +44,10 @@ public:
 
     // Pin mapping
     static constexpr size_t NUM_PINS = 6;
-    //So that it can be used externally
     //void assignSensorToPin(size_t pinIndex, BaseSensor* sensor);
-    //Internal version with activePin.
     void assignSensorToPin(BaseSensor* sensor);
     BaseSensor* getAssignedSensor(size_t pinIndex) const;
     void setActivePin(size_t pin) { activePin = pin; }
-
-
-    // send current mapping on serial
     void sendPinsOnSerial() const;
 
     // read-only access to sensor list

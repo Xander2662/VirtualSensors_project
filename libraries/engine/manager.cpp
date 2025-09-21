@@ -19,7 +19,6 @@
 #include "parser.hpp"
 #include "helpers.hpp"
 #include "base_sensor.hpp"
-#include "main_menu.hpp"
 
 SensorManager& SensorManager::getInstance() {
     static SensorManager instance;
@@ -34,97 +33,7 @@ SensorManager::~SensorManager() {
     for (auto* s : Sensors) delete s;
 }
 
-//the isVisualisation makes sure that the proper version of construct is made
-void SensorManager::hideAllExceptFirst(bool isVisualisation) {
-    if (!isVisualisation) {
-        for (auto* s : Sensors) {
-            constructSensor(s, false);
-        }
-        for (size_t i = 1; i < Sensors.size(); ++i) {
-            Sensors[i]->hide();
-        }
-        if (!Sensors.empty()) {
-            Sensors[0]->show();
-            currentIndex = 0;
-        }
-    } else {
-        for (auto* s : PinMap) {
-            constructSensor(s, true);
-        }
-        for (size_t i = 1; i < PinMap.size(); ++i) {
-            if (PinMap[i]) PinMap[i]->hide();
-        }
-        if (PinMap[0]) {
-            PinMap[0]->show();
-            currentIndex = 0;
-        }
-    }
-}
-void SensorManager::nextSensor(bool isVisualisation) {
-    if (isVisualisation) {
-        if (Sensors.empty()) return;
-        Sensors[currentIndex]->hide();
-        currentIndex = (currentIndex + 1) % Sensors.size();
-        Sensors[currentIndex]->show();
-    } else {
-        if (PinMap.empty()) return;
-        size_t count = 0;
-        for (auto* s : PinMap) if (s) count++;
-        if (count == 0) return;
 
-        // Find next valid pin
-        PinMap[currentIndex]->hide();
-        do {
-            currentIndex = (currentIndex + 1) % PinMap.size();
-        } while (!PinMap[currentIndex]);
-        PinMap[currentIndex]->show();
-    }
-}
-
-void SensorManager::prevSensor(bool isVisualisation) {
-    if (isVisualisation) {
-        if (Sensors.empty()) return;
-        Sensors[currentIndex]->hide();
-        currentIndex = (currentIndex + Sensors.size() - 1) % Sensors.size();
-        Sensors[currentIndex]->show();
-    } else {
-        if (PinMap.empty()) return;
-        size_t count = 0;
-        for (auto* s : PinMap) if (s) count++;
-        if (count == 0) return;
-
-        // Find previous valid pin
-        PinMap[currentIndex]->hide();
-        do {
-            currentIndex = (currentIndex + PinMap.size() - 1) % PinMap.size();
-        } while (!PinMap[currentIndex]);
-        PinMap[currentIndex]->show();
-    }
-}
-
-void SensorManager::confirmSensor() {
-    if (Sensors.empty()) return;
-    assignSensorToPin(Sensors[currentIndex]);
-    sendPinsOnSerial();
-    MainMenu::getInstance().update_pin_label_text(activePin);
-    goBack();
-}
-
-void SensorManager::goBack() {
-    if (Sensors.empty()) {
-        return;
-    }
-
-    Sensors[currentIndex]->hide();
-    PinMap[currentIndex]->hide();
-
-    currentIndex = 0;
-    activePin = NUM_PINS;
-    initialized = false;
-
-
-    MainMenu::getInstance().show();
-}
 
 void SensorManager::setInitialized(bool start){
     initialized = start;

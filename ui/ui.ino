@@ -9,7 +9,7 @@
 #include <ui.h>
 #include "config.hpp"
 #include "manager.hpp"
-#include "main_menu.hpp"
+#include "manager_GUI.hpp"
 
 /*Don't forget to set Sketchbook location in File/Preferences to the path of your UI project (the parent foder of this INO file)*/
 
@@ -190,7 +190,7 @@ void setup ()
     //lcd.fillScreen(TFT_BLACK);
     
     sensorManager.init(false);
-    MainMenu::getInstance().show();
+    manager_GUI::getInstance().show();
     //sensorManager;.print();
     //SensorManager::getInstance().reconstruct();
     //sensorManager.hideAllExceptFirst();

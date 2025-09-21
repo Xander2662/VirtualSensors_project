@@ -6,7 +6,11 @@
  * @author Ondřej Wrubel
  */
 
-#include "manager.hpp"
+ /**************************************************************************/
+//                  !!!!!!!!!DEPRECATED!!!!!!!!!
+/**************************************************************************/
+
+/*#include "manager.hpp"
 #include "base_sensor.hpp"
 extern "C" void vs_nextSensor(bool isVisualisation) {
     SensorManager::getInstance().nextSensor(isVisualisation);
@@ -23,3 +27,4 @@ extern "C" void vs_confirmSensor() {
 extern "C" void vs_goBack() {
     SensorManager::getInstance().goBack();
 }   
+*/

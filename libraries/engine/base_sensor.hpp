@@ -26,14 +26,14 @@
 #include <string>
 #include <unordered_map>
 #include <map>
-extern "C"
+/*extern "C"
 {
 #include "lvgl.h"
     void vs_nextSensor(bool isVisualisation = true);
     void vs_prevSensor(bool isVisualisation = true);
     void vs_confirmSensor();
     void vs_goBack();
-}
+}*/
 
 #define HISTORY_CAP 10 ///< History capacity.
 
@@ -675,138 +675,7 @@ public:
     /** @brief Hide this sensor’s UI widget (implemented by derived classes) */
     virtual void hide() = 0;
 
-static void prevSensorCb(lv_event_t* e) {
-    bool* pVis = static_cast<bool*>(lv_event_get_user_data(e));
-    if(pVis) vs_prevSensor(*pVis);
-}
 
-static void nextSensorCb(lv_event_t* e) {
-    bool* pVis = static_cast<bool*>(lv_event_get_user_data(e));
-    if(pVis) vs_nextSensor(*pVis);
-}
-
-    /** @brief There are 2 versions, for version 1, theres the visualisation so isVisualisation is true, for version 0, theres the wiki*/
-    void addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation = true)
-    {
-        lv_obj_t *btnPrev = lv_btn_create(parentWidget);
-        lv_obj_set_width(btnPrev, 80);
-        lv_obj_set_height(btnPrev, 40);
-        if (isVisualisation == true)
-        { // Visualisation
-            lv_obj_set_x(btnPrev, 35);
-            lv_obj_set_y(btnPrev, -40);
-        }
-        else
-        { // Wiki
-            lv_obj_set_x(btnPrev, 40);
-            lv_obj_set_y(btnPrev, -20);
-        }
-        lv_obj_set_align(btnPrev, LV_ALIGN_BOTTOM_LEFT);
-        lv_obj_add_flag(btnPrev, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
-        lv_obj_clear_flag(btnPrev, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                       LV_OBJ_FLAG_SCROLL_CHAIN);
-        lv_obj_add_event_cb(btnPrev, prevSensorCb, LV_EVENT_CLICKED, &isVisualisation);
-        lv_obj_t *ButtonLabelPrev = lv_label_create(btnPrev);
-        lv_label_set_text(ButtonLabelPrev, "Prev");
-        lv_obj_set_width(ButtonLabelPrev, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ButtonLabelPrev, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ButtonLabelPrev, LV_ALIGN_CENTER);
-
-        lv_obj_t *btnNext = lv_btn_create(parentWidget);
-        lv_obj_set_width(btnNext, 80);
-        lv_obj_set_height(btnNext, 40);
-        if (isVisualisation == true)
-        { // Visualisation
-            lv_obj_set_x(btnNext, 183);
-            lv_obj_set_y(btnNext, -40);
-        }
-        else
-        {
-            // Wiki
-            lv_obj_set_x(btnNext, -110);
-            lv_obj_set_y(btnNext, -20);
-        }
-        lv_obj_set_align(btnNext, LV_ALIGN_BOTTOM_LEFT);
-        lv_obj_add_flag(btnNext, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
-        lv_obj_clear_flag(btnNext, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                       LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-        lv_obj_add_event_cb(btnNext, nextSensorCb, LV_EVENT_CLICKED, &isVisualisation);
-        lv_obj_t *ButtonLabelNext = lv_label_create(btnNext);
-        lv_label_set_text(ButtonLabelNext, "Next");
-        lv_obj_set_width(ButtonLabelNext, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ButtonLabelNext, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ButtonLabelNext, LV_ALIGN_CENTER);
-    }
-
-    void addConfirmButtonToWidget(lv_obj_t *parentWidget)
-    {
-        lv_obj_t *btnConfirm = lv_btn_create(parentWidget);
-        lv_obj_set_width(btnConfirm, 80);
-        lv_obj_set_height(btnConfirm, 40);
-        lv_obj_set_x(btnConfirm, -50);
-        lv_obj_set_y(btnConfirm, -20);
-        lv_obj_set_align(btnConfirm, LV_ALIGN_BOTTOM_RIGHT);
-        lv_obj_add_flag(btnConfirm, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
-        lv_obj_clear_flag(btnConfirm, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                          LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                          LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-        lv_obj_add_event_cb(btnConfirm, [](lv_event_t *e)
-                            { vs_confirmSensor(); }, LV_EVENT_CLICKED, nullptr);
-        lv_obj_t *ButtonConfirmLabel = lv_label_create(btnConfirm);
-        lv_obj_set_width(ButtonConfirmLabel, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ButtonConfirmLabel, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ButtonConfirmLabel, LV_ALIGN_CENTER);
-        lv_label_set_text(ButtonConfirmLabel, "Confirm");
-    }
-
-    void addBackButtonToWidget(lv_obj_t *parentWidget)
-    {
-        lv_obj_t *ButtonBackGroup = lv_obj_create(parentWidget);
-        lv_obj_remove_style_all(ButtonBackGroup);
-        lv_obj_set_width(ButtonBackGroup, 100);
-        lv_obj_set_height(ButtonBackGroup, 40);
-        lv_obj_clear_flag(ButtonBackGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
-
-        lv_obj_t *ButtonBackCornerBottomLeft = lv_obj_create(ButtonBackGroup);
-        lv_obj_remove_style_all(ButtonBackCornerBottomLeft);
-        lv_obj_set_width(ButtonBackCornerBottomLeft, 20);
-        lv_obj_set_height(ButtonBackCornerBottomLeft, 20);
-        lv_obj_set_align(ButtonBackCornerBottomLeft, LV_ALIGN_BOTTOM_LEFT);
-        lv_obj_clear_flag(ButtonBackCornerBottomLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
-        lv_obj_set_style_bg_color(ButtonBackCornerBottomLeft, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_bg_opa(ButtonBackCornerBottomLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_clip_corner(ButtonBackCornerBottomLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        lv_obj_t *ButtonBackCornerTopRight = lv_obj_create(ButtonBackGroup);
-        lv_obj_remove_style_all(ButtonBackCornerTopRight);
-        lv_obj_set_width(ButtonBackCornerTopRight, 20);
-        lv_obj_set_height(ButtonBackCornerTopRight, 20);
-        lv_obj_set_align(ButtonBackCornerTopRight, LV_ALIGN_TOP_RIGHT);
-        lv_obj_clear_flag(ButtonBackCornerTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
-        lv_obj_set_style_bg_color(ButtonBackCornerTopRight, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_bg_opa(ButtonBackCornerTopRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_clip_corner(ButtonBackCornerTopRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        lv_obj_t *btnBack = lv_btn_create(ButtonBackGroup);
-        lv_obj_set_width(btnBack, 100);
-        lv_obj_set_height(btnBack, 40);
-        lv_obj_add_flag(btnBack, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
-        lv_obj_clear_flag(btnBack, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                       LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-        lv_obj_add_event_cb(btnBack, [](lv_event_t *e)
-                            { vs_goBack(); }, LV_EVENT_CLICKED, nullptr);
-        lv_obj_set_style_clip_corner(btnBack, false, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        lv_obj_t *ButtonBackLabel = lv_label_create(btnBack);
-        lv_obj_set_width(ButtonBackLabel, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ButtonBackLabel, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_align(ButtonBackLabel, LV_ALIGN_CENTER);
-        lv_label_set_text(ButtonBackLabel, "Back");
-        lv_obj_set_style_text_font(ButtonBackLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-    }
 };
 
 /**************************************************************************/
