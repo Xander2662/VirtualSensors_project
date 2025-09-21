@@ -18,7 +18,7 @@
 class manager_GUI {
 public:
     // DEFINITION
-    static manager_GUI& getInstance();
+    //static manager_GUI& getInstance();
 
     // MENU GUI
     void showMenu();

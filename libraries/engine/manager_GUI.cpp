@@ -107,12 +107,8 @@ void manager_GUI::updatePinLabelText(int pinIndex)
     lv_obj_center(pinLabels[pinIndex]);
 }
 
-// NĚDODĚLANÉ
-void manager_GUI::startSensors(/*lv_event_t *e*/)
+void manager_GUI::startSensors()
 {
-    // auto *self = static_cast<manager_GUI *>(lv_event_get_user_data(e));
-    // if (!self) return;
-
     SensorManager &manager = SensorManager::getInstance();
     manager.sendPinsOnSerial();
     manager.setInitialized(true);
