@@ -79,7 +79,7 @@ void manager_GUI::buildMenu()
         lv_obj_set_y(pinContainers[i], (i / 3) ? 100 : -100);
 
         lv_obj_add_event_cb(pinContainers[i], [i](lv_event_t *e)
-                            { pin_btn(i); }, LV_EVENT_CLICKED, nullptr);
+                            { pinToSelection(i); }, LV_EVENT_CLICKED, nullptr);
 
         pinLabels[i] = lv_label_create(pinContainers[i]);
         lv_label_set_text_fmt(pinLabels[i], "Pin %d", i);
@@ -93,18 +93,22 @@ void manager_GUI::buildMenu()
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 10);
 }
 
-void manager_GUI::updatePinLabelText(int pinIndex)
+void manager_GUI::updatePinLabelText()
 {
-    BaseSensor *s = SensorManager::getInstance().getAssignedSensor(pinIndex);
-    if (s)
+    SensorManager &manager = SensorManager::getInstance();
+    auto *Sensors = manager.getSensors();
+    for (int i = 0; i < 6; ++i)
     {
-        lv_label_set_text_fmt(pinLabels[pinIndex], "%s", s->Type.c_str());
+        if (Sensors[i])
+        {
+            lv_label_set_text_fmt(pinLabels[i], "%s", Sensors->Type.c_str());
+        }
+        else
+        {
+            lv_label_set_text_fmt(pinLabels[i], "Pin %d", i);
+        }
+        lv_obj_center(pinLabels[i]);
     }
-    else
-    {
-        lv_label_set_text_fmt(pinLabels[pinIndex], "Pin %d", pinIndex);
-    }
-    lv_obj_center(pinLabels[pinIndex]);
 }
 
 void manager_GUI::startSensors()
@@ -129,9 +133,13 @@ void manager_GUI::pinToSelection(int index)
 // the isVisualisation makes sure that the proper version of construct is made
 void manager_GUI::hideAllExceptFirst(bool isVisualisation)
 {
+    SensorManager &manager = SensorManager::getInstance();
+    auto *Sensors = manager.getSensors();
+    auto *PinMap = manager.getPinMap();
+
     if (!isVisualisation)
     {
-        for (auto *s : Sensors)
+        for (auto *s : Sensors) // getSensors
         {
             constructSensor(s, false);
         }
@@ -142,12 +150,12 @@ void manager_GUI::hideAllExceptFirst(bool isVisualisation)
         if (!Sensors.empty())
         {
             Sensors[0]->showSensor();
-            currentIndex = 0;
+            manager.setCurrentIndex(0); // setCurrentIndex
         }
     }
     else
     {
-        for (auto *s : PinMap)
+        for (auto *s : PinMap) // getPinMap
         {
             constructSensor(s, true);
         }
@@ -159,19 +167,25 @@ void manager_GUI::hideAllExceptFirst(bool isVisualisation)
         if (PinMap[0])
         {
             PinMap[0]->showSensor();
-            currentIndex = 0;
+            manager.setCurrentIndex(0); // setCurrentIndex
         }
     }
 }
+
 void manager_GUI::nextSensor(bool isVisualisation)
 {
+    SensorManager &manager = SensorManager::getInstance();
+    auto *Sensors = manager.getSensors();
+    auto *PinMap = manager.getPinMap();
+    auto *currentIndex = manager.getCurrentIndex();
+
     if (isVisualisation)
     {
         if (Sensors.empty())
             return;
-        Sensors[currentIndex]->hideSensor();
+        Sensors[currentIndex]->hideSensor(); // getCurrentIndex
         currentIndex = (currentIndex + 1) % Sensors.size();
-        Sensors[currentIndex]->showSensor();
+        Sensors[currentIndex]->showSensor(); // getCurrentIndex
     }
     else
     {
@@ -196,12 +210,17 @@ void manager_GUI::nextSensor(bool isVisualisation)
 
 void manager_GUI::prevSensor(bool isVisualisation)
 {
+    SensorManager &manager = SensorManager::getInstance();
+    auto *Sensors = manager.getSensors();
+    auto *PinMap = manager.getPinMap();
+    auto *currentIndex = manager.getCurrentIndex();
+
     if (isVisualisation)
     {
         if (Sensors.empty())
             return;
         Sensors[currentIndex]->hideSensor();
-        currentIndex = (currentIndex + Sensors.size() - 1) % Sensors.size();
+       currentIndex = (currentIndex + Sensors.size() - 1) % Sensors.size();
         Sensors[currentIndex]->showSensor();
     }
     else
@@ -227,16 +246,26 @@ void manager_GUI::prevSensor(bool isVisualisation)
 
 void manager_GUI::confirmSensor()
 {
+    SensorManager &manager = SensorManager::getInstance();
+    auto *Sensors = manager.getSensors();
+    auto *currentIndex = manager.getCurrentIndex();
+
     if (Sensors.empty())
         return;
-    assignSensorToPin(Sensors[currentIndex]);
-    sendPinsOnSerial();
-    update_pin_label_text(activePin);
+    manager.assignSensorToPin(Sensors[currentIndex]);
+    manager.sendPinsOnSerial();
+    update_pin_label_text();
     goBackToMenu();
 }
 
+// NEDODĚLANÉ, místo show a hide vymazat z paměti
 void manager_GUI::goBackToMenu()
 {
+    SensorManager &manager = SensorManager::getInstance();
+    auto *Sensors = manager.getSensors();
+    auto *PinMap = manager.getPinMap();
+    auto *currentIndex = manager.getCurrentIndex();
+
     if (Sensors.empty())
     {
         return;
@@ -244,10 +273,9 @@ void manager_GUI::goBackToMenu()
 
     Sensors[currentIndex]->hideSensor();
     PinMap[currentIndex]->hideSensor();
-
     currentIndex = 0;
-    activePin = NUM_PINS;
-    initialized = false;
+    manager.resetActivePin();
+    manager.setInitialized(false);
 
     showMenu();
 }
@@ -380,3 +408,407 @@ void addBackButtonToWidget(lv_obj_t *parentWidget)
 /***************************************************************
  *                    SENSOR GUI - Sensors
  ***************************************************************/
+
+ virtual void constructWiki()
+    {
+        // Container
+        ui_SensorWidget = lv_obj_create(lv_scr_act());
+        lv_obj_remove_style_all(ui_SensorWidget);
+        lv_obj_set_width(ui_SensorWidget, 760);
+        lv_obj_set_height(ui_SensorWidget, 440);
+        lv_obj_set_align(ui_SensorWidget, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
+                                         LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
+                                         LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_radius(ui_SensorWidget, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_SensorWidget, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_SensorWidget, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_SensorWidget, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        // Title
+        ui_SensorLabel = lv_label_create(ui_SensorWidget);
+        lv_label_set_text(ui_SensorLabel, Type.c_str());
+        lv_obj_set_width(ui_SensorLabel, LV_SIZE_CONTENT);
+        lv_obj_set_height(ui_SensorLabel, LV_SIZE_CONTENT);
+        lv_obj_set_x(ui_SensorLabel, 0);
+        lv_obj_set_y(ui_SensorLabel, -185);
+        lv_obj_set_align(ui_SensorLabel, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_SensorLabel, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                                        LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                        LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_SensorLabelDescription = lv_label_create(ui_SensorWidget);
+        lv_obj_set_width(ui_SensorLabelDescription, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_SensorLabelDescription, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_SensorLabelDescription, 25);
+        lv_obj_set_y(ui_SensorLabelDescription, 100);
+        lv_label_set_text(ui_SensorLabelDescription, Description.c_str());
+        lv_obj_clear_flag(ui_SensorLabelDescription,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_SensorLabelDescription, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_SensorLabelDescription, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        addNavButtonsToWidget(ui_SensorWidget, false);
+        addConfirmButtonToWidget(ui_SensorWidget);
+        addBackButtonToWidget(ui_SensorWidget);
+    }
+
+    void construct(/*bool hasTwoUnits*/)
+    {
+        SensorManager &manager = SensorManager::getInstance();
+        auto *Sensors = manager.getSensors();
+        auto *PinMap = manager.getPinMap();
+        if(PinMap.empty()){
+            return;
+        }
+      /*  if(hasTwoUnits){
+        // Container
+        ui_SensorWidget = lv_obj_create(lv_scr_act());
+        lv_obj_remove_style_all(ui_SensorWidget);
+        lv_obj_set_width(ui_SensorWidget, 760);
+        lv_obj_set_height(ui_SensorWidget, 440);
+        lv_obj_set_align(ui_SensorWidget, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
+                                         LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
+                                         LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_radius(ui_SensorWidget, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_SensorWidget, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_SensorWidget, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_SensorWidget, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        // Title
+        ui_Label = lv_label_create(ui_SensorWidget);
+        lv_label_set_text(ui_Label, "Sensor Label");
+        lv_obj_set_width(ui_Label, LV_SIZE_CONTENT);
+        lv_obj_set_height(ui_Label, LV_SIZE_CONTENT);
+        lv_obj_set_x(ui_Label, 0);
+        lv_obj_set_y(ui_Label, -185);
+        lv_obj_set_align(ui_Label, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_Label, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                                        LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                        LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_Label, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_Label, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_Label, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_ContainerForValue_2 = lv_obj_create(ui_SensorWidget);
+        lv_obj_remove_style_all(ui_ContainerForValue_2);
+        lv_obj_set_width(ui_ContainerForValue_2, 230);
+        lv_obj_set_height(ui_ContainerForValue_2, 118);
+        lv_obj_set_x(ui_ContainerForValue_2, -230);
+        lv_obj_set_y(ui_ContainerForValue_2, 55);
+        lv_obj_set_align(ui_ContainerForValue_2, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_ContainerForValue_2,
+                          LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                              LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_radius(ui_ContainerForValue_2, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_ContainerForValue_2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_ContainerForValue_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_ContainerForValue_2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_ContainerForValue_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_ContainerForValue_2, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_VisualColorForValue_2 = lv_obj_create(ui_ContainerForValue_2);
+        lv_obj_remove_style_all(ui_VisualColorForValue_2);
+        lv_obj_set_width(ui_VisualColorForValue_2, 20);
+        lv_obj_set_height(ui_VisualColorForValue_2, 20);
+        lv_obj_set_x(ui_VisualColorForValue_2, -10);
+        lv_obj_set_y(ui_VisualColorForValue_2, 10);
+        lv_obj_set_align(ui_VisualColorForValue_2, LV_ALIGN_TOP_RIGHT);
+        lv_obj_clear_flag(ui_VisualColorForValue_2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
+        lv_obj_set_style_radius(ui_VisualColorForValue_2, 1000, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_VisualColorForValue_2, lv_color_hex(0x37F006), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_VisualColorForValue_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelDescValue_2 = lv_label_create(ui_ContainerForValue_2);
+        lv_obj_set_width(ui_LabelDescValue_2, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelDescValue_2, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelDescValue_2, 0);
+        lv_obj_set_y(ui_LabelDescValue_2, 32);
+        lv_obj_set_align(ui_LabelDescValue_2, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_LabelDescValue_2, "[unit]");
+        lv_obj_clear_flag(ui_LabelDescValue_2,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_LabelDescValue_2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelDescValue_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_LabelDescValue_2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelValueValue_2 = lv_label_create(ui_ContainerForValue_2);
+        lv_obj_set_width(ui_LabelValueValue_2, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelValueValue_2, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelValueValue_2, 0);
+        lv_obj_set_y(ui_LabelValueValue_2, 15);
+        lv_obj_set_align(ui_LabelValueValue_2, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_LabelValueValue_2, "0");
+        lv_obj_clear_flag(ui_LabelValueValue_2,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_LabelValueValue_2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelValueValue_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_LabelValueValue_2, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelTypeValue_2 = lv_label_create(ui_ContainerForValue_2);
+        lv_obj_set_width(ui_LabelTypeValue_2, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelTypeValue_2, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelTypeValue_2, 15);
+        lv_obj_set_y(ui_LabelTypeValue_2, 10);
+        lv_label_set_text(ui_LabelTypeValue_2, "Type");
+        lv_obj_set_style_text_color(ui_LabelTypeValue_2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelTypeValue_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_ContainerForValue_1 = lv_obj_create(ui_SensorWidget);
+        lv_obj_remove_style_all(ui_ContainerForValue_1);
+        lv_obj_set_width(ui_ContainerForValue_1, 230);
+        lv_obj_set_height(ui_ContainerForValue_1, 118);
+        lv_obj_set_x(ui_ContainerForValue_1, -230);
+        lv_obj_set_y(ui_ContainerForValue_1, -85);
+        lv_obj_set_align(ui_ContainerForValue_1, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_ContainerForValue_1,
+                          LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                              LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_radius(ui_ContainerForValue_1, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_ContainerForValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_ContainerForValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_ContainerForValue_1, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_VisualColorForValue_1 = lv_obj_create(ui_ContainerForValue_1);
+        lv_obj_remove_style_all(ui_VisualColorForValue_1);
+        lv_obj_set_width(ui_VisualColorForValue_1, 20);
+        lv_obj_set_height(ui_VisualColorForValue_1, 20);
+        lv_obj_set_x(ui_VisualColorForValue_1, -10);
+        lv_obj_set_y(ui_VisualColorForValue_1, 10);
+        lv_obj_set_align(ui_VisualColorForValue_1, LV_ALIGN_TOP_RIGHT);
+        lv_obj_clear_flag(ui_VisualColorForValue_1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
+        lv_obj_set_style_radius(ui_VisualColorForValue_1, 1000, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_VisualColorForValue_1, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_VisualColorForValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelValueValue_1 = lv_label_create(ui_ContainerForValue_1);
+        lv_obj_set_width(ui_LabelValueValue_1, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelValueValue_1, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelValueValue_1, 0);
+        lv_obj_set_y(ui_LabelValueValue_1, -5);
+        lv_obj_set_align(ui_LabelValueValue_1, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_LabelValueValue_1, "0");
+        lv_obj_clear_flag(ui_LabelValueValue_1,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_LabelValueValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelValueValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_LabelValueValue_1, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelDescValue_1 = lv_label_create(ui_ContainerForValue_1);
+        lv_obj_set_width(ui_LabelDescValue_1, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelDescValue_1, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelDescValue_1, 0);
+        lv_obj_set_y(ui_LabelDescValue_1, 30);
+        lv_obj_set_align(ui_LabelDescValue_1, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_LabelDescValue_1, "[°C]");
+        lv_obj_clear_flag(ui_LabelDescValue_1,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_LabelDescValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelDescValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_LabelDescValue_1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelTypeValue_1 = lv_label_create(ui_ContainerForValue_1);
+        lv_obj_set_width(ui_LabelTypeValue_1, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelTypeValue_1, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelTypeValue_1, 15);
+        lv_obj_set_y(ui_LabelTypeValue_1, 10);
+        lv_label_set_text(ui_LabelTypeValue_1, "Teplota");
+        lv_obj_set_style_text_color(ui_LabelTypeValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelTypeValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        // Navigation
+        addNavButtonsToWidget(ui_SensorWidget);
+        addBackButtonToWidget(ui_SensorWidget);
+        
+        // Chart
+        ui_Chart = lv_chart_create(ui_SensorWidget);
+        lv_obj_set_width(ui_Chart, 410);
+        lv_obj_set_height(ui_Chart, 280);
+        lv_obj_set_x(ui_Chart, 150);
+        lv_obj_set_y(ui_Chart, 20);
+        lv_obj_set_align(ui_Chart, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_Chart, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
+                                        LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE); /// Flags
+        lv_chart_set_type(ui_Chart, LV_CHART_TYPE_LINE);
+        lv_chart_set_div_line_count(ui_Chart, 9, 10);
+        lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_X, 10, 0, 10, 1, true, 50);
+        lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 5, 2, true, 50);
+
+        ui_Chart_series_T = lv_chart_add_series(ui_Chart, lv_color_hex(0x009BFF), LV_CHART_AXIS_PRIMARY_Y);
+        ui_Chart_series_H = lv_chart_add_series(ui_Chart, lv_color_hex(0x37F006), LV_CHART_AXIS_PRIMARY_Y);
+        static lv_coord_t bufT[HISTORY_CAP];
+        static lv_coord_t bufH[HISTORY_CAP];
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_T, bufT);
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_H, bufH);
+        lv_obj_set_style_bg_color(ui_Chart, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_Chart, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_Chart, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_Chart, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_Chart, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        lv_obj_set_style_line_color(ui_Chart, lv_color_hex(0x000000), LV_PART_TICKS | LV_STATE_DEFAULT);
+        lv_obj_set_style_line_opa(ui_Chart, 255, LV_PART_TICKS | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_color(ui_Chart, lv_color_hex(0x000000), LV_PART_TICKS | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_Chart, 255, LV_PART_TICKS | LV_STATE_DEFAULT);
+*/
+        ui_SensorWidget = lv_obj_create(lv_scr_act());
+        lv_obj_remove_style_all(ui_SensorWidget);
+        lv_obj_set_width(ui_SensorWidget, 760);
+        lv_obj_set_height(ui_SensorWidget, 440);
+        lv_obj_set_align(ui_SensorWidget, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
+                                         LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
+                                         LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_radius(ui_SensorWidget, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_SensorWidget, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_SensorWidget, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_SensorWidget, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_SensorLabel = lv_label_create(ui_SensorWidget);
+        lv_obj_set_width(ui_SensorLabel, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_SensorLabel, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_SensorLabel, 0);
+        lv_obj_set_y(ui_SensorLabel, -185);
+        lv_obj_set_align(ui_SensorLabel, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_SensorLabel, "Sensor Label");
+        lv_obj_clear_flag(ui_SensorLabel, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                                        LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                        LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_ContainerForValue_1 = lv_obj_create(ui_SensorWidget);
+        lv_obj_remove_style_all(ui_ContainerForValue_1);
+        lv_obj_set_width(ui_ContainerForValue_1, 230);
+        lv_obj_set_height(ui_ContainerForValue_1, 118);
+        lv_obj_set_x(ui_ContainerForValue_1, -230);
+        lv_obj_set_y(ui_ContainerForValue_1, 55);
+        lv_obj_set_align(ui_ContainerForValue_1, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_ContainerForValue_1,
+                          LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                              LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_radius(ui_ContainerForValue_1, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_ContainerForValue_1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_ContainerForValue_1, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_ContainerForValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_ContainerForValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_ContainerForValue_1, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_VisualColorForValue_1 = lv_obj_create(ui_ContainerForValue_1);
+        lv_obj_remove_style_all(ui_VisualColorForValue_1);
+        lv_obj_set_width(ui_VisualColorForValue_1, 20);
+        lv_obj_set_height(ui_VisualColorForValue_1, 20);
+        lv_obj_set_x(ui_VisualColorForValue_1, -10);
+        lv_obj_set_y(ui_VisualColorForValue_1, 10);
+        lv_obj_set_align(ui_VisualColorForValue_1, LV_ALIGN_TOP_RIGHT);
+        lv_obj_clear_flag(ui_VisualColorForValue_1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
+        lv_obj_set_style_radius(ui_VisualColorForValue_1, 1000, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_VisualColorForValue_1, lv_color_hex(0xFFAF00), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_VisualColorForValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelValueValue_1 = lv_label_create(ui_ContainerForValue_1);
+        lv_obj_set_width(ui_LabelValueValue_1, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelValueValue_1, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelValueValue_1, 0);
+        lv_obj_set_y(ui_LabelValueValue_1, -5);
+        lv_obj_set_align(ui_LabelValueValue_1, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_LabelValueValue_1, "0");
+        lv_obj_clear_flag(ui_LabelValueValue_1,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_LabelValueValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelValueValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_LabelValueValue_1, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_LabelDescValue_1 = lv_label_create(ui_ContainerForValue_1);
+        lv_obj_set_width(ui_LabelDescValue_1, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_LabelDescValue_1, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_LabelDescValue_1, 0);
+        lv_obj_set_y(ui_LabelDescValue_1, 30);
+        lv_obj_set_align(ui_LabelDescValue_1, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_LabelDescValue_1, "[Unit]");
+        lv_obj_clear_flag(ui_LabelDescValue_1,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_LabelDescValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_LabelDescValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_LabelDescValue_1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        addNavButtonsToWidget(ui_SensorWidget);
+        addBackButtonToWidget(ui_SensorWidget);
+
+        ui_Chart = lv_chart_create(ui_SensorWidget);
+        lv_obj_set_width(ui_Chart, 410);
+        lv_obj_set_height(ui_Chart, 280);
+        lv_obj_set_x(ui_Chart, 150);
+        lv_obj_set_y(ui_Chart, 20);
+        lv_obj_set_align(ui_Chart, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_Chart, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
+                                        LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE); /// Flags
+        lv_chart_set_type(ui_Chart, LV_CHART_TYPE_LINE);
+        lv_chart_set_div_line_count(ui_Chart, 9, 10);
+        lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_X, 10, 0, 10, 1, true, 50);
+        lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 5, 2, true, 50);
+
+        ui_Chart_series_V1 = lv_chart_add_series(ui_Chart, lv_color_hex(0xFFAF00),
+                                                LV_CHART_AXIS_PRIMARY_Y);
+        lv_coord_t ui_Chart_series_1[HISTORY_CAP];
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_series_1);
+        lv_obj_set_style_bg_color(ui_Chart, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_Chart, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_Chart, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_Chart, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_Chart, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        lv_obj_set_style_line_color(ui_Chart, lv_color_hex(0x000000), LV_PART_TICKS | LV_STATE_DEFAULT);
+        lv_obj_set_style_line_opa(ui_Chart, 255, LV_PART_TICKS | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_color(ui_Chart, lv_color_hex(0x000000), LV_PART_TICKS | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_Chart, 255, LV_PART_TICKS | LV_STATE_DEFAULT);
+    
+}
+
+    void draw()
+    {
+
+        if (!redrawPenging)
+        {
+            return;
+        }
+
+        // Draw sensor
+        // Call draw function here
+        std::string value = getValue<std::string>("milliTesla");
+        lv_label_set_text(ui_Value_MT, t.c_str());
+
+        static lv_coord_t ui_Chart_series_1[HISTORY_CAP];
+        getHistory<float>("milliTesla", ui_Chart_series_1);
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_series_1);
+
+        redrawPenging = false; // Reset flag to redraw sensor.
+    }

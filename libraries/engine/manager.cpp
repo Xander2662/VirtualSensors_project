@@ -132,6 +132,7 @@ BaseSensor* SensorManager::getAssignedSensor(size_t pinIndex) const {
     return PinMap[pinIndex];
 }
 
+//NEED TO CHANGE THE OUTPUT
 void SensorManager::sendPinsOnSerial() const {
     std::ostringstream ss;
     ss << "?PINS:";

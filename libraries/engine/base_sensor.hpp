@@ -26,14 +26,10 @@
 #include <string>
 #include <unordered_map>
 #include <map>
-/*extern "C"
+extern "C"
 {
 #include "lvgl.h"
-    void vs_nextSensor(bool isVisualisation = true);
-    void vs_prevSensor(bool isVisualisation = true);
-    void vs_confirmSensor();
-    void vs_goBack();
-}*/
+}
 
 #define HISTORY_CAP 10 ///< History capacity.
 

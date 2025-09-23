@@ -40,17 +40,44 @@ private:
     std::array<lv_obj_t*, 6> pinContainers;
     std::array<lv_obj_t*, 6> pinLabels;
 
+    //MENU EVENT GUI
     void startSensors();
     void pinToSelection(int index);
     void buildMenu();
-    void updatePinLabelText(int pinIndex);
+    void updatePinLabelText();
 
     // SENSOR GUI
+    lv_obj_t *ui_SensorWidget;
+    lv_obj_t *ui_SensorLabel;
+    // VALUE_1
+    lv_obj_t *ui_ContainerForValue_1;
+    lv_obj_t *ui_VisualColorForValue_1;
+    lv_obj_t *ui_LabelValueValue_1;
+    lv_obj_t *ui_LabelDescValue_1;
+    lv_obj_t *ui_LabelTypeValue_1;
+    // VALUE_2
+    lv_obj_t *ui_VisualColorForValue_2;
+    lv_obj_t *ui_ContainerForValue_2;
+    lv_obj_t *ui_LabelValueValue_2;
+    lv_obj_t *ui_LabelDescValue_2;
+    lv_obj_t *ui_LabelTypeValue_2;
+    // CHART
+    lv_obj_t *ui_Chart;
+    lv_chart_series_t *ui_Chart_series_V1;
+    lv_chart_series_t *ui_Chart_series_V2;
+
+    // WIKI
+    lv_obj_t *ui_SensorLabelDescription;
+    lv_obj_t *ui_SensorImage;
+
+    //SENSOR EVENT GUI
     void hideAllExceptFirst(bool isVisualisation = true);
     void nextSensor(bool isVisualisation);
     void prevSensor(bool isVisualisation);
     void confirmSensor();
     void goBackToMenu();
+
+    
 
 };
 

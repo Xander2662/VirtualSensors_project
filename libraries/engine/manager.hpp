@@ -47,11 +47,17 @@ public:
     //void assignSensorToPin(size_t pinIndex, BaseSensor* sensor);
     void assignSensorToPin(BaseSensor* sensor);
     BaseSensor* getAssignedSensor(size_t pinIndex) const;
-    void setActivePin(size_t pin) { activePin = pin; }
     void sendPinsOnSerial() const;
-
+    
     // read-only access to sensor list
-    //const std::vector<BaseSensor*>& getSensors() const { return Sensors; }
+    const std::vector<BaseSensor*>& getSensors() const { return Sensors; }
+    const std::array<BaseSensor*>& getPinMap() const { return PinMap; }
+    // access to currentIndex
+    size_t& getCurrentIndex() { return currentIndex; }
+    //const size_t setCurrentIndex(size_t index) const { currentIndex = index; }
+    void setActivePin(size_t pin) { activePin = pin; }
+    void resetActivePin() { activePin = NUM_PINS; }
+    //const size_t getActivePin() const { return activePin; }
 
 private:
     SensorManager();
