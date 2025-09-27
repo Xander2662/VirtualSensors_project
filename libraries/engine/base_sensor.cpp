@@ -75,7 +75,8 @@
         }
     }
 
-    void drawSensor(BaseSensor *sensor) {
+    //DEPRECATED
+    /*void drawSensor(BaseSensor *sensor) {
         if(sensor == nullptr) {
             return;
         }
@@ -86,9 +87,10 @@
             ex.print();
             sensor->setError(new Exception(ex));
         }
-    }
+    }*/
 
-    void constructSensor(BaseSensor *sensor,bool isVisualisation) {
+    // DEPRECATED
+    /*void constructSensor(BaseSensor *sensor,bool isVisualisation) {
         if(sensor == nullptr) {
             return;
         }
@@ -103,6 +105,6 @@
             ex.print();
             sensor->setError(new Exception(ex));
         }
-    }
+    }*/
 
 

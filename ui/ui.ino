@@ -217,6 +217,7 @@ if (LOOP_SYNC_COUNTER-- < 0) {
 // Always attempt redraw (safe on empty list)
 //if (SensorManager::getInstance().isInitialized()) {
 sensorManager.redraw();  
+//manager_GUI.drawCurrentSensor();
 //}
 
 lv_timer_handler();

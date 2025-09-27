@@ -325,6 +325,22 @@ public:
     }
 
     /**
+     * @brief Get all value keys of the sensor.
+     *
+     * @return std::vector<std::string> List of keys available in Values.
+     */
+    std::vector<std::string> getValues() const
+    {
+        std::vector<std::string> keys;
+        keys.reserve(Values.size());
+        for (const auto &v : Values)
+        {
+            keys.push_back(v.first);
+        }
+        return keys;
+    }
+
+    /**
      * @brief Get history from sensor.
      *
      * This function retrieves the history of a sensor parameter by key.

@@ -46,7 +46,8 @@ public:
     static constexpr size_t NUM_PINS = 6;
     //void assignSensorToPin(size_t pinIndex, BaseSensor* sensor);
     void assignSensorToPin(BaseSensor* sensor);
-    BaseSensor* getAssignedSensor(size_t pinIndex) const;
+    BaseSensor* getAssignedSensor(size_t pinIndex) const; 
+    //BaseSensor* getCurrentSensor();
     void sendPinsOnSerial() const;
     
     // read-only access to sensor list
@@ -54,7 +55,7 @@ public:
     const std::array<BaseSensor*>& getPinMap() const { return PinMap; }
     // access to currentIndex
     size_t& getCurrentIndex() { return currentIndex; }
-    //const size_t setCurrentIndex(size_t index) const { currentIndex = index; }
+    //void setCurrentIndex(size_t index) { currentIndex = index; }
     void setActivePin(size_t pin) { activePin = pin; }
     void resetActivePin() { activePin = NUM_PINS; }
     //const size_t getActivePin() const { return activePin; }

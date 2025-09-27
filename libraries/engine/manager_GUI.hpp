@@ -63,21 +63,32 @@ private:
     lv_obj_t *ui_LabelTypeValue_2;
     // CHART
     lv_obj_t *ui_Chart;
+    // this is something different as ui_Chart_series_1
     lv_chart_series_t *ui_Chart_series_V1;
-    lv_chart_series_t *ui_Chart_series_V2;
+    //lv_chart_series_t *ui_Chart_series_V2;
 
     // WIKI
+    lv_obj_t *ui_SensorWidgetWiki;
     lv_obj_t *ui_SensorLabelDescription;
     lv_obj_t *ui_SensorImage;
 
     //SENSOR EVENT GUI
+    
     void hideAllExceptFirst(bool isVisualisation = true);
     void nextSensor(bool isVisualisation);
     void prevSensor(bool isVisualisation);
     void confirmSensor();
     void goBackToMenu();
 
-    
+    //SENSOR GUI
+
+    void construct();
+    void constructWiki();
+    void drawCurrentSensor();
+
+    void addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation = true);
+    void addConfirmButtonToWidget(lv_obj_t *parentWidget);
+    void addBackButtonToWidget(lv_obj_t *parentWidget);
 
 };
 

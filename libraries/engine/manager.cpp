@@ -68,6 +68,16 @@ BaseSensor* SensorManager::getSensor(std::string uid) {
     return nullptr;
 }
 
+/*BaseSensor* SensorManager::getCurrentSensor()
+{
+    if (currentIndex < Sensors.size())
+    {
+        return Sensors[currentIndex];
+    }
+    return nullptr;
+}*/
+
+
 void SensorManager::addSensor(BaseSensor* sensor) {
     if (sensor) Sensors.push_back(sensor);
 }

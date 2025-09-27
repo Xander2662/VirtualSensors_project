@@ -1060,13 +1060,13 @@ public:
             throw;
         }
     }
-
+    
     /**
      * @brief Draw sensor.
      *
      * This function draws the sensor.
      */
-    virtual void draw() override
+    /*virtual void draw() override
     {
         if (!redrawPenging)
         {
@@ -1084,13 +1084,13 @@ public:
         lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_1, ui_Chart_series_milliTesla);
 
         redrawPenging = false; // Reset flag to redraw sensor.
-    }
+    }*/
     /**
      * @brief Construct UI elements.
      *
      * This function constructs the sensor-specific GUI.
      */
-    virtual void construct() override
+    /*virtual void construct() override
     {
         // Construct sensor UI
 
@@ -1214,7 +1214,7 @@ public:
     }
 
     void show() override { lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_HIDDEN); }
-    void hide() override { lv_obj_add_flag(ui_Widget, LV_OBJ_FLAG_HIDDEN); }
+    void hide() override { lv_obj_add_flag(ui_Widget, LV_OBJ_FLAG_HIDDEN); }*/
 };
 
 /**************************************************************************/
