@@ -52,7 +52,7 @@ public:
     
     // read-only access to sensor list
     const std::vector<BaseSensor*>& getSensors() const { return Sensors; }
-    const std::array<BaseSensor*>& getPinMap() const { return PinMap; }
+    const std::array<BaseSensor*, NUM_PINS>& getPinMap() const { return PinMap; }
     // access to currentIndex
     size_t& getCurrentIndex() { return currentIndex; }
     //void setCurrentIndex(size_t index) { currentIndex = index; }

@@ -41,7 +41,6 @@ void SensorManager::setInitialized(bool start){
 
 void SensorManager::init(bool fromRequest) {
     initMessenger();
-    initialized = true;
 
     if (!fromRequest) {
         logMessage("Initializing manager via fixed sensors list...\n");

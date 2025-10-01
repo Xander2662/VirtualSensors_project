@@ -15,36 +15,58 @@
 #include "lvgl.h"
 #include <array>
 
-class manager_GUI {
+class manager_GUI
+{
 public:
     // DEFINITION
-    //static manager_GUI& getInstance();
+    static manager_GUI &getInstance();
 
     // MENU GUI
     void showMenu();
     void hideMenu();
-    //lv_obj_t* getMenuWidget() const { return ui_MenuWidget; }
+    void updatePinLabelText();
+    // lv_obj_t* getMenuWidget() const { return ui_MenuWidget; }
+
+    // SENSOR GUI
+    void drawCurrentSensor();
+    void construct();
+    void constructWiki();
+
+    void resetMenu()
+    {
+        lv_obj_del(ui_MenuWidget);
+        ui_MenuWidget = nullptr;
+    }
+    void resetWidgetVis()
+    {
+        lv_obj_del(ui_SensorWidget);
+        ui_SensorWidget = nullptr;
+    }
+    void resetWidgetWiki()
+    {
+        lv_obj_del(ui_SensorWidgetWiki);
+        ui_SensorWidgetWiki = nullptr;
+    }
 
 private:
     // DEFINITION
-    manager_GUI(); 
+    manager_GUI();
     ~manager_GUI() = default;
 
-    manager_GUI(const manager_GUI&) = delete;
-    manager_GUI& operator=(const manager_GUI&) = delete;
+    manager_GUI(const manager_GUI &) = delete;
+    manager_GUI &operator=(const manager_GUI &) = delete;
 
     // MENU GUI
-    lv_obj_t* ui_MenuWidget;
-    lv_obj_t* ui_btnStart;
-    lv_obj_t* ui_ButtonStartLabel;
-    std::array<lv_obj_t*, 6> pinContainers;
-    std::array<lv_obj_t*, 6> pinLabels;
+    lv_obj_t *ui_MenuWidget;
+    lv_obj_t *ui_btnStart;
+    lv_obj_t *ui_ButtonStartLabel;
+    std::array<lv_obj_t *, 6> pinContainers;
+    std::array<lv_obj_t *, 6> pinLabels;
 
-    //MENU EVENT GUI
-    void startSensors();
-    void pinToSelection(int index);
+    // MENU EVENT GUI
+    // static void startSensors();
+    // static void pinToSelection(int index);
     void buildMenu();
-    void updatePinLabelText();
 
     // SENSOR GUI
     lv_obj_t *ui_SensorWidget;
@@ -65,32 +87,29 @@ private:
     lv_obj_t *ui_Chart;
     // this is something different as ui_Chart_series_1
     lv_chart_series_t *ui_Chart_series_V1;
-    //lv_chart_series_t *ui_Chart_series_V2;
+    // lv_chart_series_t *ui_Chart_series_V2;
 
     // WIKI
     lv_obj_t *ui_SensorWidgetWiki;
     lv_obj_t *ui_SensorLabelDescription;
     lv_obj_t *ui_SensorImage;
 
-    //SENSOR EVENT GUI
-    
-    void hideAllExceptFirst(bool isVisualisation = true);
-    void nextSensor(bool isVisualisation);
-    void prevSensor(bool isVisualisation);
-    void confirmSensor();
-    void goBackToMenu();
-
-    //SENSOR GUI
-
-    void construct();
-    void constructWiki();
-    void drawCurrentSensor();
+    // SENSOR EVENT GUI
+    // void hideAllExceptFirst(bool isVisualisation = true);
+    // void nextSensor(bool isVisualisation);
+    // void prevSensor(bool isVisualisation);
+    // void confirmSensor();
+    // void goBackToMenu();
+    lv_obj_t *ui_btnPrev;
+    lv_obj_t *ui_btnPrevLabel;
+    lv_obj_t *ui_btnNext;
+    lv_obj_t *ui_btnNextLabel;
+    lv_obj_t *ui_btnConfirm;
+    lv_obj_t *ui_btnConfirmLabel;
 
     void addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation = true);
     void addConfirmButtonToWidget(lv_obj_t *parentWidget);
     void addBackButtonToWidget(lv_obj_t *parentWidget);
-
 };
 
 #endif
-

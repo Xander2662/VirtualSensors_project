@@ -272,6 +272,22 @@ public:
     }
 
     /**
+     * @brief Get value from redrawPenging.
+     *
+     * This function retrieves the value of a redrawPenging.
+
+     * @return The value of the redrawPenging.
+     */
+    bool getRedrawPending() const { return redrawPenging; }
+
+    /**
+     * @brief Set value to redrawPenging.
+     *
+     * This function sets the value of a redrawPenging.
+     */
+    void setRedrawPending(bool value) { redrawPenging = value; }
+
+    /**
      * @brief Set configuration value.
      *
      * This function sets the value of a configuration parameter by key.
@@ -329,7 +345,7 @@ public:
      *
      * @return std::vector<std::string> List of keys available in Values.
      */
-    std::vector<std::string> getValues() const
+    std::vector<std::string> getValuesKeys() const
     {
         std::vector<std::string> keys;
         keys.reserve(Values.size());
@@ -665,7 +681,7 @@ public:
      *
      * This function should be overridden by derived classes to draw sensor-specific details.
      */
-    virtual void draw() = 0;
+    //virtual void draw() = 0;
 
     /**
      * @brief Construct UI elements for data visualisation.
@@ -679,13 +695,13 @@ public:
      *
      * This function should be overridden by derived classes to construct sensor-specific GUI.
      */
-    virtual void constructWiki() = 0;
+    //virtual void constructWiki() = 0;
 
     /** @brief Show this sensor’s UI widget (implemented by derived classes) */
-    virtual void show() = 0;
+    //virtual void show() = 0;
 
     /** @brief Hide this sensor’s UI widget (implemented by derived classes) */
-    virtual void hide() = 0;
+    //virtual void hide() = 0;
 
 
 };
@@ -795,6 +811,6 @@ void drawSensor(BaseSensor *sensor);
  * @param isVisualisation Checker, which makes sure if the data visualisation or the wiki is presented.
  * @throws Exceptions should be internally resolved to prevent program from crash.
  */
-void constructSensor(BaseSensor *sensor, bool isVisualisation = true);
+void constructSensor(BaseSensor *sensor);
 
 #endif // BASE_SENSOR_HPP

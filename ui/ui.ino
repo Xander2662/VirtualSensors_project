@@ -190,9 +190,10 @@ void setup ()
     //lcd.fillScreen(TFT_BLACK);
     
     sensorManager.init(false);
-    manager_GUI::getInstance().show();
+    //manager_GUI::getInstance();
+    manager_GUI::getInstance().showMenu();
     //sensorManager;.print();
-    //SensorManager::getInstance().reconstruct();
+    //sensorManager.reconstruct();
     //sensorManager.hideAllExceptFirst();
     Serial.println( "Setup done" );
 }
@@ -207,18 +208,18 @@ int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 void loop ()
 {
 if (LOOP_SYNC_COUNTER-- < 0) {
-    //if (SensorManager::getInstance().isInitialized()) {
+    if (sensorManager.isInitialized()) {
         sensorManager.resync();
-    //}
+    }
     LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
     delay(10);
 }
 
 // Always attempt redraw (safe on empty list)
-//if (SensorManager::getInstance().isInitialized()) {
-sensorManager.redraw();  
-//manager_GUI.drawCurrentSensor();
-//}
+if (sensorManager.isInitialized()) {
+//sensorManager.redraw();  
+manager_GUI::getInstance().drawCurrentSensor();
+}
 
 lv_timer_handler();
 delay(CYCLE_DRAW_MS);

@@ -12,16 +12,17 @@
 
 #include "manager_GUI.hpp"
 #include "manager.hpp"
-// #include "base_sensor.hpp"
+#include "base_sensor.hpp"
 
 /*********************
  *      DENITION
  *********************/
 
-/*manager_GUI& manager_GUI::getInstance() {
+manager_GUI &manager_GUI::getInstance()
+{
     static manager_GUI instance;
     return instance;
-}*/
+}
 
 manager_GUI::manager_GUI()
     : ui_MenuWidget(nullptr), ui_btnStart(nullptr), ui_ButtonStartLabel(nullptr)
@@ -47,6 +48,28 @@ void manager_GUI::hideMenu()
     if (ui_MenuWidget)
         lv_obj_add_flag(ui_MenuWidget, LV_OBJ_FLAG_HIDDEN);
     // lv_obj_del(ui_MenuWidget);
+}
+
+// free function for lvgl callback
+static void startSensors()
+{
+    SensorManager &manager = SensorManager::getInstance();
+    manager.sendPinsOnSerial();
+    manager.setInitialized(true);
+    manager_GUI &manager_GUI = manager_GUI::getInstance();
+    manager_GUI.hideMenu();
+    manager_GUI.construct();
+    // hideAllExceptFirst(true);
+}
+
+static void pinToSelection(int index)
+{
+    SensorManager &manager = SensorManager::getInstance();
+    manager.setActivePin(index);
+    manager_GUI &manager_GUI = manager_GUI::getInstance();
+    manager_GUI.hideMenu();
+    manager_GUI.constructWiki();
+    // hideAllExceptFirst(false);
 }
 
 void manager_GUI::buildMenu()
@@ -79,14 +102,15 @@ void manager_GUI::buildMenu()
         lv_obj_set_align(pinContainers[i], static_cast<lv_align_t>(LV_ALIGN_LEFT_MID + (i % 3)));
         lv_obj_set_y(pinContainers[i], (i / 3) ? 100 : -100);
 
-        lv_obj_add_event_cb(pinContainers[i], [i](lv_event_t *e)
-                            { pinToSelection(i); }, LV_EVENT_CLICKED, nullptr);
+        lv_obj_add_event_cb(pinContainers[i], [](lv_event_t *e)
+                            {
+            int index = (intptr_t)lv_event_get_user_data(e);
+            pinToSelection(index); }, LV_EVENT_CLICKED, (void *)(intptr_t)i);
 
         pinLabels[i] = lv_label_create(pinContainers[i]);
         lv_label_set_text_fmt(pinLabels[i], "Pin %d", i);
         lv_obj_center(pinLabels[i]);
     }
-
     // Title
     lv_obj_t *title = lv_label_create(ui_MenuWidget);
     lv_label_set_text(title, "Main Menu");
@@ -97,12 +121,12 @@ void manager_GUI::buildMenu()
 void manager_GUI::updatePinLabelText()
 {
     SensorManager &manager = SensorManager::getInstance();
-    auto *Sensors = manager.getSensors();
+    auto &Sensors = manager.getSensors();
     for (int i = 0; i < 6; ++i)
     {
         if (Sensors[i])
         {
-            lv_label_set_text_fmt(pinLabels[i], "%s", Sensors->Type.c_str());
+            lv_label_set_text_fmt(pinLabels[i], "%s", Sensors[i]->Type.c_str());
         }
         else
         {
@@ -112,27 +136,12 @@ void manager_GUI::updatePinLabelText()
     }
 }
 
-void manager_GUI::startSensors()
-{
-    SensorManager &manager = SensorManager::getInstance();
-    manager.sendPinsOnSerial();
-    manager.setInitialized(true);
-    hideAllExceptFirst(true);
-}
-
-void manager_GUI::pinToSelection(int index)
-{
-    SensorManager &manager = SensorManager::getInstance();
-    manager.setActivePin(index);
-    hideAllExceptFirst(false);
-}
-
 /***************************************************************
  *                    SENSOR GUI - Buttons
  ***************************************************************/
 
-// the isVisualisation makes sure that the proper version of construct is made
-void manager_GUI::hideAllExceptFirst(bool isVisualisation)
+// DEPRECATED!!! | the isVisualisation makes sure that the proper version of construct is made
+/*void manager_GUI::hideAllExceptFirst(bool isVisualisation)
 {
     SensorManager &manager = SensorManager::getInstance();
     if(isVisualisation){
@@ -174,31 +183,27 @@ void manager_GUI::hideAllExceptFirst(bool isVisualisation)
             manager.setCurrentIndex(0); // setCurrentIndex
         }
     }
-}
+}*/
 
-void manager_GUI::nextSensor(bool isVisualisation)
+static void nextSensor(bool isVisualisation)
 {
     SensorManager &manager = SensorManager::getInstance();
-    if(isVisualisation){
-        auto *PinMap = manager.getPinMap();
-    }else{
-        auto *Sensors = manager.getSensors();
-    }
-    auto *currentIndex = manager.getCurrentIndex();
+    auto &currentIndex = manager.getCurrentIndex();
+    manager_GUI &manager_GUI = manager_GUI::getInstance();
 
     if (!isVisualisation)
     {
-        if (Sensors.empty())
+        auto &sensors = manager.getSensors();
+        if (sensors.empty())
             return;
-        currentIndex = (currentIndex + 1) % Sensors.size();
-        constructWiki();
+        currentIndex = (currentIndex + 1) % sensors.size();
+        manager_GUI.constructWiki();
     }
     else
     {
-        if (PinMap.empty())
-            return;
+        auto &pinMap = manager.getPinMap();
         size_t count = 0;
-        for (auto *s : PinMap)
+        for (auto *s : pinMap)
             if (s)
                 count++;
         if (count == 0)
@@ -207,160 +212,157 @@ void manager_GUI::nextSensor(bool isVisualisation)
         // Find next valid pin
         do
         {
-            currentIndex = (currentIndex + 1) % PinMap.size();
-        } while (!PinMap[currentIndex]);
-        construct();
+            currentIndex = (currentIndex + 1) % pinMap.size();
+        } while (!pinMap[currentIndex]);
+        manager_GUI.construct();
     }
 }
 
-void manager_GUI::prevSensor(bool isVisualisation)
+static void prevSensor(bool isVisualisation)
 {
     SensorManager &manager = SensorManager::getInstance();
-    if(isVisualisation){
-        auto *PinMap = manager.getPinMap();
-    }else{
-        auto *Sensors = manager.getSensors();
-    }
-    auto *currentIndex = manager.getCurrentIndex();
+    auto &currentIndex = manager.getCurrentIndex();
+    manager_GUI &manager_GUI = manager_GUI::getInstance();
 
-    if (isVisualisation)
+    if (!isVisualisation)
     {
-        if (Sensors.empty())
+        auto &sensors = manager.getSensors();
+        if (sensors.empty())
             return;
-        Sensors[currentIndex]->hideSensor();
-        currentIndex = (currentIndex + Sensors.size() - 1) % Sensors.size();
-        Sensors[currentIndex]->showSensor();
+        currentIndex = (currentIndex + sensors.size() - 1) % sensors.size();
+        manager_GUI.constructWiki();
     }
     else
     {
-        if (PinMap.empty())
-            return;
+        auto &pinMap = manager.getPinMap();
         size_t count = 0;
-        for (auto *s : PinMap)
+        for (auto *s : pinMap)
             if (s)
                 count++;
         if (count == 0)
             return;
 
         // Find previous valid pin
-        PinMap[currentIndex]->hideSensor();
         do
         {
-            currentIndex = (currentIndex + PinMap.size() - 1) % PinMap.size();
-        } while (!PinMap[currentIndex]);
-        PinMap[currentIndex]->showSensor();
+            currentIndex = (currentIndex + pinMap.size() - 1) % pinMap.size();
+        } while (!pinMap[currentIndex]);
+        manager_GUI.construct();
     }
 }
 
-void manager_GUI::confirmSensor()
+// Free function
+static void goBackToMenu()
 {
     SensorManager &manager = SensorManager::getInstance();
-    auto *Sensors = manager.getSensors();
-    auto *currentIndex = manager.getCurrentIndex();
+    auto &Sensors = manager.getSensors();
+    auto &PinMap = manager.getPinMap();
+    auto &currentIndex = manager.getCurrentIndex();
+    manager_GUI &manager_GUI = manager_GUI::getInstance();
+    manager_GUI.resetWidgetVis();
+    manager_GUI.resetWidgetWiki();
+    currentIndex = 0;
+    manager.resetActivePin();
+    manager.setInitialized(false);
+    manager_GUI.showMenu();
+}
+
+// Free function
+static void confirmSensor()
+{
+    SensorManager &manager = SensorManager::getInstance();
+    auto &Sensors = manager.getSensors();
+    auto &currentIndex = manager.getCurrentIndex();
+    manager_GUI &manager_GUI = manager_GUI::getInstance();
 
     if (Sensors.empty())
         return;
     manager.assignSensorToPin(Sensors[currentIndex]);
     manager.sendPinsOnSerial();
-    update_pin_label_text();
+    manager_GUI.updatePinLabelText();
     goBackToMenu();
 }
 
-// NEDODĚLANÉ, místo show a hide vymazat z paměti
-void manager_GUI::goBackToMenu()
-{
-    SensorManager &manager = SensorManager::getInstance();
-    auto *Sensors = manager.getSensors();
-    auto *PinMap = manager.getPinMap();
-    auto *currentIndex = manager.getCurrentIndex();
-
-    lv_obj_del(ui_SensorWidget);
-    ui_SensorWidget = nullptr;
-    lv_obj_del(ui_SensorWidgetWiki);
-    ui_SensorWidgetWiki = nullptr;
-    currentIndex = 0;
-    manager.resetActivePin();
-    manager.setInitialized(false);
-
-    showMenu();
-}
-
 /** @brief There are 2 versions, for version 1, theres the visualisation so isVisualisation is true, for version 0, theres the wiki*/
-void manager_GUI::addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation = true)
+void manager_GUI::addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation)
 {
-    lv_obj_t *btnPrev = lv_btn_create(parentWidget);
-    lv_obj_set_width(btnPrev, 80);
-    lv_obj_set_height(btnPrev, 40);
+    ui_btnPrev = lv_btn_create(parentWidget);
+    lv_obj_set_width(ui_btnPrev, 80);
+    lv_obj_set_height(ui_btnPrev, 40);
     if (isVisualisation == true)
     { // Visualisation
-        lv_obj_set_x(btnPrev, 35);
-        lv_obj_set_y(btnPrev, -40);
+        lv_obj_set_x(ui_btnPrev, 35);
+        lv_obj_set_y(ui_btnPrev, -40);
     }
     else
     { // Wiki
-        lv_obj_set_x(btnPrev, 40);
-        lv_obj_set_y(btnPrev, -20);
+        lv_obj_set_x(ui_btnPrev, 40);
+        lv_obj_set_y(ui_btnPrev, -20);
     }
-    lv_obj_set_align(btnPrev, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_add_flag(btnPrev, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
-    lv_obj_clear_flag(btnPrev, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+    lv_obj_set_align(ui_btnPrev, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_add_flag(ui_btnPrev, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
+    lv_obj_clear_flag(ui_btnPrev, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                                    LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                                    LV_OBJ_FLAG_SCROLL_CHAIN);
-    lv_obj_add_event_cb(btnPrev, [](lv_event_t *e)
-                        { prevSensor(); }, LV_EVENT_CLICKED, &isVisualisation);
-    lv_obj_t *ButtonLabelPrev = lv_label_create(btnPrev);
-    lv_label_set_text(ButtonLabelPrev, "Prev");
-    lv_obj_set_width(ButtonLabelPrev, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ButtonLabelPrev, LV_SIZE_CONTENT); /// 1
-    lv_obj_set_align(ButtonLabelPrev, LV_ALIGN_CENTER);
+    lv_obj_add_event_cb(ui_btnPrev, [](lv_event_t *e)
+                        {
+        bool isVis = *(bool*)lv_event_get_user_data(e);
+        prevSensor(isVis); }, LV_EVENT_CLICKED, (void *)&isVisualisation);
+    ui_btnPrevLabel = lv_label_create(ui_btnPrev);
+    lv_label_set_text(ui_btnPrevLabel, "Prev");
+    lv_obj_set_width(ui_btnPrevLabel, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_height(ui_btnPrevLabel, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_align(ui_btnPrevLabel, LV_ALIGN_CENTER);
 
-    lv_obj_t *btnNext = lv_btn_create(parentWidget);
-    lv_obj_set_width(btnNext, 80);
-    lv_obj_set_height(btnNext, 40);
+    ui_btnNext = lv_btn_create(parentWidget);
+    lv_obj_set_width(ui_btnNext, 80);
+    lv_obj_set_height(ui_btnNext, 40);
     if (isVisualisation == true)
     { // Visualisation
-        lv_obj_set_x(btnNext, 183);
-        lv_obj_set_y(btnNext, -40);
+        lv_obj_set_x(ui_btnNext, 183);
+        lv_obj_set_y(ui_btnNext, -40);
     }
     else
     {
         // Wiki
-        lv_obj_set_x(btnNext, -110);
-        lv_obj_set_y(btnNext, -20);
+        lv_obj_set_x(ui_btnNext, 183);
+        lv_obj_set_y(ui_btnNext, -20);
     }
-    lv_obj_set_align(btnNext, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_add_flag(btnNext, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
-    lv_obj_clear_flag(btnNext, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+    lv_obj_set_align(ui_btnNext, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_add_flag(ui_btnNext, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
+    lv_obj_clear_flag(ui_btnNext, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                                    LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                                    LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-    lv_obj_add_event_cb(btnNext, [](lv_event_t *e)
-                        { nextSensor(); }, LV_EVENT_CLICKED, &isVisualisation);
-    lv_obj_t *ButtonLabelNext = lv_label_create(btnNext);
-    lv_label_set_text(ButtonLabelNext, "Next");
-    lv_obj_set_width(ButtonLabelNext, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ButtonLabelNext, LV_SIZE_CONTENT); /// 1
-    lv_obj_set_align(ButtonLabelNext, LV_ALIGN_CENTER);
+    lv_obj_add_event_cb(ui_btnNext, [](lv_event_t *e)
+                        {
+        bool isVis = *(bool*)lv_event_get_user_data(e);
+        nextSensor(isVis); }, LV_EVENT_CLICKED, (void *)&isVisualisation);
+    ui_btnNextLabel = lv_label_create(ui_btnNext);
+    lv_label_set_text(ui_btnNextLabel, "Next");
+    lv_obj_set_width(ui_btnNextLabel, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_height(ui_btnNextLabel, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_align(ui_btnNextLabel, LV_ALIGN_CENTER);
 }
 
 void manager_GUI::addConfirmButtonToWidget(lv_obj_t *parentWidget)
 {
-    lv_obj_t *btnConfirm = lv_btn_create(parentWidget);
-    lv_obj_set_width(btnConfirm, 80);
-    lv_obj_set_height(btnConfirm, 40);
-    lv_obj_set_x(btnConfirm, -50);
-    lv_obj_set_y(btnConfirm, -20);
-    lv_obj_set_align(btnConfirm, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_add_flag(btnConfirm, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
-    lv_obj_clear_flag(btnConfirm, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+    ui_btnConfirm = lv_btn_create(parentWidget);
+    lv_obj_set_width(ui_btnConfirm, 80);
+    lv_obj_set_height(ui_btnConfirm, 40);
+    lv_obj_set_x(ui_btnConfirm, -50);
+    lv_obj_set_y(ui_btnConfirm, -20);
+    lv_obj_set_align(ui_btnConfirm, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_add_flag(ui_btnConfirm, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
+    lv_obj_clear_flag(ui_btnConfirm, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                                       LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-    lv_obj_add_event_cb(btnConfirm, [](lv_event_t *e)
+    lv_obj_add_event_cb(ui_btnConfirm, [](lv_event_t *e)
                         { confirmSensor(); }, LV_EVENT_CLICKED, nullptr);
-    lv_obj_t *ButtonConfirmLabel = lv_label_create(btnConfirm);
-    lv_obj_set_width(ButtonConfirmLabel, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ButtonConfirmLabel, LV_SIZE_CONTENT); /// 1
-    lv_obj_set_align(ButtonConfirmLabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ButtonConfirmLabel, "Confirm");
+    ui_btnConfirmLabel = lv_label_create(ui_btnConfirm);
+    lv_obj_set_width(ui_btnConfirmLabel, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_height(ui_btnConfirmLabel, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_align(ui_btnConfirmLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_btnConfirmLabel, "Confirm");
 }
 
 void manager_GUI::addBackButtonToWidget(lv_obj_t *parentWidget)
@@ -758,7 +760,7 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
         lv_obj_set_style_text_opa(ui_LabelDescValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_font(ui_LabelDescValue_1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-        addNavButtonsToWidget(ui_SensorWidget);
+        addNavButtonsToWidget(ui_SensorWidget, false);
         addBackButtonToWidget(ui_SensorWidget);
 
         ui_Chart = lv_chart_create(ui_SensorWidget);
@@ -776,8 +778,8 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
 
         ui_Chart_series_V1 = lv_chart_add_series(ui_Chart, lv_color_hex(0xFFAF00),
                                                  LV_CHART_AXIS_PRIMARY_Y);
-        lv_coord_t ui_Chart_series_1[HISTORY_CAP];
-        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_series_1);
+        lv_coord_t ui_Chart_buff[HISTORY_CAP];
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_buff);
         lv_obj_set_style_bg_color(ui_Chart, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(ui_Chart, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_border_color(ui_Chart, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -792,7 +794,7 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
 
     SensorManager &manager = SensorManager::getInstance();
     auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
-    lv_label_set_text(ui_SensorLabel, sensor->Type.c_str());
+    lv_label_set_text(ui_SensorLabel, sensorCurrent->Type.c_str());
     lv_label_set_text(ui_LabelValueValue_1, "0");
     // Need to add [UNIT] take.
     lv_label_set_text(ui_LabelDescValue_1, "[Unit]");
@@ -801,29 +803,51 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
 // Only one sensor will be drawn at a Time
 void manager_GUI::drawCurrentSensor()
 {
-    if (!redrawPenging)
+    SensorManager &manager = SensorManager::getInstance();
+    auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
+
+    if (!sensorCurrent->getRedrawPending())
     {
         return;
     }
 
-    SensorManager &manager = SensorManager::getInstance();
-    auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
-
-    auto *Values = sensorCurrent->getValues();
-    for (auto *v : Values)
+    auto Values = sensorCurrent->getValuesKeys();
+    for (auto &v : Values)
     {
         lv_label_set_text(ui_LabelValueValue_1, v.c_str());
-        static lv_coord_t ui_Chart_series_1[HISTORY_CAP];
-        getHistory<float>(v, ui_Chart_series_1);
-        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_series_1);
+        /*static */ lv_coord_t ui_Chart_hist[HISTORY_CAP];
+        sensorCurrent->getHistory<float>(v, ui_Chart_hist);
+
+        lv_coord_t min_val = ui_Chart_hist[0];
+        lv_coord_t max_val = ui_Chart_hist[0];
+        long sum = 0;
+        for (int i = 0; i < HISTORY_CAP; i++)
+        {
+            lv_coord_t v = ui_Chart_hist[i];
+            if (v < min_val)
+                min_val = v;
+            if (v > max_val)
+                max_val = v;
+            sum += v;
+        }
+        float avg = (float)sum / HISTORY_CAP;
+
+        lv_coord_t delta = max_val - min_val;
+        lv_coord_t y_min = min_val;
+        lv_coord_t y_max = max_val + delta / 10 + 100;
+        y_max = y_max - y_max % 100;
+
+        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_hist);
+        lv_chart_set_range(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, 0, y_max);
+        lv_chart_refresh(ui_Chart);
     }
 
-    redrawPenging = false; // Reset flag to redraw sensor.
+    sensorCurrent->setRedrawPending(false); // Reset flag to redraw sensor.
 }
 
 // THINGS THAT NEED TO BE MULTIPLE
 /*
     VALUE OF SENSOR CONTAINERS
     ui_Chart_series_V1
-    ui_Chart_series_1
+    ui_Chart_buff
 */

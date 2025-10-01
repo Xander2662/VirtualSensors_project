@@ -90,21 +90,16 @@
     }*/
 
     // DEPRECATED
-    /*void constructSensor(BaseSensor *sensor,bool isVisualisation) {
+    void constructSensor(BaseSensor *sensor) {
         if(sensor == nullptr) {
             return;
         }
+
         try {
-            if(isVisualisation){
-                sensor->construct();
-            } else {
-                sensor->constructWiki();
-            }
-            
+            sensor->construct();
         } catch (const Exception &ex) {
             ex.print();
             sensor->setError(new Exception(ex));
         }
-    }*/
-
+    }
 
