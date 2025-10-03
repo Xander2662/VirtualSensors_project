@@ -31,6 +31,7 @@ public:
     void drawCurrentSensor();
     void construct();
     void constructWiki();
+    void goToFirstSensor(bool isVisualisation);
 
     void resetMenu()
     {
@@ -110,6 +111,7 @@ private:
     void addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation = true);
     void addConfirmButtonToWidget(lv_obj_t *parentWidget);
     void addBackButtonToWidget(lv_obj_t *parentWidget);
+
 };
 
 #endif

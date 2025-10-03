@@ -58,7 +58,8 @@ static void startSensors()
     manager.setInitialized(true);
     manager_GUI &manager_GUI = manager_GUI::getInstance();
     manager_GUI.hideMenu();
-    manager_GUI.construct();
+    manager_GUI.goToFirstSensor(true);
+    //manager_GUI.construct();
     // hideAllExceptFirst(true);
 }
 
@@ -68,7 +69,8 @@ static void pinToSelection(int index)
     manager.setActivePin(index);
     manager_GUI &manager_GUI = manager_GUI::getInstance();
     manager_GUI.hideMenu();
-    manager_GUI.constructWiki();
+    manager_GUI.goToFirstSensor(false);
+    //manager_GUI.constructWiki();
     // hideAllExceptFirst(false);
 }
 
@@ -418,6 +420,8 @@ void manager_GUI::addBackButtonToWidget(lv_obj_t *parentWidget)
 
 void manager_GUI::constructWiki()
 {
+      if (!ui_SensorWidgetWiki || !lv_obj_is_valid(ui_SensorWidgetWiki))
+    {
     // Container
     ui_SensorWidget = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(ui_SensorWidget);
@@ -465,6 +469,12 @@ void manager_GUI::constructWiki()
     addNavButtonsToWidget(ui_SensorWidget, false);
     addConfirmButtonToWidget(ui_SensorWidget);
     addBackButtonToWidget(ui_SensorWidget);
+    }
+
+    SensorManager &manager = SensorManager::getInstance();
+    auto *sensorCurrent = manager.getSensors()[manager.getCurrentIndex()];
+    lv_label_set_text(ui_SensorLabel, sensorCurrent->Type.c_str());
+    lv_label_set_text(ui_SensorLabelDescription, sensorCurrent->Description.c_str());
 }
 
 void manager_GUI::construct(/*bool hasTwoUnits*/)
@@ -843,6 +853,39 @@ void manager_GUI::drawCurrentSensor()
     }
 
     sensorCurrent->setRedrawPending(false); // Reset flag to redraw sensor.
+}
+
+void manager_GUI::goToFirstSensor(bool isVisualisation)
+{
+    SensorManager &manager = SensorManager::getInstance();
+    auto &currentIndex = manager.getCurrentIndex();
+
+    if (!isVisualisation)
+    {
+        auto &sensors = manager.getSensors();
+        if (sensors.empty())
+            return;
+
+        // první existující senzor
+        currentIndex = 0;
+        manager_GUI::getInstance().constructWiki();
+    }
+    else
+    {
+        auto &pinMap = manager.getPinMap();
+        if (pinMap.empty())
+            return;
+
+        // najít první NOTNUll pointer
+        size_t i = 0;
+        while (i < pinMap.size() && !pinMap[i])
+            i++;
+        if (i == pinMap.size())
+            return; // žádný senzor není
+
+        currentIndex = i;
+        manager_GUI::getInstance().construct();
+    }
 }
 
 // THINGS THAT NEED TO BE MULTIPLE

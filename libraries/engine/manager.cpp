@@ -33,8 +33,6 @@ SensorManager::~SensorManager() {
     for (auto* s : Sensors) delete s;
 }
 
-
-
 void SensorManager::setInitialized(bool start){
     initialized = start;
 }
