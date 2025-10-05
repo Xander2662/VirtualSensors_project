@@ -209,7 +209,7 @@ void loop ()
 {
 if (LOOP_SYNC_COUNTER-- < 0) {
     if (sensorManager.isInitialized()) {
-        sensorManager.resync();
+        //sensorManager.resync();
     }
     LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
     delay(10);
@@ -218,7 +218,7 @@ if (LOOP_SYNC_COUNTER-- < 0) {
 // Always attempt redraw (safe on empty list)
 if (sensorManager.isInitialized()) {
 //sensorManager.redraw();  
-manager_GUI::getInstance().drawCurrentSensor();
+//manager_GUI::getInstance().drawCurrentSensor();
 }
 
 lv_timer_handler();

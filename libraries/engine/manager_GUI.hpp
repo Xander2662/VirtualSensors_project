@@ -14,7 +14,6 @@
 
 #include "lvgl.h"
 #include <array>
-
 class manager_GUI
 {
 public:
@@ -33,21 +32,45 @@ public:
     void constructWiki();
     void goToFirstSensor(bool isVisualisation);
 
-    void resetMenu()
+    void showSensorWiki();
+    void hideSensorWiki();
+    void showSensorVisualisation();
+    void hideSensorVisualisation();
+
+    /*void resetMenu()
     {
         lv_obj_del(ui_MenuWidget);
         ui_MenuWidget = nullptr;
-    }
-    void resetWidgetVis()
+    }*/
+
+    /*void resetWidgetVis()
     {
-        lv_obj_del(ui_SensorWidget);
+        if (ui_SensorWidget && lv_obj_is_valid(ui_SensorWidget))
+        {
+            lv_obj_del(ui_SensorWidget);
+        }
         ui_SensorWidget = nullptr;
+        ui_SensorLabel = nullptr;
+        ui_ContainerForValue_1 = nullptr;
+        ui_VisualColorForValue_1 = nullptr;
+        ui_LabelValueValue_1 = nullptr;
+        ui_LabelDescValue_1 = nullptr;
+        ui_LabelTypeValue_1 = nullptr;
+        ui_Chart = nullptr;
+        ui_Chart_series_V1 = nullptr;
     }
+
     void resetWidgetWiki()
     {
-        lv_obj_del(ui_SensorWidgetWiki);
+        if (ui_SensorWidgetWiki && lv_obj_is_valid(ui_SensorWidgetWiki))
+        {
+            lv_obj_del(ui_SensorWidgetWiki);
+        }
         ui_SensorWidgetWiki = nullptr;
-    }
+        ui_SensorLabel = nullptr; // careful: used in both wiki/vis
+        ui_SensorLabelDescription = nullptr;
+        ui_SensorImage = nullptr;
+    }*/
 
 private:
     // DEFINITION
@@ -111,7 +134,6 @@ private:
     void addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation = true);
     void addConfirmButtonToWidget(lv_obj_t *parentWidget);
     void addBackButtonToWidget(lv_obj_t *parentWidget);
-
 };
 
 #endif

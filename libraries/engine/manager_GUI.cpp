@@ -31,6 +31,28 @@ manager_GUI::manager_GUI()
     hideMenu(); // start hidden
 }
 
+//inicialization of static lvgl objects declared in manager_GUI.hpp
+/*lv_obj_t* manager_GUI::ui_SensorWidget = nullptr;
+lv_obj_t* manager_GUI::ui_SensorLabel = nullptr;
+lv_obj_t* manager_GUI::ui_ContainerForValue_1 = nullptr;
+lv_obj_t* manager_GUI::ui_VisualColorForValue_1 = nullptr;
+lv_obj_t* manager_GUI::ui_LabelValueValue_1 = nullptr;
+lv_obj_t* manager_GUI::ui_LabelDescValue_1 = nullptr;
+lv_obj_t* manager_GUI::ui_LabelTypeValue_1 = nullptr;
+lv_obj_t* manager_GUI::ui_Chart = nullptr;
+lv_chart_series_t* manager_GUI::ui_Chart_series_V1 = nullptr;
+
+lv_obj_t* manager_GUI::ui_SensorWidgetWiki = nullptr;
+lv_obj_t* manager_GUI::ui_SensorLabelDescription = nullptr;
+lv_obj_t* manager_GUI::ui_SensorImage = nullptr;
+
+lv_obj_t* manager_GUI::ui_btnPrev = nullptr;
+lv_obj_t* manager_GUI::ui_btnPrevLabel = nullptr;
+lv_obj_t* manager_GUI::ui_btnNext = nullptr;
+lv_obj_t* manager_GUI::ui_btnNextLabel = nullptr;
+lv_obj_t* manager_GUI::ui_btnConfirm = nullptr;
+lv_obj_t* manager_GUI::ui_btnConfirmLabel = nullptr;*/
+
 /*********************
  *      MENU GUI
  *********************/
@@ -59,8 +81,8 @@ static void startSensors()
     manager_GUI &manager_GUI = manager_GUI::getInstance();
     manager_GUI.hideMenu();
     manager_GUI.goToFirstSensor(true);
-    //manager_GUI.construct();
-    // hideAllExceptFirst(true);
+    // manager_GUI.construct();
+    //  hideAllExceptFirst(true);
 }
 
 static void pinToSelection(int index)
@@ -70,8 +92,8 @@ static void pinToSelection(int index)
     manager_GUI &manager_GUI = manager_GUI::getInstance();
     manager_GUI.hideMenu();
     manager_GUI.goToFirstSensor(false);
-    //manager_GUI.constructWiki();
-    // hideAllExceptFirst(false);
+    // manager_GUI.constructWiki();
+    //  hideAllExceptFirst(false);
 }
 
 void manager_GUI::buildMenu()
@@ -123,12 +145,12 @@ void manager_GUI::buildMenu()
 void manager_GUI::updatePinLabelText()
 {
     SensorManager &manager = SensorManager::getInstance();
-    auto &Sensors = manager.getSensors();
+    auto &pinMap = manager.getPinMap();
     for (int i = 0; i < 6; ++i)
     {
-        if (Sensors[i])
+        if (pinMap[i])
         {
-            lv_label_set_text_fmt(pinLabels[i], "%s", Sensors[i]->Type.c_str());
+            lv_label_set_text_fmt(pinLabels[i], "%s", pinMap[i]->Type.c_str());
         }
         else
         {
@@ -249,6 +271,8 @@ static void prevSensor(bool isVisualisation)
         {
             currentIndex = (currentIndex + pinMap.size() - 1) % pinMap.size();
         } while (!pinMap[currentIndex]);
+        //TEMP
+        logMessage("while loop done!");
         manager_GUI.construct();
     }
 }
@@ -261,11 +285,12 @@ static void goBackToMenu()
     auto &PinMap = manager.getPinMap();
     auto &currentIndex = manager.getCurrentIndex();
     manager_GUI &manager_GUI = manager_GUI::getInstance();
-    manager_GUI.resetWidgetVis();
-    manager_GUI.resetWidgetWiki();
-    currentIndex = 0;
+    // Since goToFirst was implemented this doesnt need to be checked
+    // currentIndex = 0;
     manager.resetActivePin();
     manager.setInitialized(false);
+    manager_GUI.hideSensorVisualisation();
+    manager_GUI.hideSensorWiki();
     manager_GUI.showMenu();
 }
 
@@ -276,13 +301,12 @@ static void confirmSensor()
     auto &Sensors = manager.getSensors();
     auto &currentIndex = manager.getCurrentIndex();
     manager_GUI &manager_GUI = manager_GUI::getInstance();
-
-    if (Sensors.empty())
-        return;
     manager.assignSensorToPin(Sensors[currentIndex]);
-    manager.sendPinsOnSerial();
     manager_GUI.updatePinLabelText();
-    goBackToMenu();
+    manager_GUI.hideSensorWiki();
+    manager.resetActivePin();
+    manager.sendPinsOnSerial();
+    manager_GUI.showMenu();
 }
 
 /** @brief There are 2 versions, for version 1, theres the visualisation so isVisualisation is true, for version 0, theres the wiki*/
@@ -304,12 +328,12 @@ void manager_GUI::addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisa
     lv_obj_set_align(ui_btnPrev, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_add_flag(ui_btnPrev, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
     lv_obj_clear_flag(ui_btnPrev, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                   LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                   LV_OBJ_FLAG_SCROLL_CHAIN);
+                                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                      LV_OBJ_FLAG_SCROLL_CHAIN);
     lv_obj_add_event_cb(ui_btnPrev, [](lv_event_t *e)
                         {
-        bool isVis = *(bool*)lv_event_get_user_data(e);
-        prevSensor(isVis); }, LV_EVENT_CLICKED, (void *)&isVisualisation);
+    bool isVis = reinterpret_cast<intptr_t>(lv_event_get_user_data(e));
+    prevSensor(isVis); }, LV_EVENT_CLICKED, reinterpret_cast<void *>(isVisualisation));
     ui_btnPrevLabel = lv_label_create(ui_btnPrev);
     lv_label_set_text(ui_btnPrevLabel, "Prev");
     lv_obj_set_width(ui_btnPrevLabel, LV_SIZE_CONTENT);  /// 1
@@ -333,12 +357,12 @@ void manager_GUI::addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisa
     lv_obj_set_align(ui_btnNext, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_add_flag(ui_btnNext, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
     lv_obj_clear_flag(ui_btnNext, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                   LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                   LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+                                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                      LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
     lv_obj_add_event_cb(ui_btnNext, [](lv_event_t *e)
                         {
-        bool isVis = *(bool*)lv_event_get_user_data(e);
-        nextSensor(isVis); }, LV_EVENT_CLICKED, (void *)&isVisualisation);
+    bool isVis = reinterpret_cast<intptr_t>(lv_event_get_user_data(e));
+    nextSensor(isVis); }, LV_EVENT_CLICKED, reinterpret_cast<void *>(isVisualisation));
     ui_btnNextLabel = lv_label_create(ui_btnNext);
     lv_label_set_text(ui_btnNextLabel, "Next");
     lv_obj_set_width(ui_btnNextLabel, LV_SIZE_CONTENT);  /// 1
@@ -356,8 +380,8 @@ void manager_GUI::addConfirmButtonToWidget(lv_obj_t *parentWidget)
     lv_obj_set_align(ui_btnConfirm, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_add_flag(ui_btnConfirm, LV_OBJ_FLAG_EVENT_BUBBLE); /// Flags
     lv_obj_clear_flag(ui_btnConfirm, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                      LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+                                         LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                         LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
     lv_obj_add_event_cb(ui_btnConfirm, [](lv_event_t *e)
                         { confirmSensor(); }, LV_EVENT_CLICKED, nullptr);
     ui_btnConfirmLabel = lv_label_create(ui_btnConfirm);
@@ -418,63 +442,87 @@ void manager_GUI::addBackButtonToWidget(lv_obj_t *parentWidget)
  *                    SENSOR GUI - Sensors
  ***************************************************************/
 
+void manager_GUI::showSensorWiki()
+{
+    if (ui_SensorWidgetWiki)
+    lv_obj_clear_flag(ui_SensorWidgetWiki, LV_OBJ_FLAG_HIDDEN);
+}
+
+void manager_GUI::hideSensorWiki()
+{
+    if (ui_SensorWidgetWiki)
+    lv_obj_add_flag(ui_SensorWidgetWiki, LV_OBJ_FLAG_HIDDEN);
+}
+
+void manager_GUI::showSensorVisualisation()
+{
+    if (ui_SensorWidget)
+    lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
+}
+void manager_GUI::hideSensorVisualisation()
+{
+    if (ui_SensorWidget)
+    lv_obj_add_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
+}
+
 void manager_GUI::constructWiki()
 {
-      if (!ui_SensorWidgetWiki || !lv_obj_is_valid(ui_SensorWidgetWiki))
+    if (!ui_SensorWidgetWiki || !lv_obj_is_valid(ui_SensorWidgetWiki))
     {
-    // Container
-    ui_SensorWidget = lv_obj_create(lv_scr_act());
-    lv_obj_remove_style_all(ui_SensorWidget);
-    lv_obj_set_width(ui_SensorWidget, 760);
-    lv_obj_set_height(ui_SensorWidget, 440);
-    lv_obj_set_align(ui_SensorWidget, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
-                                           LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
-                                           LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-    lv_obj_set_style_radius(ui_SensorWidget, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_SensorWidget, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_SensorWidget, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_SensorWidget, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+        // Container
+        ui_SensorWidgetWiki = lv_obj_create(lv_scr_act());
+        lv_obj_remove_style_all(ui_SensorWidgetWiki);
+        lv_obj_set_width(ui_SensorWidgetWiki, 760);
+        lv_obj_set_height(ui_SensorWidgetWiki, 440);
+        lv_obj_set_align(ui_SensorWidgetWiki, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_SensorWidgetWiki, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
+                                                   LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
+                                                   LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_radius(ui_SensorWidgetWiki, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_SensorWidgetWiki, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(ui_SensorWidgetWiki, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(ui_SensorWidgetWiki, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_opa(ui_SensorWidgetWiki, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(ui_SensorWidgetWiki, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // Title
-    ui_SensorLabel = lv_label_create(ui_SensorWidget);
-    lv_label_set_text(ui_SensorLabel, "Sensor Label");
-    lv_obj_set_width(ui_SensorLabel, LV_SIZE_CONTENT);
-    lv_obj_set_height(ui_SensorLabel, LV_SIZE_CONTENT);
-    lv_obj_set_x(ui_SensorLabel, 0);
-    lv_obj_set_y(ui_SensorLabel, -185);
-    lv_obj_set_align(ui_SensorLabel, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_SensorLabel, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                          LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                          LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-    lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+        // Title
+        ui_SensorLabel = lv_label_create(ui_SensorWidgetWiki);
+        lv_label_set_text(ui_SensorLabel, "Sensor Label");
+        lv_obj_set_width(ui_SensorLabel, LV_SIZE_CONTENT);
+        lv_obj_set_height(ui_SensorLabel, LV_SIZE_CONTENT);
+        lv_obj_set_x(ui_SensorLabel, 0);
+        lv_obj_set_y(ui_SensorLabel, -185);
+        lv_obj_set_align(ui_SensorLabel, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_SensorLabel, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                                              LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_SensorLabelDescription = lv_label_create(ui_SensorWidget);
-    lv_obj_set_width(ui_SensorLabelDescription, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ui_SensorLabelDescription, LV_SIZE_CONTENT); /// 1
-    lv_obj_set_x(ui_SensorLabelDescription, 25);
-    lv_obj_set_y(ui_SensorLabelDescription, 100);
-    lv_label_set_text(ui_SensorLabelDescription, "Description");
-    lv_obj_clear_flag(ui_SensorLabelDescription,
-                      LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
-                          LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                          LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-    lv_obj_set_style_text_color(ui_SensorLabelDescription, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_SensorLabelDescription, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        ui_SensorLabelDescription = lv_label_create(ui_SensorWidgetWiki);
+        lv_obj_set_width(ui_SensorLabelDescription, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_SensorLabelDescription, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_SensorLabelDescription, 25);
+        lv_obj_set_y(ui_SensorLabelDescription, 100);
+        lv_label_set_text(ui_SensorLabelDescription, "Description");
+        lv_obj_clear_flag(ui_SensorLabelDescription,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
+                              LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_color(ui_SensorLabelDescription, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_SensorLabelDescription, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    addNavButtonsToWidget(ui_SensorWidget, false);
-    addConfirmButtonToWidget(ui_SensorWidget);
-    addBackButtonToWidget(ui_SensorWidget);
+        addNavButtonsToWidget(ui_SensorWidgetWiki, false);
+        addConfirmButtonToWidget(ui_SensorWidgetWiki);
+        addBackButtonToWidget(ui_SensorWidgetWiki);
     }
 
     SensorManager &manager = SensorManager::getInstance();
     auto *sensorCurrent = manager.getSensors()[manager.getCurrentIndex()];
     lv_label_set_text(ui_SensorLabel, sensorCurrent->Type.c_str());
     lv_label_set_text(ui_SensorLabelDescription, sensorCurrent->Description.c_str());
+    showSensorWiki();
 }
 
 void manager_GUI::construct(/*bool hasTwoUnits*/)
@@ -769,8 +817,9 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
         lv_obj_set_style_text_color(ui_LabelDescValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(ui_LabelDescValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_font(ui_LabelDescValue_1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        addNavButtonsToWidget(ui_SensorWidget, false);
+        
+        // true because its visualisation for sensors
+        addNavButtonsToWidget(ui_SensorWidget, true);
         addBackButtonToWidget(ui_SensorWidget);
 
         ui_Chart = lv_chart_create(ui_SensorWidget);
@@ -803,11 +852,16 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
     }
 
     SensorManager &manager = SensorManager::getInstance();
+    //TEMP
+    logMessage("getting ready to take sensorCurrent!");
     auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
+    //TEMP
+    logMessage("sensorCurrent got taken from manager!");
     lv_label_set_text(ui_SensorLabel, sensorCurrent->Type.c_str());
     lv_label_set_text(ui_LabelValueValue_1, "0");
     // Need to add [UNIT] take.
     lv_label_set_text(ui_LabelDescValue_1, "[Unit]");
+    showSensorVisualisation();
 }
 
 // Only one sensor will be drawn at a Time
@@ -826,7 +880,7 @@ void manager_GUI::drawCurrentSensor()
     {
         lv_label_set_text(ui_LabelValueValue_1, v.c_str());
         /*static */ lv_coord_t ui_Chart_hist[HISTORY_CAP];
-        sensorCurrent->getHistory<float>(v, ui_Chart_hist);
+        sensorCurrent->getHistory<float>(v.c_str(), ui_Chart_hist);
 
         lv_coord_t min_val = ui_Chart_hist[0];
         lv_coord_t max_val = ui_Chart_hist[0];
@@ -868,7 +922,7 @@ void manager_GUI::goToFirstSensor(bool isVisualisation)
 
         // první existující senzor
         currentIndex = 0;
-        manager_GUI::getInstance().constructWiki();
+        constructWiki();
     }
     else
     {
@@ -884,7 +938,7 @@ void manager_GUI::goToFirstSensor(bool isVisualisation)
             return; // žádný senzor není
 
         currentIndex = i;
-        manager_GUI::getInstance().construct();
+        construct();
     }
 }
 
