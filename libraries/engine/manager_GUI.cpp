@@ -486,19 +486,19 @@ void manager_GUI::constructWiki()
         lv_obj_set_style_border_width(ui_SensorWidgetWiki, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
         // Title
-        ui_SensorLabel = lv_label_create(ui_SensorWidgetWiki);
-        lv_label_set_text(ui_SensorLabel, "Sensor Label");
-        lv_obj_set_width(ui_SensorLabel, LV_SIZE_CONTENT);
-        lv_obj_set_height(ui_SensorLabel, LV_SIZE_CONTENT);
-        lv_obj_set_x(ui_SensorLabel, 0);
-        lv_obj_set_y(ui_SensorLabel, -185);
-        lv_obj_set_align(ui_SensorLabel, LV_ALIGN_CENTER);
-        lv_obj_clear_flag(ui_SensorLabel, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+        ui_SensorLabelWiki = lv_label_create(ui_SensorWidgetWiki);
+        lv_label_set_text(ui_SensorLabelWiki, "Sensor Label");
+        lv_obj_set_width(ui_SensorLabelWiki, LV_SIZE_CONTENT);
+        lv_obj_set_height(ui_SensorLabelWiki, LV_SIZE_CONTENT);
+        lv_obj_set_x(ui_SensorLabelWiki, 0);
+        lv_obj_set_y(ui_SensorLabelWiki, -185);
+        lv_obj_set_align(ui_SensorLabelWiki, LV_ALIGN_CENTER);
+        lv_obj_clear_flag(ui_SensorLabelWiki, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                                               LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                                               LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
-        lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_color(ui_SensorLabelWiki, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_SensorLabelWiki, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_SensorLabelWiki, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
         ui_SensorLabelDescription = lv_label_create(ui_SensorWidgetWiki);
         lv_obj_set_width(ui_SensorLabelDescription, LV_SIZE_CONTENT);  /// 1
@@ -520,7 +520,7 @@ void manager_GUI::constructWiki()
 
     SensorManager &manager = SensorManager::getInstance();
     auto *sensorCurrent = manager.getSensors()[manager.getCurrentIndex()];
-    lv_label_set_text(ui_SensorLabel, sensorCurrent->Type.c_str());
+    lv_label_set_text(ui_SensorLabelWiki, sensorCurrent->Type.c_str());
     lv_label_set_text(ui_SensorLabelDescription, sensorCurrent->Description.c_str());
     manager.showCurrentSensorInfo(false);
     showSensorWiki();

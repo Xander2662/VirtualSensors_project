@@ -115,6 +115,7 @@ private:
 
     // WIKI
     lv_obj_t *ui_SensorWidgetWiki;
+    lv_obj_t *ui_SensorLabelWiki;
     lv_obj_t *ui_SensorLabelDescription;
     lv_obj_t *ui_SensorImage;
 
