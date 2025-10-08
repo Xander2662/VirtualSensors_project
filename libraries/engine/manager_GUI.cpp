@@ -118,13 +118,18 @@ void manager_GUI::buildMenu()
     lv_label_set_text(ui_ButtonStartLabel, "Start");
     lv_obj_center(ui_ButtonStartLabel);
 
+    static const lv_align_t align_map[3] = {
+LV_ALIGN_LEFT_MID,
+LV_ALIGN_CENTER,
+LV_ALIGN_RIGHT_MID
+    };
     // Create 6 pin containers
     for (int i = 0; i < 6; ++i)
     {
         pinContainers[i] = lv_btn_create(ui_MenuWidget);
         lv_obj_set_size(pinContainers[i], 180, 80);
-        lv_obj_set_align(pinContainers[i], static_cast<lv_align_t>(LV_ALIGN_LEFT_MID + (i % 3)));
-        lv_obj_set_y(pinContainers[i], (i / 3) ? 100 : -100);
+        lv_obj_set_align(pinContainers[i], align_map[i%3]);
+        lv_obj_set_y(pinContainers[i], (i < 3) ? -100 : 100);
 
         lv_obj_add_event_cb(pinContainers[i], [](lv_event_t *e)
                             {
