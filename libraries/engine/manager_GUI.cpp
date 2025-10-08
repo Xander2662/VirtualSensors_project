@@ -31,28 +31,6 @@ manager_GUI::manager_GUI()
     hideMenu(); // start hidden
 }
 
-// inicialization of static lvgl objects declared in manager_GUI.hpp
-/*lv_obj_t* manager_GUI::ui_SensorWidget = nullptr;
-lv_obj_t* manager_GUI::ui_SensorLabel = nullptr;
-lv_obj_t* manager_GUI::ui_ContainerForValue_1 = nullptr;
-lv_obj_t* manager_GUI::ui_VisualColorForValue_1 = nullptr;
-lv_obj_t* manager_GUI::ui_LabelValueValue_1 = nullptr;
-lv_obj_t* manager_GUI::ui_LabelDescValue_1 = nullptr;
-lv_obj_t* manager_GUI::ui_LabelTypeValue_1 = nullptr;
-lv_obj_t* manager_GUI::ui_Chart = nullptr;
-lv_chart_series_t* manager_GUI::ui_Chart_series_V1 = nullptr;
-
-lv_obj_t* manager_GUI::ui_SensorWidgetWiki = nullptr;
-lv_obj_t* manager_GUI::ui_SensorLabelDescription = nullptr;
-lv_obj_t* manager_GUI::ui_SensorImage = nullptr;
-
-lv_obj_t* manager_GUI::ui_btnPrev = nullptr;
-lv_obj_t* manager_GUI::ui_btnPrevLabel = nullptr;
-lv_obj_t* manager_GUI::ui_btnNext = nullptr;
-lv_obj_t* manager_GUI::ui_btnNextLabel = nullptr;
-lv_obj_t* manager_GUI::ui_btnConfirm = nullptr;
-lv_obj_t* manager_GUI::ui_btnConfirmLabel = nullptr;*/
-
 /*********************
  *      MENU GUI
  *********************/
@@ -76,6 +54,8 @@ void manager_GUI::hideMenu()
 static void startSensors()
 {
     SensorManager &manager = SensorManager::getInstance();
+    auto &pinMap = manager.getPinMap();
+    if(pinMap.empty()) return;  
     manager.sendPinsOnSerial();
     manager.setInitialized(true);
     manager_GUI &manager_GUI = manager_GUI::getInstance();
@@ -105,6 +85,7 @@ void manager_GUI::buildMenu()
     lv_obj_set_align(ui_MenuWidget, LV_ALIGN_CENTER);
     lv_obj_set_style_radius(ui_MenuWidget, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_MenuWidget, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_MenuWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_MenuWidget, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // Start button
@@ -119,16 +100,15 @@ void manager_GUI::buildMenu()
     lv_obj_center(ui_ButtonStartLabel);
 
     static const lv_align_t align_map[3] = {
-LV_ALIGN_LEFT_MID,
-LV_ALIGN_CENTER,
-LV_ALIGN_RIGHT_MID
-    };
+        LV_ALIGN_LEFT_MID,
+        LV_ALIGN_CENTER,
+        LV_ALIGN_RIGHT_MID};
     // Create 6 pin containers
     for (int i = 0; i < 6; ++i)
     {
         pinContainers[i] = lv_btn_create(ui_MenuWidget);
         lv_obj_set_size(pinContainers[i], 180, 80);
-        lv_obj_set_align(pinContainers[i], align_map[i%3]);
+        lv_obj_set_align(pinContainers[i], align_map[i % 3]);
         lv_obj_set_y(pinContainers[i], (i < 3) ? -100 : 100);
 
         lv_obj_add_event_cb(pinContainers[i], [](lv_event_t *e)
@@ -499,8 +479,8 @@ void manager_GUI::constructWiki()
         lv_obj_set_y(ui_SensorLabelWiki, -185);
         lv_obj_set_align(ui_SensorLabelWiki, LV_ALIGN_CENTER);
         lv_obj_clear_flag(ui_SensorLabelWiki, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                              LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                              LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+                                                  LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                                  LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
         lv_obj_set_style_text_color(ui_SensorLabelWiki, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(ui_SensorLabelWiki, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_font(ui_SensorLabelWiki, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -874,27 +854,27 @@ void manager_GUI::drawCurrentSensor()
 {
     SensorManager &manager = SensorManager::getInstance();
     auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
-    //TEMP
-    // manager.showCurrentSensorInfo(true);
+    // TEMP
+    //  manager.showCurrentSensorInfo(true);
 
     if (!(sensorCurrent->getRedrawPending()))
     {
         return;
     }
-    //TEMP
+    // TEMP
     logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
 
     auto Values = sensorCurrent->getValuesKeys();
     for (auto &Key : Values)
     {
-        //TEMP
-        logMessage("RedrawPending: %d\n",sensorCurrent->getRedrawPending());
+        // TEMP
+        logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
 
         std::string value = sensorCurrent->getValue<std::string>(Key.c_str());
         lv_label_set_text(ui_LabelValueValue_1, value.c_str());
         static lv_coord_t ui_Chart_hist[HISTORY_CAP];
         sensorCurrent->getHistory<float>(Key.c_str(), ui_Chart_hist);
-        //TEMP
+        // TEMP
         logMessage("value string: %s\n", Key.c_str());
 
         lv_coord_t min_val = ui_Chart_hist[0];
@@ -903,7 +883,7 @@ void manager_GUI::drawCurrentSensor()
         for (int i = 0; i < HISTORY_CAP; i++)
         {
             lv_coord_t j = ui_Chart_hist[i];
-            //TEMP
+            // TEMP
             logMessage("%d. history : %d\n", i, j);
             if (j < min_val)
                 min_val = j;
