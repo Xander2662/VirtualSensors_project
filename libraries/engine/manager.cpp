@@ -153,3 +153,24 @@ void SensorManager::sendPinsOnSerial() const {
     logMessage(out.c_str());
 
 }
+
+void SensorManager::showCurrentSensorInfo(bool isVisualisation) const
+{
+    BaseSensor* sensor = nullptr;
+
+    if (!isVisualisation) {
+        if (currentIndex < Sensors.size())
+            sensor = Sensors[currentIndex];
+    } else {
+        if (currentIndex < PinMap.size())
+            sensor = PinMap[currentIndex];
+    }
+
+    if (!sensor) {
+        logMessage("No sensor selected.\n");
+        return;
+    }
+
+    logMessage("Sensor: %s\n", sensor->Type.c_str());
+    logMessage("Description: %s\n", sensor->Description.c_str());
+}

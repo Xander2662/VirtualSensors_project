@@ -31,7 +31,7 @@ manager_GUI::manager_GUI()
     hideMenu(); // start hidden
 }
 
-//inicialization of static lvgl objects declared in manager_GUI.hpp
+// inicialization of static lvgl objects declared in manager_GUI.hpp
 /*lv_obj_t* manager_GUI::ui_SensorWidget = nullptr;
 lv_obj_t* manager_GUI::ui_SensorLabel = nullptr;
 lv_obj_t* manager_GUI::ui_ContainerForValue_1 = nullptr;
@@ -271,7 +271,7 @@ static void prevSensor(bool isVisualisation)
         {
             currentIndex = (currentIndex + pinMap.size() - 1) % pinMap.size();
         } while (!pinMap[currentIndex]);
-        //TEMP
+        // TEMP
         logMessage("while loop done!");
         manager_GUI.construct();
     }
@@ -445,24 +445,24 @@ void manager_GUI::addBackButtonToWidget(lv_obj_t *parentWidget)
 void manager_GUI::showSensorWiki()
 {
     if (ui_SensorWidgetWiki)
-    lv_obj_clear_flag(ui_SensorWidgetWiki, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_SensorWidgetWiki, LV_OBJ_FLAG_HIDDEN);
 }
 
 void manager_GUI::hideSensorWiki()
 {
     if (ui_SensorWidgetWiki)
-    lv_obj_add_flag(ui_SensorWidgetWiki, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_SensorWidgetWiki, LV_OBJ_FLAG_HIDDEN);
 }
 
 void manager_GUI::showSensorVisualisation()
 {
     if (ui_SensorWidget)
-    lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
 }
 void manager_GUI::hideSensorVisualisation()
 {
     if (ui_SensorWidget)
-    lv_obj_add_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
 }
 
 void manager_GUI::constructWiki()
@@ -522,6 +522,7 @@ void manager_GUI::constructWiki()
     auto *sensorCurrent = manager.getSensors()[manager.getCurrentIndex()];
     lv_label_set_text(ui_SensorLabel, sensorCurrent->Type.c_str());
     lv_label_set_text(ui_SensorLabelDescription, sensorCurrent->Description.c_str());
+    manager.showCurrentSensorInfo(false);
     showSensorWiki();
 }
 
@@ -817,7 +818,7 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
         lv_obj_set_style_text_color(ui_LabelDescValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(ui_LabelDescValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_font(ui_LabelDescValue_1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-        
+
         // true because its visualisation for sensors
         addNavButtonsToWidget(ui_SensorWidget, true);
         addBackButtonToWidget(ui_SensorWidget);
@@ -837,8 +838,6 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
 
         ui_Chart_series_V1 = lv_chart_add_series(ui_Chart, lv_color_hex(0xFFAF00),
                                                  LV_CHART_AXIS_PRIMARY_Y);
-        lv_coord_t ui_Chart_buff[HISTORY_CAP];
-        lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_buff);
         lv_obj_set_style_bg_color(ui_Chart, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(ui_Chart, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_border_color(ui_Chart, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -852,15 +851,16 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
     }
 
     SensorManager &manager = SensorManager::getInstance();
-    //TEMP
+    // TEMP
     logMessage("getting ready to take sensorCurrent!");
     auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
-    //TEMP
+    // TEMP
     logMessage("sensorCurrent got taken from manager!");
     lv_label_set_text(ui_SensorLabel, sensorCurrent->Type.c_str());
     lv_label_set_text(ui_LabelValueValue_1, "0");
     // Need to add [UNIT] take.
     lv_label_set_text(ui_LabelDescValue_1, "[Unit]");
+    // manager.showCurrentSensorInfo(true);
     showSensorVisualisation();
 }
 
@@ -869,30 +869,42 @@ void manager_GUI::drawCurrentSensor()
 {
     SensorManager &manager = SensorManager::getInstance();
     auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
+    //TEMP
+    // manager.showCurrentSensorInfo(true);
 
-    if (!sensorCurrent->getRedrawPending())
+    if (!(sensorCurrent->getRedrawPending()))
     {
         return;
     }
+    //TEMP
+    logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
 
     auto Values = sensorCurrent->getValuesKeys();
-    for (auto &v : Values)
+    for (auto &Key : Values)
     {
-        lv_label_set_text(ui_LabelValueValue_1, v.c_str());
-        /*static */ lv_coord_t ui_Chart_hist[HISTORY_CAP];
-        sensorCurrent->getHistory<float>(v.c_str(), ui_Chart_hist);
+        //TEMP
+        logMessage("RedrawPending: %d\n",sensorCurrent->getRedrawPending());
+
+        std::string value = sensorCurrent->getValue<std::string>(Key.c_str());
+        lv_label_set_text(ui_LabelValueValue_1, value.c_str());
+        static lv_coord_t ui_Chart_hist[HISTORY_CAP];
+        sensorCurrent->getHistory<float>(Key.c_str(), ui_Chart_hist);
+        //TEMP
+        logMessage("value string: %s\n", Key.c_str());
 
         lv_coord_t min_val = ui_Chart_hist[0];
         lv_coord_t max_val = ui_Chart_hist[0];
         long sum = 0;
         for (int i = 0; i < HISTORY_CAP; i++)
         {
-            lv_coord_t v = ui_Chart_hist[i];
-            if (v < min_val)
-                min_val = v;
-            if (v > max_val)
-                max_val = v;
-            sum += v;
+            lv_coord_t j = ui_Chart_hist[i];
+            //TEMP
+            logMessage("%d. history : %d\n", i, j);
+            if (j < min_val)
+                min_val = j;
+            if (j > max_val)
+                max_val = j;
+            sum += j;
         }
         float avg = (float)sum / HISTORY_CAP;
 

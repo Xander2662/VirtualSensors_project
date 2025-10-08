@@ -60,6 +60,8 @@ public:
     void resetActivePin() { activePin = NUM_PINS; }
     //const size_t getActivePin() const { return activePin; }
 
+    void showCurrentSensorInfo(bool isVisualisation) const;
+
 private:
     SensorManager();
     ~SensorManager();

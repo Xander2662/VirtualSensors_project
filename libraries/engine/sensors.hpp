@@ -422,7 +422,7 @@ public:
      *
      * This function draws the sensor.
      */
-    /*virtual void draw() override
+    virtual void draw() override
     {
         if (!redrawPenging)
         {
@@ -459,7 +459,7 @@ public:
         lv_chart_refresh(ui_Chart);
 
         redrawPenging = false; // Reset flag to redraw sensor.
-    }*/
+    }
 
     /*virtual void constructWiki() override
     {
@@ -720,7 +720,7 @@ public:
      *
      * This function draws the sensor.
      */
-    /*virtual void draw() override
+    virtual void draw() override
     {
         if (!redrawPenging)
         {
@@ -738,7 +738,7 @@ public:
         lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_1, ui_Chart_series_milliTesla);
 
         redrawPenging = false; // Reset flag to redraw sensor.
-    }*/
+    }
     /**
      * @brief Construct UI elements.
      *

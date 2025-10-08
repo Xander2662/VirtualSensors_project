@@ -681,7 +681,7 @@ public:
      *
      * This function should be overridden by derived classes to draw sensor-specific details.
      */
-    //virtual void draw() = 0;
+    virtual void draw() = 0;
 
     /**
      * @brief Construct UI elements for data visualisation.
