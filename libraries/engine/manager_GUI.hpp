@@ -82,6 +82,9 @@ private:
 
     // MENU GUI
     lv_obj_t *ui_MenuWidget;
+    lv_obj_t *ui_ButtonStartGroup;
+    lv_obj_t *ui_ButtonStartCornerTopLeft;
+    lv_obj_t *ui_ButtonStartCornerBottomRight;
     lv_obj_t *ui_btnStart;
     lv_obj_t *ui_ButtonStartLabel;
     std::array<lv_obj_t *, 6> pinContainers;

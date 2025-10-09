@@ -54,8 +54,15 @@ void manager_GUI::hideMenu()
 static void startSensors()
 {
     SensorManager &manager = SensorManager::getInstance();
+
     auto &pinMap = manager.getPinMap();
-    if(pinMap.empty()) return;  
+    size_t count = 0;
+    for (auto *s : pinMap)
+        if (s)
+            count++;
+    if (count == 0)
+        return;
+    
     manager.sendPinsOnSerial();
     manager.setInitialized(true);
     manager_GUI &manager_GUI = manager_GUI::getInstance();
@@ -89,15 +96,49 @@ void manager_GUI::buildMenu()
     lv_obj_set_style_border_width(ui_MenuWidget, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // Start button
-    ui_btnStart = lv_btn_create(ui_MenuWidget);
-    lv_obj_set_size(ui_btnStart, 120, 50);
-    lv_obj_set_align(ui_btnStart, LV_ALIGN_TOP_RIGHT);
-    lv_obj_add_event_cb(ui_btnStart, [](lv_event_t *e)
+    ui_ButtonStartGroup = lv_obj_create(ui_MenuWidget);
+    lv_obj_remove_style_all(ui_ButtonStartGroup);
+    lv_obj_set_width(ui_ButtonStartGroup, 100);
+    lv_obj_set_height(ui_ButtonStartGroup, 45);
+    lv_obj_set_align(ui_ButtonStartGroup, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_ButtonStartGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_ButtonStartCornerTopLeft = lv_obj_create(ui_ButtonStartGroup);
+    lv_obj_remove_style_all(ui_ButtonStartCornerTopLeft);
+    lv_obj_set_width(ui_ButtonStartCornerTopLeft, 20);
+    lv_obj_set_height(ui_ButtonStartCornerTopLeft, 20);
+    lv_obj_clear_flag(ui_ButtonStartCornerTopLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_ButtonStartCornerTopLeft, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonStartCornerTopLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_ButtonStartCornerTopLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ButtonStartCornerBottomRight = lv_obj_create(ui_ButtonStartGroup);
+    lv_obj_remove_style_all(ui_ButtonStartCornerBottomRight);
+    lv_obj_set_width(ui_ButtonStartCornerBottomRight, 20);
+    lv_obj_set_height(ui_ButtonStartCornerBottomRight, 20);
+    lv_obj_set_align(ui_ButtonStartCornerBottomRight, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_ButtonStartCornerBottomRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_ButtonStartCornerBottomRight, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonStartCornerBottomRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_ButtonStartCornerBottomRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_btnStart = lv_btn_create(ui_ButtonStartGroup);
+    lv_obj_set_width(ui_btnStart, 100);
+    lv_obj_set_height(ui_btnStart, 45);
+    lv_obj_add_flag(ui_btnStart, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_clear_flag(ui_btnStart, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+    lv_obj_set_style_clip_corner(ui_btnStart, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_add_event_cb(ui_btnStart, [](lv_event_t *e)
                         { startSensors(); }, LV_EVENT_CLICKED, nullptr);
 
     ui_ButtonStartLabel = lv_label_create(ui_btnStart);
+    lv_obj_set_width(ui_ButtonStartLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ButtonStartLabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_ButtonStartLabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_ButtonStartLabel, "Start");
-    lv_obj_center(ui_ButtonStartLabel);
+    lv_obj_set_style_text_font(ui_ButtonStartLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     static const lv_align_t align_map[3] = {
         LV_ALIGN_LEFT_MID,
