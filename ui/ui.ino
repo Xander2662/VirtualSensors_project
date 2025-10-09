@@ -7,9 +7,7 @@
 #include <lgfx/v1/platforms/esp32s3/Bus_RGB.hpp>
 #include <lvgl.h>
 #include <ui.h>
-#include "config.hpp"
-#include "manager.hpp"
-#include "manager_GUI.hpp"
+#include <engine.hpp>  // include engine header
 
 /*Don't forget to set Sketchbook location in File/Preferences to the path of your UI project (the parent foder of this INO file)*/
 
