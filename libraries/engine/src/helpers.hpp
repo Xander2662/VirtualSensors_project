@@ -34,7 +34,7 @@
  * @param caseSensitive Whether the parsing should be case-sensitive.
  * @return A map of key-value pairs.
  */
-std::unordered_map<std::string, std::string> parseParamsFromString(const std::string& message, bool caseSensitive = false);
+std::unordered_map<std::string, std::string> parseParamsFromString(const std::string& message, bool caseSensitive);
 
 /**
  * @brief Get value from update string.

@@ -20,11 +20,13 @@
  *********************/
 #include "vscp.hpp"
 #include "../exceptions/sensors_exceptions.hpp" ///< Sensor related exceptions.
-#include "../exceptions/data_exceptions.hpp" ///< Data related exceptions.
 #include "../helpers.hpp"    ///< Helper functions.
 
 #include <string>
 #include <unordered_map>
+#include <map>
+#include <array>
+#include <cstddef>
 
 #define HISTORY_CAP 10 ///< History capacity.
 
@@ -594,11 +596,13 @@ public:
      */
     void setError(Exception *error)
     {
-        if (Error)
+        
+        if (Error != nullptr)
         {
             delete Error;
         }
-        else
+        
+        if(error != nullptr)
         {
             Error = error;
             if (Error->Code != ErrorCode::WARNING_CODE)
@@ -664,7 +668,7 @@ public:
         if (!inited)
         {
             // první volání: celý buffer naplň aktuální hodnotou
-            for (short i = 0; i < HISTORY_CAP; ++i)
+            for (std::size_t i = 0; i < HISTORY_CAP; ++i)
             {
                 buf[i] = curr;
             }
@@ -673,7 +677,7 @@ public:
         else
         {
             // posuň doleva o jednu pozici …
-            for (short i = 0; i < HISTORY_CAP - 1; ++i)
+            for (std::size_t i = 0; i < HISTORY_CAP - 1; ++i)
             {
                 buf[i] = buf[i + 1];
             }
@@ -682,7 +686,7 @@ public:
         }
 
         // 2) Zkopíruj celý buffer do výstupního pole
-        for (short i = 0; i < HISTORY_CAP; ++i)
+        for (std::size_t i = 0; i < HISTORY_CAP; ++i)
         {
             try
             {
@@ -875,6 +879,8 @@ public:
             {
                 logMessage("\t\t%s: %s %s\n", v.first.c_str(), v.second.Value.c_str(), v.second.Unit.c_str());
             }
+            logMessage("\tSensor Pins: %s\n", getPins().c_str());
+            logMessage("**************************************\n");
         }
         catch (const std::exception &e)
         {

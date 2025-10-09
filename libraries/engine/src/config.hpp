@@ -9,24 +9,23 @@
  * @author Ing. Jiri Konecny
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIG_ENGINE_H
+#define CONFIG_ENGINE_H
 
 /// Uncomment to enable Arduino-based environments
+#ifndef ARDUINO_H
 #define ARDUINO_H 
-#define UART1_PORT 0
-#define UART1_BAUDRATE 115200
-#define UART1_RX -1
-#define UART1_TX -1
-#define UART_TIMEOUT 100
+#endif
 
 /// Uncomment to enable standard console applications (PC/Linux)
 //#define STDIO_H 
 
 // Uncomment to enable LVGL support
-//#define USE_LVGL
+#ifndef USE_LVGL
+#define USE_LVGL
+#endif
 
-///Set whatever the application should be a case sensitive
-#define CASE_SENSITIVE true
+// Uncomment to enable ESP32 platform
+//#define ESP_PLATFORM
 
-#endif // CONFIG_H
+#endif // CONFIG_ENGINE_H

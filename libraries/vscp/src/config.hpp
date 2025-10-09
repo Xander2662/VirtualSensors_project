@@ -23,9 +23,6 @@
 /// Uncomment to enable standard console applications (PC/Linux)
 //#define STDIO_H 
 
-// Uncomment to enable LVGL support
-//#define USE_LVGL
-
 ///Set whatever the application should be a case sensitive
 #define CASE_SENSITIVE true
 

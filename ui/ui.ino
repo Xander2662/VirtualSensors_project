@@ -1,6 +1,6 @@
 //Elecrow DIS08070H board-template main source file
-
 #include<Arduino.h>
+#define ESP_PLATFORM
 #define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 #include <lgfx/v1/platforms/esp32s3/Panel_RGB.hpp>
@@ -188,11 +188,17 @@ void setup ()
     //lcd.fillScreen(TFT_BLACK);
     
     sensorManager.init(false);
+    sensorManager.print();
+    sensorManager.assignSensorToPin(sensorManager.getCurrentSensor());
+    sensorManager.print();
+    sensorManager.unassignSensorFromPin();
+    sensorManager.print();
+    sensorManager.assign();
+    sensorManager.resync();
+    
     //manager_GUI::getInstance();
-    manager_GUI::getInstance().showMenu();
-    //sensorManager;.print();
-    //sensorManager.reconstruct();
-    //sensorManager.hideAllExceptFirst();
+    //manager_GUI::getInstance().showMenu();
+    
     Serial.println( "Setup done" );
 }
 
@@ -205,22 +211,23 @@ int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 
 void loop ()
 {
-if (LOOP_SYNC_COUNTER-- < 0) {
-    if (sensorManager.isInitialized()) {
-        sensorManager.resync();
+    /*
+    if (LOOP_SYNC_COUNTER-- < 0) {
+        if (sensorManager.isInitialized()) {
+            sensorManager.resync();
+        }
+        LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
+        delay(10);
     }
-    LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
-    delay(10);
-}
 
-// Always attempt redraw (safe on empty list)
-if (sensorManager.isInitialized()) {
-//sensorManager.redraw();  
-manager_GUI::getInstance().drawCurrentSensor();
-}
-
-lv_timer_handler();
-delay(CYCLE_DRAW_MS);
-
+    // Always attempt redraw (safe on empty list)
+    if (sensorManager.isInitialized()) {
+    //sensorManager.redraw();  
+    manager_GUI::getInstance().drawCurrentSensor();
+    }
+    */
+    logMessage("Loop start\n");
+    lv_timer_handler();
+    delay(CYCLE_DRAW_MS);
 }
 

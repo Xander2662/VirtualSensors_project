@@ -113,5 +113,20 @@ public:
     ~InvalidDataTypeException(){}
 };
 
+/**
+ * @class InvalidDataFormatException
+ * @brief Exception for invalid data format errors.
+ *
+ * Use this exception to indicate that data format is invalid or corrupted.
+ */
+class InvalidDataFormatException : public Exception
+{
+public:
+    InvalidDataFormatException(const std::string &source, Exception* innerException) : Exception(source, innerException) {}
+    InvalidDataFormatException(const std::string &message, ErrorCode code = ErrorCode::INVALID_VALUE) : Exception(message, code) {}
+    InvalidDataFormatException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::INVALID_VALUE) : Exception(source, message, code) {}
+    ~InvalidDataFormatException(){}
+};
+
 #endif // DATA_EXCEPTIONS_HPP
 

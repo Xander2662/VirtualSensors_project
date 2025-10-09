@@ -119,18 +119,34 @@ void SensorManager::erase() {
 void SensorManager::assignSensorToPin(BaseSensor* sensor) {
     if (activePin > NUM_PINS) return;
 
-    PinMap[activePin] = sensor;
-    sensor->assignPin(std::to_string(activePin));
-    logMessage("Sensor %s assigned to pin %zu\n", sensor->UID.c_str(), activePin);
+    try
+    {
+        PinMap[activePin] = sensor;
+        sensor->assignPin(std::to_string(activePin));
+        logMessage("Sensor %s assigned to pin %zu\n", sensor->UID.c_str(), activePin);
+    }
+    catch(const std::exception& e)
+    {
+        logMessage("Error assigning sensor to pin: %s\n", e.what());
+        return;
+    }
 }
 
 void SensorManager::unassignSensorFromPin() {
     if (activePin > NUM_PINS) return;
 
-    BaseSensor* sensor = PinMap[activePin];
-    PinMap[activePin] = nullptr;
-    sensor->unassignPin(std::to_string(activePin));
-    logMessage("Sensor %s unassigned from pin %zu\n", sensor->UID.c_str(), activePin);
+    try
+    {
+        BaseSensor* sensor = PinMap[activePin];
+        PinMap[activePin] = nullptr;
+        
+        sensor->unassignPin(std::to_string(activePin));
+        logMessage("Sensor %s unassigned from pin %zu\n", sensor->UID.c_str(), activePin);
+    }
+    catch(const std::exception& e)
+    {
+        logMessage("Error unassigning sensor from pin: %s\n", e.what());
+    }
 }
 
 

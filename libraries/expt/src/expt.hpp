@@ -30,7 +30,7 @@
 /*********************
  *      INCLUDES
  *********************/
-
+#include "config.hpp"  ///< Configuration file inclusion
 #include "exceptions/error_codes.hpp"
 #include "exceptions/exceptions.hpp" ///< For Exception class
 #include "logs/logs.hpp"         ///< For logMessage function

@@ -13,9 +13,13 @@
  /*********************
  *      INCLUDES
  *********************/
+
  #include <string>
  #include <cstdarg>
  #include <cstdio>
+ #include "../config.hpp"  ///< Configuration file inclusion
+ #include "splasher.hpp"   ///< Include splash screen header
+
 
  /**
   * @brief Builds a formatted message string.

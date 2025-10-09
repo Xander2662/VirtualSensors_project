@@ -27,10 +27,6 @@ std::string buildMessage(const char *format, ...) {
     #include <stdio.h>    ///< Include standard I/O functions
 #endif
 
-#ifdef USE_LVGL
-    #include "splasher.h"   ///< Include splash screen header
-#endif
-
 void logMessage(const char *format, ...) {
     va_list args;
     va_start(args, format);
@@ -43,7 +39,6 @@ void logMessage(const char *format, ...) {
     #elif defined(STDIO_H)
         vprintf(format, args);  // Print via standard console
     #endif
-
     va_end(args);
 }
 
@@ -55,7 +50,7 @@ void splashMessage(const char *format, ...) {
     vsnprintf(buffer, sizeof(buffer), format, args);
 
     #ifdef SPLASHER_H
-     show_popup("Message", buffer, 3000); // Show splash for 3 seconds
+     show_splash_popup("Message", buffer, 3000); // Show splash for 3 seconds
     #endif   
 
     va_end(args);

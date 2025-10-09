@@ -28,7 +28,7 @@ void configSensor(BaseSensor *sensor, const std::string &config) {
     }
 
     try {
-        std::unordered_map<std::string, std::string> params = parseParamsFromString(config);
+        std::unordered_map<std::string, std::string> params = parseParamsFromString(config, CASE_SENSITIVE);
         sensor->config(params);
     } catch (const Exception &ex) {
         ex.print();
@@ -46,7 +46,7 @@ void updateSensor(BaseSensor *sensor, const std::string &update) {
     }
 
     try {
-        std::unordered_map<std::string, std::string> params = parseParamsFromString(update);
+        std::unordered_map<std::string, std::string> params = parseParamsFromString(update, CASE_SENSITIVE);
         sensor->update(params);
     } catch (const Exception &ex) {
         ex.print();
