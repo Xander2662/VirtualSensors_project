@@ -14,6 +14,7 @@
 
 #include "lvgl.h"
 #include <array>
+#include <map>
 
 #include "../managers/manager.hpp"
 #include "../sensors/base_sensor.hpp"
@@ -102,6 +103,66 @@ private:
      * @param parentWidget The parent widget to add the button to
      */
     void addBackButtonToWidget(lv_obj_t *parentWidget);
+
+    /**
+     * @brief Get history from sensor.
+     *
+     * This function retrieves the history of a sensor parameter by key.
+     *
+     * @param key The key of the sensor parameter.
+     * @param history The history array to store the history.
+     */
+    template <typename T>
+    void buildSensorHistory(BaseSensor *sensor, const std::string &key, lv_coord_t *history) {
+        if (!history || !sensor) return;
+
+        auto it = sensor->getValues().find(key);
+        if (it == sensor->getValues().end()) return;
+
+        // statické úložiště mezi voláními
+        static std::map<std::string, std::array<lv_coord_t, HISTORY_CAP>> bufMap;
+        static std::map<std::string, bool> initedMap;
+    
+        auto &buf    = bufMap[key];
+        bool &inited = initedMap[key];
+    
+        // 1) Místo čtení z History[], načti aktuální hodnotu jako string a převeď
+        lv_coord_t curr;
+        try {
+            // getValue vrací string, kterej jste dřív ukládali např. "100"
+            std::string s = sensor->getValue<std::string>(key);
+            curr = convertStringToType<T>(s);
+        }
+        catch (const std::exception &e) {
+            throw InvalidDataTypeException("BaseSensor::getValue", e.what());
+        }
+    
+        if (!inited) {
+            // první volání: celý buffer naplň aktuální hodnotou
+            for (int i = 0; i < HISTORY_CAP; ++i) {
+                buf[i] = curr;
+            }
+            inited = true;
+        }
+        else {
+            // posuň doleva o jednu pozici …
+            for (int i = 0; i < HISTORY_CAP - 1; ++i) {
+                buf[i] = buf[i + 1];
+            }
+            // … a na konec vlož okamžitý curr
+            buf[HISTORY_CAP - 1] = curr;
+        }
+    
+        // 2) Zkopíruj celý buffer do výstupního pole
+        for (int i = 0; i < HISTORY_CAP; ++i) {
+            try {
+                history[i] = buf[i];
+            }
+            catch (const std::exception &e) {
+                throw InvalidDataTypeException("BaseSensor::getValue", e.what());
+            }
+        }
+    }
 
 public:
     /**

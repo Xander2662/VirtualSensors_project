@@ -39,21 +39,16 @@ bool SensorManager::init() {
         logMessage("Initializing manager via fixed sensors list...\n");
         createSensorList(Sensors);
 
-        logMessage("Initializing of protocol...\n");
+        logMessage("\tinitializing of protocol...\n");
         if (!Protocol::init_dummy()) {
             throw SensorInitializationFailException("SensorManager::init", "Protocol initialization failed", ErrorCode::CRITICAL_ERROR_CODE);
         }
+        logMessage("\tdone!\n");
     }
     catch(const Exception &e)
     {
         e.print();
-        Status = ManagerStatus::ERROR;
-        return false;
-    }
-    catch (const std::exception &e)
-    {
-        logMessage("Standard exception during initialization: %s\n", e.what());
-        Status = ManagerStatus::ERROR;
+        Status = ManagerStatus::ERROR;;
         return false;
     }
     catch(...)
@@ -134,13 +129,15 @@ void SensorManager::addSensor(BaseSensor* sensor) {
     if (sensor) Sensors.push_back(sensor);
 }
 
-void SensorManager::assignSensor(BaseSensor* sensor) {
-    connectSensor(sensor);
+bool SensorManager::assignSensor(BaseSensor* sensor) {
+    return connectSensor(sensor);
 }
 
-void SensorManager::sync(std::string id) {
+bool SensorManager::sync(std::string id) {
     BaseSensor* sensor = getSensor(id);
-    if (sensor) syncSensor(sensor);
+    if (sensor) return syncSensor(sensor);
+
+    return false;
 }
 
 void SensorManager::print(std::string uid) {
@@ -153,15 +150,19 @@ void SensorManager::print() {
     printSensor(currentSensor);
 }
 
-void SensorManager::resync() 
+bool SensorManager::resync() 
 {
     BaseSensor* currentSensor = getCurrentSensor();
-    syncSensor(currentSensor);
+    return syncSensor(currentSensor);
 }
 
-void SensorManager::assign() 
+bool SensorManager::assign() 
 {
-    for (auto* sensor : Sensors) connectSensor(sensor);
+    bool result = true;
+    for (auto* sensor : Sensors) {
+        result &= connectSensor(sensor);
+    }
+    return result;
 }
 
 void SensorManager::erase() {
@@ -173,8 +174,8 @@ void SensorManager::erase() {
 // pin management
 /////////////////////////
 
-void SensorManager::assignSensorToPin(BaseSensor* sensor) {
-    if (activePin >= NUM_PINS) return;
+bool SensorManager::assignSensorToPin(BaseSensor* sensor) {
+    if (activePin >= NUM_PINS) return false;
 
     try
     {
@@ -185,12 +186,14 @@ void SensorManager::assignSensorToPin(BaseSensor* sensor) {
     catch(const std::exception& e)
     {
         logMessage("Error assigning sensor to pin: %s\n", e.what());
-        return;
+        return false;
     }
+
+    return true;
 }
 
-void SensorManager::unassignSensorFromPin() {
-    if (activePin >= NUM_PINS) return;
+bool SensorManager::unassignSensorFromPin() {
+    if (activePin >= NUM_PINS) return false;
 
     try
     {
@@ -203,7 +206,10 @@ void SensorManager::unassignSensorFromPin() {
     catch(const std::exception& e)
     {
         logMessage("Error unassigning sensor from pin: %s\n", e.what());
+        return false;
     }
+
+    return true;
 }
 
 

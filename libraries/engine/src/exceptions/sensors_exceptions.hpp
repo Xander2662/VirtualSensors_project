@@ -42,9 +42,9 @@ class SensorSynchronizationFailException : public Exception
 {
 public:
     SensorSynchronizationFailException(const std::string &source, Exception* innerException) : Exception(source, innerException) {}
-    SensorSynchronizationFailException(const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(message, code) {}
-    SensorSynchronizationFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code) {}
-    SensorSynchronizationFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code, innerException) {}
+    SensorSynchronizationFailException(const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(message, code) {}
+    SensorSynchronizationFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code) {}
+    SensorSynchronizationFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code, innerException) {}
     ~SensorSynchronizationFailException(){}
 };
 
@@ -59,29 +59,11 @@ class SensorResetFailException : public Exception
 {
 public:
     SensorResetFailException(const std::string &source, Exception* innerException) : Exception(source, innerException) {}
-    SensorResetFailException(const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(message, code) {}
-    SensorResetFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code) {}
-    SensorResetFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code, innerException) {}
+    SensorResetFailException(const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(message, code) {}
+    SensorResetFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code) {}
+    SensorResetFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code, innerException) {}
     ~SensorResetFailException(){}
 };
-
-
-/**
- * @class SensorConnectFailException
- * @brief Exception for sensor connection failures.
- *
- * Use this exception to indicate errors during sensor connection operations.
- */
-class SensorConnectFailException : public Exception
-{
-public:
-    SensorConnectFailException(const std::string &source, Exception* innerException) : Exception(source, innerException) {}
-    SensorConnectFailException(const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(message, code) {}
-    SensorConnectFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code) {}
-    SensorConnectFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code, innerException) {}
-    ~SensorConnectFailException(){}
-};
-
 
 /**
  * @class SensorDisconnectFailException
@@ -93,9 +75,9 @@ class SensorDisconnectFailException : public Exception
 {
 public:
     SensorDisconnectFailException(const std::string &source, Exception* innerException) : Exception(source, innerException) {}
-    SensorDisconnectFailException(const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(message, code) {}
-    SensorDisconnectFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code) {}
-    SensorDisconnectFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code, innerException) {}
+    SensorDisconnectFailException(const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(message, code) {}
+    SensorDisconnectFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code) {}
+    SensorDisconnectFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code, innerException) {}
     ~SensorDisconnectFailException(){}
 };
 
@@ -110,9 +92,9 @@ class SensorConnectionFailException : public Exception
 {
 public:
     SensorConnectionFailException(const std::string &source, Exception* innerException) : Exception(source, innerException) {}
-    SensorConnectionFailException(const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(message, code) {}
-    SensorConnectionFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code) {}
-    SensorConnectionFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code, innerException) {}
+    SensorConnectionFailException(const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(message, code) {}
+    SensorConnectionFailException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code) {}
+    SensorConnectionFailException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code, innerException) {}
     ~SensorConnectionFailException(){}
 };
 
@@ -127,9 +109,9 @@ class SensorPinAssignmentException : public Exception
 {
 public:
     SensorPinAssignmentException(const std::string &source, Exception* innerException) : Exception(source, innerException) {}
-    SensorPinAssignmentException(const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(message, code) {}
-    SensorPinAssignmentException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code) {}
-    SensorPinAssignmentException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::CRITICAL_ERROR_CODE) : Exception(source, message, code, innerException) {}
+    SensorPinAssignmentException(const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(message, code) {}
+    SensorPinAssignmentException(const std::string &source, const std::string &message, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code) {}
+    SensorPinAssignmentException(const std::string &source, const std::string &message, Exception *innerException, ErrorCode code = ErrorCode::ERROR_CODE) : Exception(source, message, code, innerException) {}
     ~SensorPinAssignmentException(){}
 };
 

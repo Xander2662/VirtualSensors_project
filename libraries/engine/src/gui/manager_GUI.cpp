@@ -29,6 +29,7 @@ manager_GUI::manager_GUI()
 
 void manager_GUI::init()
 {
+    logMessage("Initializing GUI...\n");
     SensorManager &manager = SensorManager::getInstance();
     while (!manager.isInitialized())
     {
@@ -36,9 +37,10 @@ void manager_GUI::init()
     }
 
     buildMenu();
-    hideMenu(); // start hidden
+    hideMenu(); // hidden
 
     initialized = true;
+    logMessage("GUI initialized!\n");
 }
 
 /*********************
@@ -49,7 +51,11 @@ void manager_GUI::init()
 void manager_GUI::showMenu()
 {
     if (ui_MenuWidget)
+    {
         lv_obj_clear_flag(ui_MenuWidget, LV_OBJ_FLAG_HIDDEN);
+        logMessage("Showing menu...\n");
+    }
+            
 }
 
 // emptyMenu should be used instead
@@ -61,7 +67,7 @@ void manager_GUI::hideMenu()
 }
 
 // free function for lvgl callback
-static void start()
+static void startPoolingButtonCallback(lv_event_t *e)
 {
     SensorManager &manager = SensorManager::getInstance();
     manager.setRunning(false); // stop manager to allow pin assignment
@@ -69,12 +75,25 @@ static void start()
     auto &pinMap = manager.getPinMap();
     size_t count = 0;
     for (auto *s : pinMap)
-        if (s)
-            count++;
-    if (count == 0)
-        return;
+    {
+        if (!s) continue;
+        else count++;
+    }
 
-    manager.assign(); // assign all sensors to pins
+    if (count == 0)
+    {
+        splashMessage("No sensors assigned!", 5000);
+        manager.setRunning(false);
+        return;
+    }
+
+    if (!manager.assign()) // assign all sensors to pins
+    {
+        // error during assignment
+        splashMessage("Error during sensor assignment!", 5000);
+        manager.setRunning(false);
+        return;
+    } 
     manager.setRunning(true);
     
     manager_GUI &manager_GUI = manager_GUI::getInstance();
@@ -93,6 +112,7 @@ static void pinToSelection(int index)
 
 void manager_GUI::buildMenu()
 {
+    logMessage("\t>building menu...\n");
     // Main container widget
     ui_MenuWidget = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(ui_MenuWidget);
@@ -139,7 +159,7 @@ void manager_GUI::buildMenu()
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
     lv_obj_set_style_clip_corner(ui_btnStart, false, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_add_event_cb(ui_btnStart, [](lv_event_t *e)
-                        { start(); }, LV_EVENT_CLICKED, nullptr);
+                        { startPoolingButtonCallback(e); }, LV_EVENT_CLICKED, nullptr);
 
     ui_ButtonStartLabel = lv_label_create(ui_btnStart);
     lv_obj_set_width(ui_ButtonStartLabel, LV_SIZE_CONTENT);   /// 1
@@ -152,8 +172,8 @@ void manager_GUI::buildMenu()
         LV_ALIGN_LEFT_MID,
         LV_ALIGN_CENTER,
         LV_ALIGN_RIGHT_MID};
-    // Create 6 pin containers
-    for (int i = 0; i < 6; ++i)
+    // Create pin containers
+    for (int i = 0; i < NUM_PINS; ++i)
     {
         pinContainers[i] = lv_btn_create(ui_MenuWidget);
         lv_obj_set_size(pinContainers[i], 180, 80);
@@ -171,9 +191,10 @@ void manager_GUI::buildMenu()
     }
     // Title
     lv_obj_t *title = lv_label_create(ui_MenuWidget);
-    lv_label_set_text(title, "Main Menu");
+    lv_label_set_text(title, "Assign Sensors to Pins");
     lv_obj_set_style_text_font(title, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 10);
+    logMessage("\t>done!\n");
 }
 
 void manager_GUI::updatePinLabelText()
@@ -866,12 +887,13 @@ void manager_GUI::drawCurrentSensor()
     // TEMP
     //  manager.showCurrentSensorInfo(true);
 
-    if (!(sensorCurrent->getRedrawPending()))
+    if (!sensorCurrent->getRedrawPending())
     {
         return;
     }
     // TEMP
-    //logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
+    logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
+    return;
 
     auto Values = sensorCurrent->getValuesKeys();
     for (auto &Key : Values)
@@ -881,17 +903,17 @@ void manager_GUI::drawCurrentSensor()
 
         std::string value = sensorCurrent->getValue<std::string>(Key.c_str());
         lv_label_set_text(ui_LabelValueValue_1, value.c_str());
-        static short ui_Chart_hist[HISTORY_CAP];
-        sensorCurrent->getHistory<float>(Key.c_str(), ui_Chart_hist);
+        static lv_coord_t ui_Chart_hist[HISTORY_CAP];
+        buildSensorHistory<float>(sensorCurrent, Key.c_str(), ui_Chart_hist);
         // TEMP
         //logMessage("value string: %s\n", Key.c_str());
 
-        short min_val = ui_Chart_hist[0];
-        short max_val = ui_Chart_hist[0];
+        lv_coord_t min_val = ui_Chart_hist[0];
+        lv_coord_t max_val = ui_Chart_hist[0];
         long sum = 0;
         for (int i = 0; i < HISTORY_CAP; i++)
         {
-            short j = ui_Chart_hist[i];
+            lv_coord_t j = ui_Chart_hist[i];
             // TEMP
             //logMessage("%d. history : %d\n", i, j);
             if (j < min_val)
@@ -902,9 +924,9 @@ void manager_GUI::drawCurrentSensor()
         }
         float avg = (float)sum / HISTORY_CAP;
 
-        short delta = max_val - min_val;
-        short y_min = min_val;
-        short y_max = max_val + delta / 10 + 100;
+        lv_coord_t delta = max_val - min_val;
+        lv_coord_t y_min = min_val;
+        lv_coord_t y_max = max_val + delta / 10 + 100;
         y_max = y_max - y_max % 100;
 
         lv_chart_set_ext_y_array(ui_Chart, ui_Chart_series_V1, ui_Chart_hist);

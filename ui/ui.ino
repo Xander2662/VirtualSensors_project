@@ -187,11 +187,13 @@ void setup ()
     ui_init();
     //lcd.fillScreen(TFT_BLACK);
     
+
     while(!sensorManager.init()) {
         Serial.println("Waiting for SensorManager initialization...");
         delay(100);
     }
-    /* 
+    /*
+    delay(5);
     sensorManager.print();
     sensorManager.setActivePin(0);
     sensorManager.assignSensorToPin(sensorManager.getCurrentSensor());
@@ -228,11 +230,12 @@ void loop ()
 
     // Always attempt redraw (safe on empty list)
     if (sensorManager.isRunning()) {
-        //manager_GUI::getInstance().drawCurrentSensor();
-        delay(1);
+        manager_GUI::getInstance().drawCurrentSensor();
+       delay(1);
     }
     //logMessage("Loop start\n");
     lv_timer_handler();
     delay(CYCLE_DRAW_MS);
 }
+
 

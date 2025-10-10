@@ -175,8 +175,10 @@ protected:
      *
      * This function sends a request to the real sensor to synchronize the configurations.
      */
-    void syncConfigs()
+    bool syncConfigs()
     {
+        bool result = false;
+        isConfigsSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
         try
         {
             //Convert Configs to unordered_map<std::string, std::string>
@@ -185,28 +187,17 @@ protected:
             {
                 configMap[pair.first] = pair.second.Value;
             }
-            bool response = Protocol::config(UID, configMap);
-            if (response == false)
-            {
-                isConfigsSync = false;
-                return;
-            }
-        }
-        catch (const Exception &e)
-        {
-            throw e;
-        }
-        catch (const std::exception &e)
-        {
-            throw;
+            auto response = Protocol::config(UID, configMap);
+            result = response;
         }
         catch (...)
         {
             throw;
         }
 
-        isConfigsSync = true; // Set flag to indicate sensor is synchronized with real sensor.
-        redrawPending = true; // Set flag to redraw sensor - values updated.
+        isConfigsSync = result; // Set flag to indicate sensor is synchronized with real sensor.
+        redrawPending = result; // Set flag to redraw sensor - values updated.
+        return result;
     }
 
     /**
@@ -214,21 +205,18 @@ protected:
      *
      * This function sends a request to the real sensor to synchronize the values.
      */
-    void syncValues()
+    bool syncValues()
     {
+        bool result = false;
         isValuesSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
         try
         {
             auto response = Protocol::update(UID);
             update(response);
-        }
-        catch (const Exception &e)
-        {
-            throw e;
-        }
-        catch (const std::exception &e)
-        {
-            throw;
+            if (!response.empty())
+            {
+                result = true;
+            }
         }
         catch (...)
         {
@@ -236,8 +224,9 @@ protected:
         }
 
         
-        isValuesSync = true; // Set flag to indicate sensor is synchronized with real sensor.
-        redrawPending = true; // Set flag to redraw sensor - values updated.
+        isValuesSync = result; // Set flag to indicate sensor is synchronized with real sensor.
+        redrawPending = result; // Set flag to redraw sensor - values updated.
+        return result;
     }
 
     bool checkRestrictions(std::string value, const SensorRestrictions &restrictions)
@@ -425,8 +414,9 @@ public:
      * @brief Connect the sensor to the specified pins.
      * 
      */
-    void connect() 
+    bool connect() 
     { 
+        bool result = false;
         try
         {
             std::string pins = getPins();
@@ -434,31 +424,36 @@ public:
                 throw SensorPinAssignmentException("connectSensor", "No pins assigned to sensor.");
             }
 
-            Protocol::connect(UID, pins);
+            auto response = Protocol::connect(UID, pins);
+            result = response;
         }
-        catch (const Exception &e)
+        catch (...)
         {
-            throw e;
+            throw;
         }
         setStatus(SensorStatus::OK);
+        return result;
     }
 
     /**
      * @brief Disconnect the sensor from its current pins.
      * 
      */
-    void disconnect() 
+    bool disconnect() 
     { 
+        bool result = false;
         try
         {
-            Protocol::disconnect(UID);
+            auto response = Protocol::disconnect(UID);
+            result = response;
         }
-        catch (const Exception &e)
+        catch (...)
         {
-            throw e;
+            throw;
         }
         Pins.clear();
         setStatus(SensorStatus::OK);
+        return result;
     }
 
     /**
@@ -640,73 +635,23 @@ public:
     }
 
     /**
-     * @brief Get history from sensor.
+     * @brief Get history of sensor value parameter.
      *
-     * This function retrieves the history of a sensor parameter by key.
+     * This function retrieves the history of a sensor value parameter by key.
      *
-     * @param key The key of the sensor parameter.
-     * @param history The history array to store the history.
+     * @param key The key of the value sensor parameter.
+     * @return The history array of the value sensor parameter.
      */
-    template <typename T>
-    void getHistory(const std::string &key, short *history)
+    std::string* getHistory(const std::string &key)
     {
-        if (!history)
-            return;
-        auto it = Values.find(key);
-        if (it == Values.end())
-            return;
-
-        // statické úložiště mezi voláními
-        static std::map<std::string, std::array<short, HISTORY_CAP>> bufMap;
-        static std::map<std::string, bool> initedMap;
-
-        auto &buf = bufMap[key];
-        bool &inited = initedMap[key];
-
-        // 1) Místo čtení z History[], načti aktuální hodnotu jako string a převeď
-        short curr;
-        try
+        //Find key in Values and return history array
+        if (Values.find(key) != Values.end())
         {
-            // getValue vrací string, kterej jste dřív ukládali např. "100"
-            curr = getValue<T>(key);
-        }
-        catch (const std::exception &e)
-        {
-            throw InvalidDataTypeException("BaseSensor::getValue", e.what());
+            // Return the history array
+            return Values[key].History;
         }
 
-        if (!inited)
-        {
-            // první volání: celý buffer naplň aktuální hodnotou
-            for (std::size_t i = 0; i < HISTORY_CAP; ++i)
-            {
-                buf[i] = curr;
-            }
-            inited = true;
-        }
-        else
-        {
-            // posuň doleva o jednu pozici …
-            for (std::size_t i = 0; i < HISTORY_CAP - 1; ++i)
-            {
-                buf[i] = buf[i + 1];
-            }
-            // … a na konec vlož okamžitý curr
-            buf[HISTORY_CAP - 1] = curr;
-        }
-
-        // 2) Zkopíruj celý buffer do výstupního pole
-        for (std::size_t i = 0; i < HISTORY_CAP; ++i)
-        {
-            try
-            {
-                history[i] = buf[i];
-            }
-            catch (const std::exception &e)
-            {
-                throw InvalidDataTypeException("BaseSensor::getValue", e.what());
-            }
-        }
+        throw ValueNotFoundException("BaseSensor::getHistory", "Value not found for key: " + key);
     }
 
     /**
@@ -714,7 +659,7 @@ public:
      *
      * @throws Exception if synchronization fails.
      */
-    virtual void synchronize()
+    virtual bool synchronize()
     {
         isValuesSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
         if (!isConfigsSync)
@@ -722,14 +667,6 @@ public:
             try
             {
                 syncConfigs();
-            }
-            catch (const Exception &e)
-            {
-                throw;
-            }
-            catch (const std::exception &e)
-            {
-                throw;
             }
             catch (...)
             {
@@ -743,19 +680,12 @@ public:
             {
                 syncValues();
             }
-            catch (const Exception &e)
-            {
-                throw;
-            }
-            catch (const std::exception &e)
-            {
-                throw;
-            }
             catch (...)
             {
                 throw;
             }
         }
+        return isValuesSync && isConfigsSync;
     }
 
     /**
@@ -818,7 +748,7 @@ public:
             std::string status = cfg.find("status") != cfg.end() ? cfg.at("status") : "-1";
             setStatus(status);
         }
-        catch(const std::exception& e)
+        catch(...)
         {
             throw;
         }
@@ -884,7 +814,7 @@ public:
             std::string status = upd.find("status") != upd.end() ? upd.at("status") : "-1";
             setStatus(status);
         }
-        catch(const std::exception& e)
+        catch(...)
         {
             throw;
         }
@@ -916,7 +846,7 @@ public:
             logMessage("\tSensor Pins: %s\n", getPins().c_str());
             logMessage("**************************************\n");
         }
-        catch (const std::exception &e)
+        catch (...)
         {
             throw;
         }
@@ -986,7 +916,7 @@ T *createSensor(std::string uid)
  * @param config The configuration string.
  * @throws Exceptions should be internally resolved to prevent program from crash.
  */
-void configSensor(BaseSensor *sensor, const std::string &config);
+bool configSensor(BaseSensor *sensor, const std::string &config);
 
 /**
  * @brief Updates the sensor with new measurement data.
@@ -998,7 +928,7 @@ void configSensor(BaseSensor *sensor, const std::string &config);
  * @param update The update string containing new sensor data.
  * @throws Exceptions should be internally resolved to prevent program from crash.
  */
-void updateSensor(BaseSensor *sensor, const std::string &update);
+bool updateSensor(BaseSensor *sensor, const std::string &update);
 
 /**
  * @brief Prints detailed information about the sensor.
@@ -1019,7 +949,7 @@ void printSensor(BaseSensor *sensor);
  * @param sensor Pointer to the sensor to be synchronized.
  * @throws Exceptions should be internally resolved to prevent program from crash.
  */
-void syncSensor(BaseSensor *sensor);
+bool syncSensor(BaseSensor *sensor);
 
 /**
  * @brief Initializes the sensor.
@@ -1029,7 +959,7 @@ void syncSensor(BaseSensor *sensor);
  * @param sensor Pointer to the sensor to be initialized.
  * @throws Exceptions should be internally resolved to prevent program from crash.
  */
-void initSensor(BaseSensor *sensor);
+bool initSensor(BaseSensor *sensor);
 
 /**
  * @brief Connect the sensor to the specified pins.
@@ -1037,7 +967,7 @@ void initSensor(BaseSensor *sensor);
  * @param sensor Pointer to the sensor to be connected.
  * @throws Exceptions should be internally resolved to prevent program from crash.
  */
-void connectSensor(BaseSensor *sensor);
+bool connectSensor(BaseSensor *sensor);
 
 /**
  * @brief Disconnect the sensor from its current pins.
@@ -1045,6 +975,6 @@ void connectSensor(BaseSensor *sensor);
  * @param sensor Pointer to the sensor to be disconnected.
  * @throws Exceptions should be internally resolved to prevent program from crash.
  */
-void disconnectSensor(BaseSensor *sensor);
+bool disconnectSensor(BaseSensor *sensor);
 
 #endif // BASE_SENSOR_HPP

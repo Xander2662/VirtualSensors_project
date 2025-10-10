@@ -136,7 +136,7 @@ public:
      * @brief Synchronize a sensor by ID
      * @param id Unique identifier string
      */
-    void sync(std::string id);
+    bool sync(std::string id);
 
     /**
      * @brief Print information about a sensor by UID
@@ -148,7 +148,7 @@ public:
      * @brief Assign a sensor and connect it to its pins
      * @param sensor Pointer to the sensor to assign and connect
      */
-    void assignSensor(BaseSensor* sensor);
+    bool assignSensor(BaseSensor* sensor);
 
     /**
      * @brief Print information about all sensors
@@ -158,12 +158,12 @@ public:
     /**
      * @brief Resynchronize all sensors
      */
-    void resync();
+    bool resync();
 
     /**
      * @brief Assign sensors to pins (bulk operation)
      */
-    void assign();
+    bool assign();
 
     /**
      * @brief Erase all sensors and pin assignments
@@ -176,12 +176,12 @@ public:
      * @brief Assign a sensor to the currently active pin
      * @param sensor Pointer to the sensor to assign
      */
-    void assignSensorToPin(BaseSensor* sensor);
+    bool assignSensorToPin(BaseSensor* sensor);
 
     /**
      * @brief Unassign the sensor from the currently active pin
      */
-    void unassignSensorFromPin();
+    bool unassignSensorFromPin();
 
     /**
      * @brief Get the sensor assigned to a specific pin
