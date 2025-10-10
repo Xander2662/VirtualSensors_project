@@ -30,10 +30,11 @@ void sendMessage(const std::string &message);
  * @brief Receives a message using the global messenger.
  * 
  * @param timeout The timeout in milliseconds to wait for a message.
+ * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
  * @return A string containing the received message.
  * @throws Exception if receiving fails.
  */
-std::string receiveMessage(int timeout);
+std::string receiveMessage(int timeout, int verbose = 0);
 
 /**
  * @brief Receives a message using the global messenger with default timeout.

@@ -35,6 +35,18 @@ void configSensor(BaseSensor *sensor, const std::string &config) {
         sensor->setError(new Exception(ex));
         return;
     }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during synchronization: %s\n", e.what());
+        sensor->setError(new Exception(e));
+        return;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during synchronization!\n");
+        sensor->setError(new Exception("configSensor","Unknown exception during synchronization!"));
+        return;
+    }
 
     sensor->setError(nullptr); // Clear error if config successful
 }
@@ -53,6 +65,18 @@ void updateSensor(BaseSensor *sensor, const std::string &update) {
         sensor->setError(new Exception(ex));
         return;
     }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during synchronization: %s\n", e.what());
+        sensor->setError(new Exception(e));
+        return;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during synchronization!\n");
+        sensor->setError(new Exception("updateSensor","Unknown exception during synchronization!"));
+        return;
+    }
 
     sensor->setError(nullptr); // Clear error if config successful
 }
@@ -67,6 +91,18 @@ void printSensor(BaseSensor *sensor) {
     } catch (const Exception &ex) {
         ex.print();
         sensor->setError(new Exception(ex));
+        return;
+    }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during synchronization: %s\n", e.what());
+        sensor->setError(new Exception(e));
+        return;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during synchronization!\n");
+        sensor->setError(new Exception("printSensor","Unknown exception during synchronization!"));
         return;
     }
 
@@ -85,6 +121,18 @@ void syncSensor(BaseSensor *sensor) {
         sensor->setError(new Exception(ex));
         return;
     }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during synchronization: %s\n", e.what());
+        sensor->setError(new Exception(e));
+        return;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during synchronization!\n");
+        sensor->setError(new Exception("syncSensor","Unknown exception during synchronization!"));
+        return;
+    }
 
     sensor->setError(nullptr); // Clear error if config successful
 }
@@ -101,6 +149,18 @@ void initSensor(BaseSensor *sensor) {
         sensor->setError(new Exception(ex));
         return;
     }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during synchronization: %s\n", e.what());
+        sensor->setError(new Exception(e));
+        return;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during synchronization!\n");
+        sensor->setError(new Exception("initSensor","Unknown exception during synchronization!"));
+        return;
+    }
 
     sensor->setError(nullptr); // Clear error if config successful
 }
@@ -108,6 +168,9 @@ void initSensor(BaseSensor *sensor) {
 void connectSensor(BaseSensor *sensor) {
     if(sensor == nullptr) {
         return;
+    }
+    if(sensor->getPins().empty()) {
+        return; // No pins assigned, nothing to connect
     }
 
     try {
@@ -118,6 +181,18 @@ void connectSensor(BaseSensor *sensor) {
         sensor->setError(new Exception(ex));
         return;
     }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during synchronization: %s\n", e.what());
+        sensor->setError(new Exception(e));
+        return;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during synchronization!\n");
+        sensor->setError(new Exception("connectSensor","Unknown exception during synchronization!"));
+        return;
+    }
 
     sensor->setError(nullptr); // Clear error if config successful
 }
@@ -126,12 +201,27 @@ void disconnectSensor(BaseSensor *sensor) {
     if(sensor == nullptr) {
         return;
     }
+    if(sensor->getPins().empty()) {
+        return; // No pins assigned, nothing to disconnect
+    }
 
     try {
         sensor->disconnect();
     } catch (const Exception &ex) {
         ex.print();
         sensor->setError(new Exception(ex));
+        return;
+    }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during synchronization: %s\n", e.what());
+        sensor->setError(new Exception(e));
+        return;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during synchronization!\n");
+        sensor->setError(new Exception("disconnectSensor","Unknown exception during synchronization!"));
         return;
     }
 

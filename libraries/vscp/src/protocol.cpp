@@ -66,16 +66,44 @@ std::string Protocol::buildMessage(const std::unordered_map<std::string, std::st
     return ss.str();
 }
 
-bool Protocol::init_dummy() {
-    // First init messenger
-    initMessenger();
+bool Protocol::init_dummy(int verbose) {
+    try {
+        // First init messenger
+        initMessenger();
 
-    // Thats all
-    initialized = true;
-    return initialized;
+        // Build initialization request
+        std::unordered_map<std::string, std::string> params;
+        params["type"] = "INIT";
+
+        std::string request = buildMessage(params);
+        
+        // Send request and receive response
+        sendMessage(request); 
+
+        // Thats all
+        initialized = true;
+        return initialized;
+    } catch (const Exception& e) {
+        if (verbose) {
+            throw; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init_dummy", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init_dummy", "Unknown error occurred during init_dummy");
+        }
+        return false; // Return false in silent mode
+    }
 }
 
-bool Protocol::init()  {
+bool Protocol::init(int verbose)  {
     try {
         // First init messenger
         initMessenger();
@@ -102,11 +130,26 @@ bool Protocol::init()  {
         
         return false;
     } catch (const Exception& e) {
-        throw ; // Re-throw the exception
+        if (verbose) {
+            throw; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init", "Unknown error occurred during init");
+        }
+        return false; // Return false in silent mode
     }
 }
 
-bool Protocol::init(const std::string& db_version)  {
+bool Protocol::init(const std::string& db_version, int verbose)  {
     try {
         // First init messenger
         initMessenger();
@@ -134,12 +177,27 @@ bool Protocol::init(const std::string& db_version)  {
         
         return false;
     } catch (const Exception& e) {
-        throw ; // Re-throw the exception
+        if (verbose) {
+            throw; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init", "Unknown error occurred during init");
+        }
+        return false; // Return false in silent mode
     }
 }
 
 
-bool Protocol::init(const std::string& app_name, const std::string& db_version) {
+bool Protocol::init(const std::string& app_name, const std::string& db_version, int verbose) {
     try {
         // First init messenger
         initMessenger();
@@ -168,17 +226,38 @@ bool Protocol::init(const std::string& app_name, const std::string& db_version) 
         
         return false;
     } catch (const Exception& e) {
-        throw ; // Re-throw the exception
+        if (verbose) {
+            throw; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::init", "Unknown error occurred during init");
+        }
+        return false; // Return false in silent mode
     }
 }
 
-std::unordered_map<std::string, std::string> Protocol::update(const std::string& uid) {
+std::unordered_map<std::string, std::string> Protocol::update(const std::string& uid, int verbose) {
     if (!initialized) {
-        throw ProtocolNotInitializedException("Protocol::update", "Protocol not initialized before calling update method");
+        if (verbose) {
+            throw ProtocolNotInitializedException("Protocol::update", "Protocol not initialized before calling update method");
+        }
+        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
     }
     
     if (uid.empty()) {
-        throw ValueNotFoundException("Protocol::update", "Sensor UID cannot be empty");
+        if (verbose) {
+            throw ValueNotFoundException("Protocol::update", "Sensor UID cannot be empty");
+        }
+        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
     }
     
     try {
@@ -198,8 +277,11 @@ std::unordered_map<std::string, std::string> Protocol::update(const std::string&
         
         // Check if UID from response matches request
         if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            throw ProtocolMethodFailException("Protocol::update", "Response UID mismatch - expected: " + uid + ", received: " + 
-                          (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            if (verbose) {
+                throw ProtocolMethodFailException("Protocol::update", "Response UID mismatch - expected: " + uid + ", received: " + 
+                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            }
+            return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
         }
         
         // Check if update was successful
@@ -207,22 +289,46 @@ std::unordered_map<std::string, std::string> Protocol::update(const std::string&
             responseParams["status"] == "1") {
             return responseParams;
         } else {
-            std::string error = responseParams.find("error") != responseParams.end() 
-                              ? responseParams["error"] : "Update failed";
-            throw ProtocolMethodFailException("Protocol::update", "Update failed: " + error);
+            if (verbose) {
+                std::string error = responseParams.find("error") != responseParams.end() 
+                                  ? responseParams["error"] : "Update failed";
+                throw ProtocolMethodFailException("Protocol::update", "Update failed: " + error);
+            }
+            return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
         }
     } catch (const Exception& e) {
-        throw e; // Re-throw the exception
+        if (verbose) {
+            throw e; // Re-throw the exception in verbose mode
+        }
+        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::update", e.what());
+        }
+        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::update", "Unknown error occurred during update");
+        }
+        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
     }
 }
 
-bool Protocol::config(const std::string& uid, const std::unordered_map<std::string, std::string>& config) {
+bool Protocol::config(const std::string& uid, const std::unordered_map<std::string, std::string>& config, int verbose) {
     if (!initialized) {
-        throw ProtocolNotInitializedException("Protocol::config", "Protocol not initialized before calling config method");
+        if (verbose) {
+            throw ProtocolNotInitializedException("Protocol::config", "Protocol not initialized before calling config method");
+        }
+        return false; // Return false in silent mode
     }
     
     if (uid.empty()) {
-        throw ValueNotFoundException("Protocol::config", "Sensor UID cannot be empty");
+        if (verbose) {
+            throw ValueNotFoundException("Protocol::config", "Sensor UID cannot be empty");
+        }
+        return false; // Return false in silent mode
     }
     
     try {
@@ -247,25 +353,49 @@ bool Protocol::config(const std::string& uid, const std::unordered_map<std::stri
         
         // Check if UID from response matches request
         if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            throw ProtocolMethodFailException("Protocol::config", "Response UID mismatch - expected: " + uid + ", received: " + 
-                          (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            if (verbose) {
+                throw ProtocolMethodFailException("Protocol::config", "Response UID mismatch - expected: " + uid + ", received: " + 
+                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            }
+            return false; // Return false in silent mode
         }
         
         // Check if configuration was successful
         return (responseParams.find("status") != responseParams.end() && 
                 responseParams["status"] == "1");
     } catch (const Exception& e) {
-        throw e; // Re-throw the exception
+        if (verbose) {
+            throw e; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::config", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::config", "Unknown error occurred during config");
+        }
+        return false; // Return false in silent mode
     }
 }
 
-bool Protocol::reset(const std::string& uid) {
+bool Protocol::reset(const std::string& uid, int verbose) {
     if (!initialized) {
-        throw ProtocolNotInitializedException("Protocol::reset", "Protocol not initialized before calling reset method");
+        if (verbose) {
+            throw ProtocolNotInitializedException("Protocol::reset", "Protocol not initialized before calling reset method");
+        }
+        return false; // Return false in silent mode
     }
     
     if (uid.empty()) {
-        throw ValueNotFoundException("Protocol::reset", "Sensor UID cannot be empty");
+        if (verbose) {
+            throw ValueNotFoundException("Protocol::reset", "Sensor UID cannot be empty");
+        }
+        return false; // Return false in silent mode
     }
     
     try {
@@ -285,25 +415,49 @@ bool Protocol::reset(const std::string& uid) {
         
         // Check if UID from response matches request
         if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            throw ProtocolMethodFailException("Protocol::reset", "Response UID mismatch - expected: " + uid + ", received: " + 
-                          (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            if (verbose) {
+                throw ProtocolMethodFailException("Protocol::reset", "Response UID mismatch - expected: " + uid + ", received: " + 
+                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            }
+            return false; // Return false in silent mode
         }
         
         // Check if reset was successful
         return (responseParams.find("status") != responseParams.end() && 
                 responseParams["status"] == "1");
     } catch (const Exception& e) {
-        throw e; // Re-throw the exception
+        if (verbose) {
+            throw e; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::reset", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::reset", "Unknown error occurred during reset");
+        }
+        return false; // Return false in silent mode
     }
 }
 
-bool Protocol::connect(const std::string& uid, const std::string& pins) {
+bool Protocol::connect(const std::string& uid, const std::string& pins, int verbose) {
     if (!initialized) {
-        throw ProtocolNotInitializedException("Protocol::connect", "Protocol not initialized before calling connect method");
+        if (verbose) {
+            throw ProtocolNotInitializedException("Protocol::connect", "Protocol not initialized before calling connect method");
+        }
+        return false; // Return false in silent mode
     }
     
     if (uid.empty()) {
-        throw ValueNotFoundException("Protocol::connect", "Sensor UID cannot be empty");
+        if (verbose) {
+            throw ValueNotFoundException("Protocol::connect", "Sensor UID cannot be empty");
+        }
+        return false; // Return false in silent mode
     }
     
     try {
@@ -324,25 +478,49 @@ bool Protocol::connect(const std::string& uid, const std::string& pins) {
         
         // Check if UID from response matches request
         if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            throw ProtocolMethodFailException("Protocol::connect", "Response UID mismatch - expected: " + uid + ", received: " + 
-                          (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            if (verbose) {
+                throw ProtocolMethodFailException("Protocol::connect", "Response UID mismatch - expected: " + uid + ", received: " + 
+                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            }
+            return false; // Return false in silent mode
         }
         
         // Check if connection was successful
         return (responseParams.find("status") != responseParams.end() && 
                 responseParams["status"] == "1");
     } catch (const Exception& e) {
-        throw e; // Re-throw the exception
+        if (verbose) {
+            throw e; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::connect", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::connect", "Unknown error occurred during connect");
+        }
+        return false; // Return false in silent mode
     }
 }
 
-bool Protocol::disconnect(const std::string& uid) {
+bool Protocol::disconnect(const std::string& uid, int verbose) {
     if (!initialized) {
-        throw ProtocolNotInitializedException("Protocol::disconnect", "Protocol not initialized before calling disconnect method");
+        if (verbose) {
+            throw ProtocolNotInitializedException("Protocol::disconnect", "Protocol not initialized before calling disconnect method");
+        }
+        return false; // Return false in silent mode
     }
     
     if (uid.empty()) {
-        throw ValueNotFoundException("Protocol::disconnect", "Sensor UID cannot be empty");
+        if (verbose) {
+            throw ValueNotFoundException("Protocol::disconnect", "Sensor UID cannot be empty");
+        }
+        return false; // Return false in silent mode
     }
     
     try {
@@ -362,15 +540,33 @@ bool Protocol::disconnect(const std::string& uid) {
         
         // Check if UID from response matches request
         if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            throw ProtocolMethodFailException("Protocol::disconnect", "Response UID mismatch - expected: " + uid + ", received: " + 
-                          (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            if (verbose) {
+                throw ProtocolMethodFailException("Protocol::disconnect", "Response UID mismatch - expected: " + uid + ", received: " + 
+                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
+            }
+            return false; // Return false in silent mode
         }
         
         // Check if disconnection was successful
         return (responseParams.find("status") != responseParams.end() && 
                 responseParams["status"] == "1");
     } catch (const Exception& e) {
-        throw e; // Re-throw the exception
+        if (verbose) {
+            throw e; // Re-throw the exception in verbose mode
+        }
+        return false; // Return false in silent mode
+    }
+    catch (std::exception& e) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::disconnect", e.what());
+        }
+        return false; // Return false in silent mode
+    }
+    catch (...) {
+        if (verbose) {
+            throw ProtocolMethodFailException("Protocol::disconnect", "Unknown error occurred during disconnect");
+        }
+        return false; // Return false in silent mode
     }
 }
 

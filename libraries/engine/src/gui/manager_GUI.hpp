@@ -15,70 +15,11 @@
 #include "lvgl.h"
 #include <array>
 
+#include "../managers/manager.hpp"
+#include "../sensors/base_sensor.hpp"
+
 class manager_GUI
 {
-public:
-    /**
-     * @brief Get the singleton instance of manager_GUI
-     */
-    static manager_GUI &getInstance();
-
-    /**
-     * @brief Show the main menu GUI
-     */
-    void showMenu();
-
-    /**
-     * @brief Hide the main menu GUI
-     */
-    void hideMenu();
-
-    /**
-     * @brief Update the text labels for pin selections
-     */
-    void updatePinLabelText();
-
-    /**
-     * @brief Draw the currently selected sensor's GUI
-     */
-    void drawCurrentSensor();
-
-    /**
-     * @brief Construct the main menu and sensor widgets
-     */
-    void construct();
-
-    /**
-     * @brief Construct the sensor wiki widget
-     */
-    void constructWiki();
-
-    /**
-     * @brief Go to the first sensor in the list
-     * @param isVisualisation If true, show visualisation, otherwise show wiki
-     */
-    void goToFirstSensor(bool isVisualisation);
-
-    /**
-     * @brief Show the sensor wiki screen
-     */
-    void showSensorWiki();
-
-    /**
-     * @brief Hide the sensor wiki screen
-     */
-    void hideSensorWiki();
-
-    /**
-     * @brief Show the sensor visualisation screen
-     */
-    void showSensorVisualisation();
-
-    /**
-     * @brief Hide the sensor visualisation screen
-     */
-    void hideSensorVisualisation();
-
 private:
     /**
      * @brief Private constructor for singleton pattern
@@ -89,6 +30,8 @@ private:
     manager_GUI(const manager_GUI &) = delete;
     manager_GUI &operator=(const manager_GUI &) = delete;
 
+    bool initialized = false;  ///< Initialization state flag
+
     // --- MENU GUI MEMBERS ---
 
     lv_obj_t *ui_MenuWidget;                ///< Main menu widget
@@ -97,8 +40,8 @@ private:
     lv_obj_t *ui_ButtonStartCornerBottomRight; ///< Bottom-right corner decoration
     lv_obj_t *ui_btnStart;                  ///< Start button
     lv_obj_t *ui_ButtonStartLabel;          ///< Label for start button
-    std::array<lv_obj_t *, 6> pinContainers;///< Containers for pin selection
-    std::array<lv_obj_t *, 6> pinLabels;    ///< Labels for pin selection
+    std::array<lv_obj_t *, NUM_PINS> pinContainers;///< Containers for pin selection
+    std::array<lv_obj_t *, NUM_PINS> pinLabels;    ///< Labels for pin selection
 
     /**
      * @brief Build the menu GUI widgets
@@ -159,6 +102,79 @@ private:
      * @param parentWidget The parent widget to add the button to
      */
     void addBackButtonToWidget(lv_obj_t *parentWidget);
+
+public:
+    /**
+     * @brief Get the singleton instance of manager_GUI
+     */
+    static manager_GUI &getInstance();
+
+    /**
+     * @brief Initialize the GUI manager and sensors
+     */
+    void init();
+
+    /**
+     * @brief Check if the manager has been initialized
+     * @return True if initialized, false otherwise
+     */
+    bool isInitialized() const { return initialized; }
+
+    /**
+     * @brief Show the main menu GUI
+     */
+    void showMenu();
+
+    /**
+     * @brief Hide the main menu GUI
+     */
+    void hideMenu();
+
+    /**
+     * @brief Update the text labels for pin selections
+     */
+    void updatePinLabelText();
+
+    /**
+     * @brief Draw the currently selected sensor's GUI
+     */
+    void drawCurrentSensor();
+
+    /**
+     * @brief Construct the main menu and sensor widgets
+     */
+    void construct();
+
+    /**
+     * @brief Construct the sensor wiki widget
+     */
+    void constructWiki();
+
+    /**
+     * @brief Go to the first sensor in the list
+     * @param isVisualisation If true, show visualisation, otherwise show wiki
+     */
+    void goToFirstSensor(bool isVisualisation);
+
+    /**
+     * @brief Show the sensor wiki screen
+     */
+    void showSensorWiki();
+
+    /**
+     * @brief Hide the sensor wiki screen
+     */
+    void hideSensorWiki();
+
+    /**
+     * @brief Show the sensor visualisation screen
+     */
+    void showSensorVisualisation();
+
+    /**
+     * @brief Hide the sensor visualisation screen
+     */
+    void hideSensorVisualisation();
 };
 
 #endif

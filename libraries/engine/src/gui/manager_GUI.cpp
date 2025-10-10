@@ -11,8 +11,6 @@
 #include <iostream> // for debug logs
 
 #include "manager_GUI.hpp"
-#include "../managers/manager.hpp"
-#include "../sensors/base_sensor.hpp"
 
 /*********************
  *      DENITION
@@ -27,8 +25,20 @@ manager_GUI &manager_GUI::getInstance()
 manager_GUI::manager_GUI()
     : ui_MenuWidget(nullptr), ui_btnStart(nullptr), ui_ButtonStartLabel(nullptr)
 {
+}
+
+void manager_GUI::init()
+{
+    SensorManager &manager = SensorManager::getInstance();
+    while (!manager.isInitialized())
+    {
+        manager.init(); // initialize from factory
+    }
+
     buildMenu();
     hideMenu(); // start hidden
+
+    initialized = true;
 }
 
 /*********************
@@ -51,9 +61,10 @@ void manager_GUI::hideMenu()
 }
 
 // free function for lvgl callback
-static void startSensors()
+static void start()
 {
     SensorManager &manager = SensorManager::getInstance();
+    manager.setRunning(false); // stop manager to allow pin assignment
 
     auto &pinMap = manager.getPinMap();
     size_t count = 0;
@@ -64,8 +75,8 @@ static void startSensors()
         return;
 
     manager.assign(); // assign all sensors to pins
+    manager.setRunning(true);
     
-    manager.setInitialized(true);
     manager_GUI &manager_GUI = manager_GUI::getInstance();
     manager_GUI.hideMenu();
     manager_GUI.goToFirstSensor(true);
@@ -128,7 +139,7 @@ void manager_GUI::buildMenu()
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
     lv_obj_set_style_clip_corner(ui_btnStart, false, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_add_event_cb(ui_btnStart, [](lv_event_t *e)
-                        { startSensors(); }, LV_EVENT_CLICKED, nullptr);
+                        { start(); }, LV_EVENT_CLICKED, nullptr);
 
     ui_ButtonStartLabel = lv_label_create(ui_btnStart);
     lv_obj_set_width(ui_ButtonStartLabel, LV_SIZE_CONTENT);   /// 1
@@ -259,6 +270,8 @@ static void prevSensor(bool isVisualisation)
 static void goBackToMenu()
 {
     SensorManager &manager = SensorManager::getInstance();
+    manager.setRunning(false);
+
     auto &Sensors = manager.getSensors();
     auto &PinMap = manager.getPinMap();
     auto &currentIndex = manager.getCurrentIndex();
@@ -266,7 +279,7 @@ static void goBackToMenu()
     // Since goToFirst was implemented this doesnt need to be checked
     // currentIndex = 0;
     manager.resetActivePin();
-    manager.setInitialized(false);
+
     manager_GUI.hideSensorVisualisation();
     manager_GUI.hideSensorWiki();
     manager_GUI.showMenu();
@@ -847,7 +860,9 @@ void manager_GUI::construct(/*bool hasTwoUnits*/)
 void manager_GUI::drawCurrentSensor()
 {
     SensorManager &manager = SensorManager::getInstance();
-    auto *sensorCurrent = manager.getAssignedSensor(manager.getCurrentIndex());
+    auto *sensorCurrent = manager.getCurrentSensor();
+    if (!sensorCurrent)
+        return;
     // TEMP
     //  manager.showCurrentSensorInfo(true);
 
@@ -856,20 +871,20 @@ void manager_GUI::drawCurrentSensor()
         return;
     }
     // TEMP
-    logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
+    //logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
 
     auto Values = sensorCurrent->getValuesKeys();
     for (auto &Key : Values)
     {
         // TEMP
-        logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
+        //logMessage("RedrawPending: %d\n", sensorCurrent->getRedrawPending());
 
         std::string value = sensorCurrent->getValue<std::string>(Key.c_str());
         lv_label_set_text(ui_LabelValueValue_1, value.c_str());
         static short ui_Chart_hist[HISTORY_CAP];
         sensorCurrent->getHistory<float>(Key.c_str(), ui_Chart_hist);
         // TEMP
-        logMessage("value string: %s\n", Key.c_str());
+        //logMessage("value string: %s\n", Key.c_str());
 
         short min_val = ui_Chart_hist[0];
         short max_val = ui_Chart_hist[0];
@@ -878,7 +893,7 @@ void manager_GUI::drawCurrentSensor()
         {
             short j = ui_Chart_hist[i];
             // TEMP
-            logMessage("%d. history : %d\n", i, j);
+            //logMessage("%d. history : %d\n", i, j);
             if (j < min_val)
                 min_val = j;
             if (j > max_val)

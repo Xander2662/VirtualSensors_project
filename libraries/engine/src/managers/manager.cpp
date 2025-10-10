@@ -30,29 +30,88 @@ SensorManager::~SensorManager() {
     for (auto* s : Sensors) delete s;
 }
 
-void SensorManager::setInitialized(bool start){
-    initialized = start;
-}
+bool SensorManager::init() {
+    initialized = false;
+    try
+    {
+        initMessenger();
 
-void SensorManager::init(bool fromRequest) {
-    initMessenger();
-
-    if (!fromRequest) {
         logMessage("Initializing manager via fixed sensors list...\n");
         createSensorList(Sensors);
-        return;
+
+        logMessage("Initializing of protocol...\n");
+        if (!Protocol::init_dummy()) {
+            throw SensorInitializationFailException("SensorManager::init", "Protocol initialization failed", ErrorCode::CRITICAL_ERROR_CODE);
+        }
     }
-    logMessage("Initializing manager via request...\n");
-    std::string request = "?INIT";
-    sendMessage(request);
-    std::string response = receiveMessage();
-    if (response.empty() || response[0] != '?') {
-        logMessage("Invalid sensor list format!\n");
-        init(false);
-        return;
+    catch(const Exception &e)
+    {
+        e.print();
+        Status = ManagerStatus::ERROR;
+        return false;
     }
-    response.erase(0, 1);
-    createSensorList(Sensors, response);
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during initialization: %s\n", e.what());
+        Status = ManagerStatus::ERROR;
+        return false;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during initialization!\n");
+        Status = ManagerStatus::ERROR;
+        return false;
+    }
+
+
+    Status = ManagerStatus::READY;
+    currentIndex = 0;
+    activePin = NUM_PINS; // no active pin
+    logMessage("Initialization done!\n");
+    return initialized = true;
+}
+
+bool SensorManager::init(std::string configFile) {
+    initialized = false;
+    try
+    {
+        initMessenger();
+
+        logMessage("Initializing manager via configuration file: %s\n", configFile.c_str());
+        //Init from config file here
+        throw Exception("SensorManager::init", "Initialization from config file not implemented yet", ErrorCode::NOT_DEFINED_ERROR);
+
+        std::string app = "VirtualSensors 1.0"; //Get from config?
+        std::string db = "1.0"; //Get from config?
+        logMessage("Initializing of protocol...\n");
+        if (!Protocol::init(app, db)) {
+            throw SensorInitializationFailException("SensorManager::init", "Protocol initialization failed", ErrorCode::CRITICAL_ERROR_CODE);
+        }
+    }
+    catch(const Exception &e)
+    {
+        e.print();
+        Status = ManagerStatus::ERROR;
+        return false;
+    }
+    catch (const std::exception &e)
+    {
+        logMessage("Standard exception during initialization: %s\n", e.what());
+        Status = ManagerStatus::ERROR;
+        return false;
+    }
+    catch(...)
+    {
+        logMessage("Unknown exception during initialization!\n");
+        Status = ManagerStatus::ERROR;
+        return false;
+    }
+    
+    Status = ManagerStatus::READY;
+    currentIndex = 0;
+    activePin = NUM_PINS; // no active pin
+    logMessage("Initialization done!\n");
+    return initialized = true;
 }
 
 BaseSensor* SensorManager::getSensor(std::string uid) {
@@ -76,9 +135,6 @@ void SensorManager::addSensor(BaseSensor* sensor) {
 }
 
 void SensorManager::assignSensor(BaseSensor* sensor) {
-    if (sensor == nullptr) {
-        return;
-    }
     connectSensor(sensor);
 }
 
@@ -116,8 +172,9 @@ void SensorManager::erase() {
 /////////////////////////
 // pin management
 /////////////////////////
+
 void SensorManager::assignSensorToPin(BaseSensor* sensor) {
-    if (activePin > NUM_PINS) return;
+    if (activePin >= NUM_PINS) return;
 
     try
     {
@@ -133,7 +190,7 @@ void SensorManager::assignSensorToPin(BaseSensor* sensor) {
 }
 
 void SensorManager::unassignSensorFromPin() {
-    if (activePin > NUM_PINS) return;
+    if (activePin >= NUM_PINS) return;
 
     try
     {
@@ -151,6 +208,6 @@ void SensorManager::unassignSensorFromPin() {
 
 
 BaseSensor* SensorManager::getAssignedSensor(size_t pinIndex) const {
-    if (pinIndex > NUM_PINS) return nullptr;
+    if (pinIndex >= NUM_PINS) return nullptr;
     return PinMap[pinIndex];
 }

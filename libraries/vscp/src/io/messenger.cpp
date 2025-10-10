@@ -30,7 +30,7 @@
         UART1.println(message.c_str());
     }
     
-    std::string receiveMessage(int timeout = UART_TIMEOUT) {
+    std::string receiveMessage(int timeout = UART_TIMEOUT, int verbose) {
         String msg = ""; // static so it persists between calls
         unsigned long startTime = millis();
 
@@ -52,7 +52,9 @@
                 throw IOCommReceiveException("receiveMessage", "Timeout waiting for message", ErrorCode::TIMEOUT);
             }
         } catch (const Exception &ex) {
-            ex.print();
+            if (verbose) {
+                ex.print();
+            }
             return "";
         }
 
@@ -87,7 +89,7 @@
         printf("%s\n", message.c_str());
     }
 
-    std::string receiveMessage(int timeout = -1) {
+    std::string receiveMessage(int timeout = -1, int verbose) {
         char buffer[256];
         scanf("%s", buffer);
         return std::string(buffer);

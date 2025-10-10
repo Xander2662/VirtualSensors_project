@@ -177,7 +177,6 @@ protected:
      */
     void syncConfigs()
     {
-        isConfigsSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
         try
         {
             //Convert Configs to unordered_map<std::string, std::string>
@@ -189,14 +188,22 @@ protected:
             bool response = Protocol::config(UID, configMap);
             if (response == false)
             {
-                throw SensorSynchronizationFailException("BaseSensor::syncConfigs", "Failed to synchronize sensor configurations.");
+                isConfigsSync = false;
+                return;
             }
         }
-        catch(const Exception &e)
+        catch (const Exception &e)
         {
-            e.print();
-            return;
-        }  
+            throw e;
+        }
+        catch (const std::exception &e)
+        {
+            throw;
+        }
+        catch (...)
+        {
+            throw;
+        }
 
         isConfigsSync = true; // Set flag to indicate sensor is synchronized with real sensor.
         redrawPending = true; // Set flag to redraw sensor - values updated.
@@ -217,8 +224,15 @@ protected:
         }
         catch (const Exception &e)
         {
-            e.print();
-            return;
+            throw e;
+        }
+        catch (const std::exception &e)
+        {
+            throw;
+        }
+        catch (...)
+        {
+            throw;
         }
 
         
@@ -304,9 +318,7 @@ public:
     {
         Error = nullptr;
 
-        redrawPending = true;
-        isConfigsSync = false;
-        isValuesSync = false;
+        init();
     }
 
     /**
@@ -318,9 +330,7 @@ public:
     {
         Error = nullptr;
 
-        redrawPending = true;
-        isConfigsSync = false;
-        isValuesSync = false;
+        init();
     }
 
     /**
@@ -717,6 +727,14 @@ public:
             {
                 throw;
             }
+            catch (const std::exception &e)
+            {
+                throw;
+            }
+            catch (...)
+            {
+                throw;
+            }
         }
 
         if (!isValuesSync)
@@ -726,6 +744,14 @@ public:
                 syncValues();
             }
             catch (const Exception &e)
+            {
+                throw;
+            }
+            catch (const std::exception &e)
+            {
+                throw;
+            }
+            catch (...)
             {
                 throw;
             }
@@ -760,6 +786,10 @@ public:
      */
     virtual void config(const std::unordered_map<std::string, std::string> &cfg)
     {
+        if(cfg.empty())
+        {
+            return;
+        }
         std::string value;
         try
         {
@@ -823,6 +853,10 @@ public:
      */
     virtual void update(const std::unordered_map<std::string, std::string> &upd)
     {
+        if(upd.empty())
+        {
+            return;
+        }
         std::string value;
         try
         {
@@ -896,7 +930,7 @@ public:
     virtual void init()
     {
         redrawPending = true; // Set flag to redraw sensor - values updated.
-        isConfigsSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
+        isConfigsSync = true; // Set flag to indicate sensor is synchronized by default with real sensor.
         isValuesSync = false; // Set flag to indicate sensor is not synchronized with real sensor
     };
 };

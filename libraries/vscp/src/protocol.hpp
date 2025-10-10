@@ -91,10 +91,11 @@ public:
      * Base initialization method for testing and generic usage that doesn't require
      * platform-specific hooks. Uses default application information.
      * 
+     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
      * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails
+     * @throws Exception if communication fails (only when verbose=1)
      */
-    static bool init_dummy();
+    static bool init_dummy(int verbose = 1);
 
     /**
      * @brief Initializes the protocol connection with specified API version.
@@ -103,11 +104,11 @@ public:
      * but allows specifying the API version. Useful when only API compatibility needs
      * to be verified.
      * 
-     * @param api_version API version
+     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
      * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails
+     * @throws Exception if communication fails (only when verbose=1)
      */
-    static bool init();
+    static bool init(int verbose = 1);
 
     /**
      * @brief Initializes the protocol connection with specified database version.
@@ -117,10 +118,11 @@ public:
      * to be verified.
      * 
      * @param db_version Database version
+     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
      * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails
+     * @throws Exception if communication fails (only when verbose=1)
      */
-    static bool init(const std::string& db_version);
+    static bool init(const std::string& db_version, int verbose = 1);
 
     /**
      * @brief Initializes the protocol connection with handshake.
@@ -133,10 +135,11 @@ public:
      * 
      * @param app_name Application name (include version?)
      * @param db_version Database version
+     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
      * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails
+     * @throws Exception if communication fails (only when verbose=1)
      */
-    static bool init(const std::string& app_name, const std::string& db_version);
+    static bool init(const std::string& app_name, const std::string& db_version, int verbose = 1);
     
     /**
      * @brief Requests data update for a specific sensor.
@@ -145,10 +148,11 @@ public:
      * Response format: ?id=UID&status=1/0&param1=value1&param2=value2...
      * 
      * @param uid Unique identifier of the sensor
+     * @param verbose If 0 (default), exceptions are suppressed and empty map returned; if 1, exceptions are thrown
      * @return std::unordered_map<std::string, std::string> Updated sensor parameters
-     * @throws Exception if communication fails or sensor not found
+     * @throws Exception if communication fails or sensor not found (only when verbose=1)
      */
-    static std::unordered_map<std::string, std::string> update(const std::string& uid);
+    static std::unordered_map<std::string, std::string> update(const std::string& uid, int verbose = 0);
     
     /**
      * @brief Sends new configuration for sensor from HMI side to HW side.
@@ -158,10 +162,11 @@ public:
      * 
      * @param uid Unique identifier of the sensor
      * @param config Configuration parameters to set
+     * @param verbose If 0 (default), exceptions are suppressed and false returned; if 1, exceptions are thrown
      * @return bool True if configuration successful, false otherwise
-     * @throws Exception if communication fails or invalid configuration
+     * @throws Exception if communication fails or invalid configuration (only when verbose=1)
      */
-    static bool config(const std::string& uid, const std::unordered_map<std::string, std::string>& config);
+    static bool config(const std::string& uid, const std::unordered_map<std::string, std::string>& config, int verbose = 0);
     
     /**
      * @brief Resets the specified sensor.
@@ -170,10 +175,11 @@ public:
      * Response format: ?id=UID&status=1/0
      * 
      * @param uid Unique identifier of the sensor
+     * @param verbose If 0 (default), exceptions are suppressed and false returned; if 1, exceptions are thrown
      * @return bool True if reset successful, false otherwise
-     * @throws Exception if communication fails or sensor not found
+     * @throws Exception if communication fails or sensor not found (only when verbose=1)
      */
-    static bool reset(const std::string& uid);
+    static bool reset(const std::string& uid, int verbose = 0);
     
     /**
      * @brief Connects sensor to specified pin.
@@ -184,10 +190,11 @@ public:
      * 
      * @param uid Unique identifier of the sensor
      * @param pins Pin(s) number(s) to connect sensor to
+     * @param verbose If 0 , exceptions are suppressed and false returned; if 1 (default), exceptions are thrown
      * @return bool True if connection successful, false otherwise
-     * @throws Exception if communication fails or pin unavailable
+     * @throws Exception if communication fails or pin unavailable (only when verbose=1)
      */
-    static bool connect(const std::string& uid, const std::string& pins);
+    static bool connect(const std::string& uid, const std::string& pins, int verbose = 1);
     
     /**
      * @brief Disconnects sensor from its current pin.
@@ -196,10 +203,11 @@ public:
      * Response format: ?id=UID&status=1/0
      * 
      * @param uid Unique identifier of the sensor
+     * @param verbose If 0 , exceptions are suppressed and false returned; if 1 (default), exceptions are thrown
      * @return bool True if disconnection successful, false otherwise
-     * @throws Exception if communication fails or sensor not connected
+     * @throws Exception if communication fails or sensor not connected (only when verbose=1)
      */
-    static bool disconnect(const std::string& uid);
+    static bool disconnect(const std::string& uid, int verbose = 1);
     
     /**
      * @brief Checks if protocol is initialized.
