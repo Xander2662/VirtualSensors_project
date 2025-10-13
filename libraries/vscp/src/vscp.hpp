@@ -25,12 +25,6 @@
 
 #include "io/messenger.hpp"
 
-#include "exceptions/error_codes.hpp"
-#include "exceptions/exceptions.hpp"
-#include "exceptions/protocol_exceptions.hpp"
-#include "exceptions/io_exceptions.hpp"
-#include "exceptions/data_exceptions.hpp"
-
 #endif // VSCP_HPP
 
 

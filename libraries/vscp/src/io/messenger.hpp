@@ -15,8 +15,6 @@
 
 #include <string>
 #include "../config.hpp"     ///< Configuration.
-#include "../exceptions/io_exceptions.hpp" ///< Exception handling.
-
 
 /**
  * @brief Sends a message using the global messenger.
@@ -34,15 +32,7 @@ void sendMessage(const std::string &message);
  * @return A string containing the received message.
  * @throws Exception if receiving fails.
  */
-std::string receiveMessage(int timeout, int verbose = 0);
-
-/**
- * @brief Receives a message using the global messenger with default timeout.
- * 
- * @return A string containing the received message.
- * @throws Exception if receiving fails.
- */
-std::string receiveMessage();
+std::string receiveMessage(int verbose = 0, int timeout = UART_TIMEOUT);
 
 /**
 * @brief Initializes the global messenger.
@@ -53,13 +43,13 @@ std::string receiveMessage();
 * @param rx The receive pin for the messenger.
 * @throws Exception if initialization fails.
 */
-void initMessenger(unsigned long baudrate, unsigned int mode, int tx, int rx);
+bool initMessenger(unsigned long baudrate, unsigned int mode, int tx, int rx);
 
 /**
  * @brief Initializes the global messenger - automatic configuration.
  * 
  * @throws Exception if initialization fails.
  */
-void initMessenger();
+bool initMessenger();
 
 #endif // MESSENGER_HPP

@@ -44,9 +44,6 @@ res: ?id=UID&status=1/0/-1&error=Error Message
 
 #include "config.hpp"
 #include "io/messenger.hpp"
-#include "exceptions/exceptions.hpp"
-#include "exceptions/protocol_exceptions.hpp"
-#include "exceptions/data_exceptions.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -73,7 +70,7 @@ private:
      * @param message The protocol message to parse
      * @return std::unordered_map<std::string, std::string> Parsed key-value pairs
      */
-    static std::unordered_map<std::string, std::string> parseMessage(const std::string& message, bool caseSensitive);
+    static std::unordered_map<std::string, std::string> parseMessage(const std::string& message, bool caseSensitive = CASE_SENSITIVE);
     
     /**
      * @brief Builds a protocol message from key-value pairs.
@@ -86,128 +83,128 @@ private:
 public:
 
     /**
-     * @brief Initializes the protocol connection with default values.
-     * 
+     * @brief Initializes the protocol connection with default values (dummy/test mode).
+     *
      * Base initialization method for testing and generic usage that doesn't require
      * platform-specific hooks. Uses default application information.
-     * 
-     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
-     * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails (only when verbose=1)
+     *
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool init_dummy(int verbose = 1);
+    static std::unordered_map<std::string, std::string> init_dummy();
 
     /**
      * @brief Initializes the protocol connection with specified API version.
-     * 
+     *
      * Initialization method that uses default application name, version, and database version
      * but allows specifying the API version. Useful when only API compatibility needs
      * to be verified.
-     * 
-     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
-     * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails (only when verbose=1)
+     *
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool init(int verbose = 1);
+    static std::unordered_map<std::string, std::string> init();
 
     /**
      * @brief Initializes the protocol connection with specified database version.
-     * 
+     *
      * Initialization method that uses default application name and version but allows
      * specifying the database version. Useful when only database compatibility needs
      * to be verified.
-     * 
+     *
      * @param db_version Database version
-     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
-     * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails (only when verbose=1)
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool init(const std::string& db_version, int verbose = 1);
+    static std::unordered_map<std::string, std::string> init(const std::string& db_version);
 
     /**
      * @brief Initializes the protocol connection with handshake.
-     * 
+     *
      * Performs handshake to ensure application purpose, matches device database versions
      * and API versions with the remote device. Application info is sent once during initialization.
-     * 
+     *
      * Request format: ?type=INIT&app=APP_NAME_APP_VERSION&db=DB_VERSION&api=API_VERSION
      * Response format: ?status=1/0&error=Error Message
-     * 
-     * @param app_name Application name (include version?)
+     *
+     * @param app_name Application name (include version)
      * @param db_version Database version
-     * @param verbose If 0 , exceptions are suppressed and default values returned; if 1 (default), exceptions are thrown
-     * @return bool True if initialization successful, false otherwise
-     * @throws Exception if communication fails (only when verbose=1)
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool init(const std::string& app_name, const std::string& db_version, int verbose = 1);
+    static std::unordered_map<std::string, std::string> init(const std::string& app_name, const std::string& db_version);
     
     /**
      * @brief Requests data update for a specific sensor.
-     * 
+     *
      * Request format: ?type=UPDATE&id=UID
      * Response format: ?id=UID&status=1/0&param1=value1&param2=value2...
-     * 
+     *
      * @param uid Unique identifier of the sensor
-     * @param verbose If 0 (default), exceptions are suppressed and empty map returned; if 1, exceptions are thrown
-     * @return std::unordered_map<std::string, std::string> Updated sensor parameters
-     * @throws Exception if communication fails or sensor not found (only when verbose=1)
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Updated sensor parameters (may be empty on failure)
      */
-    static std::unordered_map<std::string, std::string> update(const std::string& uid, int verbose = 0);
+    static std::unordered_map<std::string, std::string> update(const std::string& uid);
     
     /**
      * @brief Sends new configuration for sensor from HMI side to HW side.
-     * 
+     *
      * Request format: ?type=CONFIG&id=UID&param1=value1&param2=value2
      * Response format: ?id=UID&status=1/0&error=Error Message
-     * 
+     *
      * @param uid Unique identifier of the sensor
      * @param config Configuration parameters to set
-     * @param verbose If 0 (default), exceptions are suppressed and false returned; if 1, exceptions are thrown
-     * @return bool True if configuration successful, false otherwise
-     * @throws Exception if communication fails or invalid configuration (only when verbose=1)
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool config(const std::string& uid, const std::unordered_map<std::string, std::string>& config, int verbose = 0);
+    static std::unordered_map<std::string, std::string> config(const std::string& uid, const std::unordered_map<std::string, std::string>& config);
     
     /**
      * @brief Resets the specified sensor.
-     * 
+     *
      * Request format: ?type=RESET&id=UID
      * Response format: ?id=UID&status=1/0
-     * 
+     *
      * @param uid Unique identifier of the sensor
-     * @param verbose If 0 (default), exceptions are suppressed and false returned; if 1, exceptions are thrown
-     * @return bool True if reset successful, false otherwise
-     * @throws Exception if communication fails or sensor not found (only when verbose=1)
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool reset(const std::string& uid, int verbose = 0);
+    static std::unordered_map<std::string, std::string> reset(const std::string& uid);
     
     /**
-     * @brief Connects sensor to specified pin.
-     * 
+     * @brief Connects sensor to specified pin(s).
+     *
      * Request format: ?type=CONNECT&id=UID&pins=PINS
      * where PINS is a string representing one or more pin numbers, e.g., "5" or "5,6,7"
      * Response format: ?id=UID&status=1/0
-     * 
+     *
      * @param uid Unique identifier of the sensor
      * @param pins Pin(s) number(s) to connect sensor to
-     * @param verbose If 0 , exceptions are suppressed and false returned; if 1 (default), exceptions are thrown
-     * @return bool True if connection successful, false otherwise
-     * @throws Exception if communication fails or pin unavailable (only when verbose=1)
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool connect(const std::string& uid, const std::string& pins, int verbose = 1);
+    static std::unordered_map<std::string, std::string> connect(const std::string& uid, const std::string& pins);
     
     /**
      * @brief Disconnects sensor from its current pin.
-     * 
+     *
      * Request format: ?type=DISCONNECT&id=UID
      * Response format: ?id=UID&status=1/0
-     * 
+     *
      * @param uid Unique identifier of the sensor
-     * @param verbose If 0 , exceptions are suppressed and false returned; if 1 (default), exceptions are thrown
-     * @return bool True if disconnection successful, false otherwise
-     * @throws Exception if communication fails or sensor not connected (only when verbose=1)
+     * @note The 'verbose' parameter in implementation is used for logging only, not for exception throwing.
+     *
+     * @return std::unordered_map<std::string, std::string> Response key-value pairs (may be empty on failure)
      */
-    static bool disconnect(const std::string& uid, int verbose = 1);
+    static std::unordered_map<std::string, std::string> disconnect(const std::string& uid);
     
     /**
      * @brief Checks if protocol is initialized.

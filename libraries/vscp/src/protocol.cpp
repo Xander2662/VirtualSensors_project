@@ -19,8 +19,9 @@
 const std::string Protocol::API_VERSION = "1.2";
 bool Protocol::initialized = false;
 
-std::unordered_map<std::string, std::string> Protocol::parseMessage(const std::string& message, bool caseSensitive = CASE_SENSITIVE) {
-    std::unordered_map<std::string, std::string> params;
+std::unordered_map<std::string, std::string> Protocol::parseMessage(const std::string& message, bool caseSensitive) {
+    static std::unordered_map<std::string, std::string> params;
+    params.clear();
     
     // Remove leading '?' if present
     std::string cleanMessage = message;
@@ -67,256 +68,153 @@ std::string Protocol::buildMessage(const std::unordered_map<std::string, std::st
 }
 
 bool Protocol::init_dummy(int verbose) {
-    try {
-        // First init messenger
-        initMessenger();
+    // First init messenger
+    initMessenger();
 
-        // Build initialization request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "INIT";
+    // Build initialization request
+    std::string request = "?type=INIT";
+ 
+    // Send request and receive response
+    sendMessage(request); 
 
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request); 
-
-        // Thats all
-        initialized = true;
-        return initialized;
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
-    }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init_dummy", e.what());
-        }
-        return false; // Return false in silent mode
-    }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init_dummy", "Unknown error occurred during init_dummy");
-        }
-        return false; // Return false in silent mode
-    }
+    // Thats all
+    initialized = true;
+    return initialized;
 }
 
 bool Protocol::init(int verbose)  {
-    try {
-        // First init messenger
-        initMessenger();
-        
-        // Build initialization request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "INIT";
-        params["api"] = API_VERSION;
-        
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request); 
-        std::string response = receiveMessage(500); // 500 ms timeout for init
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if initialization was successful
-        if (responseParams.find("status") != responseParams.end()) {
-            initialized = (responseParams["status"] == "1");
-            return initialized;
-        }
-        
-        return false;
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
+    // First init messenger
+    initMessenger();
+    
+    // Build initialization request
+    static std::string request;
+    std::string request = "?type=INIT";
+    request += "&api=" + API_VERSION;
+
+    // Send request and receive response
+    sendMessage(request); 
+    std::string response = receiveMessage(500, verbose); // 500 ms timeout for init
+    
+    // Parse response
+    auto responseParams = parseMessage(response);
+    
+    // Check if initialization was successful
+    if (responseParams.find("status") != responseParams.end()) {
+        initialized = (responseParams["status"] == "1");
     }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init", e.what());
-        }
-        return false; // Return false in silent mode
+    else{
+        initialized = false;
     }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init", "Unknown error occurred during init");
-        }
-        return false; // Return false in silent mode
-    }
+    
+    return initialized;
 }
 
 bool Protocol::init(const std::string& db_version, int verbose)  {
-    try {
-        // First init messenger
-        initMessenger();
-        
-        // Build initialization request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "INIT";
-        params["db"] = db_version;
-        params["api"] = API_VERSION;
-        
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request); 
-        std::string response = receiveMessage(500); // 500 ms timeout for init
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if initialization was successful
-        if (responseParams.find("status") != responseParams.end()) {
-            initialized = (responseParams["status"] == "1");
-            return initialized;
-        }
-        
-        return false;
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
+    // First init messenger
+    initMessenger();
+    
+    // Build initialization request
+    std::unordered_map<std::string, std::string> params;
+    params["type"] = "INIT";
+    params["db"] = db_version;
+    params["api"] = API_VERSION;
+    
+    std::string request = buildMessage(params);
+    
+    // Send request and receive response
+    sendMessage(request); 
+    std::string response = receiveMessage(500); // 500 ms timeout for init
+    
+    // Parse response
+    auto responseParams = parseMessage(response, verbose);
+    
+    // Check if initialization was successful
+    if (responseParams.find("status") != responseParams.end()) {
+        initialized = (responseParams["status"] == "1");
     }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init", e.what());
-        }
-        return false; // Return false in silent mode
+    else{
+        initialized = false;
     }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init", "Unknown error occurred during init");
-        }
-        return false; // Return false in silent mode
-    }
+    
+    return initialized;
 }
 
 
 bool Protocol::init(const std::string& app_name, const std::string& db_version, int verbose) {
-    try {
-        // First init messenger
-        initMessenger();
-        
-        // Build initialization request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "INIT";
-        params["app"] = app_name;
-        params["db"] = db_version;
-        params["api"] = API_VERSION;
-        
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request); 
-        std::string response = receiveMessage(500); // 500 ms timeout for init
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if initialization was successful
-        if (responseParams.find("status") != responseParams.end()) {
-            initialized = (responseParams["status"] == "1");
-            return initialized;
-        }
-        
-        return false;
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
+    // First init messenger
+    initMessenger();
+    
+    // Build initialization request
+    std::unordered_map<std::string, std::string> params;
+    params["type"] = "INIT";
+    params["app"] = app_name;
+    params["db"] = db_version;
+    params["api"] = API_VERSION;
+    
+    std::string request = buildMessage(params);
+    
+    // Send request and receive response
+    sendMessage(request); 
+    std::string response = receiveMessage(500); // 500 ms timeout for init
+    
+    // Parse response
+    auto responseParams = parseMessage(response);
+    
+    // Check if initialization was successful
+    if (responseParams.find("status") != responseParams.end()) {
+        initialized = (responseParams["status"] == "1");
     }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init", e.what());
-        }
-        return false; // Return false in silent mode
+    else{
+        initialized = false;
     }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::init", "Unknown error occurred during init");
-        }
-        return false; // Return false in silent mode
-    }
+    
+    return initialized;
 }
 
 std::unordered_map<std::string, std::string> Protocol::update(const std::string& uid, int verbose) {
+    auto responseParams = std::unordered_map<std::string, std::string>();
+    std::string errorMessage = "";
+
     if (!initialized) {
-        if (verbose) {
-            throw ProtocolNotInitializedException("Protocol::update", "Protocol not initialized before calling update method");
-        }
-        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
+        responseParams["error"] = "Protocol not initialized";
+        return responseParams; // Return error map in silent mode
     }
     
     if (uid.empty()) {
-        if (verbose) {
-            throw ValueNotFoundException("Protocol::update", "Sensor UID cannot be empty");
-        }
-        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
+        responseParams["error"] = "UID cannot be empty";
+        return responseParams; // Return error map in silent mode
+    }
+
+    // Build update request
+    std::string request = "?type=UPDATE";
+    request += "&id=" + uid;
+    
+    // Send request and receive response
+    sendMessage(request);
+    std::string response = receiveMessage(verbose);
+    
+    // Parse response
+    responseParams = parseMessage(response);
+    
+    // Check if UID from response matches request
+    if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        errorMessage = "Response UID mismatch - expected: " + uid + ", received: " + 
+                                (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
+        responseParams["error"] = errorMessage;
+        return responseParams;
     }
     
-    try {
-        // Build update request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "UPDATE";
-        params["id"] = uid;
-        
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request);
-        std::string response = receiveMessage();
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if UID from response matches request
-        if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            if (verbose) {
-                throw ProtocolMethodFailException("Protocol::update", "Response UID mismatch - expected: " + uid + ", received: " + 
-                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
-            }
-            return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
-        }
-        
-        // Check if update was successful
-        if (responseParams.find("status") != responseParams.end() && 
-            responseParams["status"] == "1") {
-            return responseParams;
-        } else {
-            if (verbose) {
-                std::string error = responseParams.find("error") != responseParams.end() 
-                                  ? responseParams["error"] : "Update failed";
-                throw ProtocolMethodFailException("Protocol::update", "Update failed: " + error);
-            }
-            return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
-        }
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw e; // Re-throw the exception in verbose mode
-        }
-        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
-    }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::update", e.what());
-        }
-        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
-    }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::update", "Unknown error occurred during update");
-        }
-        return std::unordered_map<std::string, std::string>(); // Return empty map in silent mode
-    }
+    // Check if update was successful
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        errorMessage = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Update failed - bad status";
+        responseParams["error"] = errorMessage;
+    } 
+
+    return responseParams; // Return error map in silent mode
 }
 
-bool Protocol::config(const std::string& uid, const std::unordered_map<std::string, std::string>& config, int verbose) {
+std::unordered_map<std::string, std::string> Protocol::config(const std::string& uid, const std::unordered_map<std::string, std::string>& config, int verbose) {
     if (!initialized) {
         if (verbose) {
             throw ProtocolNotInitializedException("Protocol::config", "Protocol not initialized before calling config method");
@@ -333,16 +231,15 @@ bool Protocol::config(const std::string& uid, const std::unordered_map<std::stri
     
     try {
         // Build configuration request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "CONFIG";
-        params["id"] = uid;
+        std::string request = "?type=CONFIG";
+        request += "&id=" + uid;
         
         // Add configuration parameters
         for (const auto& configParam : config) {
-            params[configParam.first] = configParam.second;
+            request += "&" + configParam.first + "=" + configParam.second;
         }
         
-        std::string request = buildMessage(params);
+        std::string request = buildMessage(request);
         
         // Send request and receive response
         sendMessage(request);

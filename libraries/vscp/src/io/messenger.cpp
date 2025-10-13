@@ -18,68 +18,58 @@
     HardwareSerial UART1(UART1_PORT);
 
     void sendMessage(const std::string &message) {
-        try{
-            if(!UART1){
-                initMessenger();
-            }
-        } catch (const Exception &ex) {
-            ex.print();
-            return;
+        if(!UART1){
+            initMessenger();
         }
         
         UART1.println(message.c_str());
     }
     
-    std::string receiveMessage(int timeout = UART_TIMEOUT, int verbose) {
+    std::string receiveMessage(int verbose, int timeout) {
         String msg = ""; // static so it persists between calls
         unsigned long startTime = millis();
 
-        try{
-            if(!UART1){
-                initMessenger();
-            }
+        if(!UART1){
+            initMessenger();
+        }
 
-            while (UART1.available() == 0 && (millis() - startTime) < UART_TIMEOUT) {
-            // Wait until data arrives or timeout occurs
-            }
+        while (UART1.available() == 0 && (millis() - startTime) < UART_TIMEOUT) {
+        // Wait until data arrives or timeout occurs
+        }
 
-            if (Serial.available() > 0) {
+        if (UART1.available() > 0) {
             // Read response
             msg = UART1.readString();
-            } else {
-                // Handle timeout situation
-                // Throw an exception or return an error message
-                throw IOCommReceiveException("receiveMessage", "Timeout waiting for message", ErrorCode::TIMEOUT);
+        } else {
+            // Handle timeout situation
+            if(verbose > 0)
+            {
+                msg = "Timeout occurred while waiting for message.";
             }
-        } catch (const Exception &ex) {
-            if (verbose) {
-                ex.print();
+            else
+            {
+                msg = "";
             }
-            return "";
         }
 
         return std::string(msg.c_str());
     }
 
-    std::string receiveMessage() {
-        return receiveMessage(UART_TIMEOUT);
+    bool initMessenger(unsigned long baudrate = UART1_BAUDRATE, unsigned int mode = SERIAL_8N1, int tx = UART1_TX, int rx = UART1_RX) {
+        UART1.begin(baudrate, mode, tx, rx);
+        unsigned long startTime = millis();
+
+        while ((millis() - startTime) < UART_INIT_TIMEOUT && !UART1) {
+            // Wait for Serial to initialize or timeout
+        }
+        if (!UART1) {
+            return false; // Initialization failed
+        }
+        return true;
     }
 
-    void initMessenger(unsigned long baudrate = UART1_BAUDRATE, unsigned int mode = SERIAL_8N1, int tx = UART1_TX, int rx = UART1_RX) {
-        try{
-            UART1.begin(baudrate, mode, tx, rx);
-            while(!UART1);
-        } catch (const std::exception &ex) {
-            throw IOChannelInitializedErrorException("initMessenger", new Exception(ex));
-        }
-    }
-
-    void initMessenger() {
-        try {
-            initMessenger(UART1_BAUDRATE, SERIAL_8N1, UART1_TX, UART1_RX);
-        } catch (const Exception &ex) {
-            ex.print();
-        }
+    bool initMessenger() {
+        return initMessenger(UART1_BAUDRATE, SERIAL_8N1, UART1_TX, UART1_RX);
     }
 
 #elif defined(STDIO_H)
@@ -89,19 +79,15 @@
         printf("%s\n", message.c_str());
     }
 
-    std::string receiveMessage(int timeout = -1, int verbose) {
+    std::string receiveMessage(int timeout, int verbose) {
         char buffer[256];
         scanf("%s", buffer);
         return std::string(buffer);
     }
 
-    std::string receiveMessage() {
-        return receiveMessage(-1);
-    }
-
-    void initMessenger() {
+    bool initMessenger() {
         // No initialization needed for standard I/O
-        return;
+        return true;
     }
 
 #else

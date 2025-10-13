@@ -73,7 +73,7 @@ void Exception::print() const {
     if (Code == ErrorCode::CRITICAL_ERROR_CODE) {
         // For critical errors, splash the message as well
         splashMessage("%s", message.c_str());
-        logMessage("%s", message.c_str());
     }
+    // Always log the message
     logMessage("%s", message.c_str());
 }
