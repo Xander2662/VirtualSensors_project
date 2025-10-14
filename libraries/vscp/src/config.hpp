@@ -21,7 +21,11 @@
 #define UART1_RX -1
 #define UART1_TX -1
 #define UART_TIMEOUT 100
-#define UART_INIT_TIMEOUT 5000
+#define UART_INIT_TIMEOUT 1000
+
+/// Set protocol verbosity level (0 = silent, 1 = errors, 2 = all)
+#define PROTOCOL_VERBOSE 1
+#define PROTOCOL_INIT_TIMEOUT 500
 
 /// Uncomment to enable standard console applications (PC/Linux)
 //#define STDIO_H 

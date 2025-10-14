@@ -46,7 +46,7 @@ enum class SensorStatus
 };
 
 /**
- * @enum SensorsCommands
+ * @enum SensorsCommandsEnum
  * @brief Enumeration representing possible sensor commands.
  *
  * - CONFIG: Configure sensor.
@@ -54,16 +54,18 @@ enum class SensorStatus
  * - INIT: Initialize sensor.
  * - RESET: Reset sensor.
  */
-enum class SensorsCommands
+enum class SensorsCommandsEnum
 {
     CONFIG,
     UPDATE,
     INIT,
-    RESET
+    RESET,
+    CONNECT,
+    DISCONNECT
 };
 
 /**
- * @enum DataType
+ * @enum enum class SensorDataType
  * @brief Enumeration representing possible parametrs data types.
  *
  * - INT: int.
@@ -71,7 +73,7 @@ enum class SensorsCommands
  *  - FLOAT: float.
  * - STRING: string.
  */
-enum class DataType
+enum class SensorDataType
 {
     INT,
     DOUBLE,
@@ -105,7 +107,7 @@ struct SensorParam
 {
     std::string Value;                ///< Parameter value.
     std::string Unit;                 ///< Parameter unit.
-    DataType DType;                   ///< Parameter data type.
+    SensorDataType DType;                   ///< Parameter data type.
     int lastHistoryIndex;             ///< Last history index.
     std::string History[HISTORY_CAP]; ///< Parameter history.
     SensorRestrictions Restrictions;  ///< Parameter restrictions.
@@ -170,34 +172,31 @@ protected:
         Status = status;
     }
 
+
     /**
      * @brief Synchronize sensor configurations with real sensor.
      *
      * This function sends a request to the real sensor to synchronize the configurations.
      */
-    bool syncConfigs()
+    void syncConfigs()
     {
-        bool result = false;
         isConfigsSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
-        try
+        redrawPending = false; // Reset redraw flag.
+
+        //Convert Configs to unordered_map<std::string, std::string>
+        std::unordered_map<std::string, std::string> configMap;
+        for (const auto &pair : Configs)
         {
-            //Convert Configs to unordered_map<std::string, std::string>
-            std::unordered_map<std::string, std::string> configMap;
-            for (const auto &pair : Configs)
-            {
-                configMap[pair.first] = pair.second.Value;
-            }
-            auto response = Protocol::config(UID, configMap);
-            result = response;
+            configMap[pair.first] = pair.second.Value;
         }
-        catch (...)
+        auto response = Protocol::config(UID, configMap);
+        if (response.status == ResponseStatusEnum::ERROR)
         {
-            throw;
+            throw SensorSynchronizationFailException("BaseSensor::syncConfigs", response.error);
         }
 
-        isConfigsSync = result; // Set flag to indicate sensor is synchronized with real sensor.
-        redrawPending = result; // Set flag to redraw sensor - values updated.
-        return result;
+        isConfigsSync = response.status == ResponseStatusEnum::OK; // Set flag to indicate sensor is synchronized with real sensor.
+        redrawPending = isConfigsSync; // Set flag to redraw sensor - values updated.
     }
 
     /**
@@ -205,32 +204,42 @@ protected:
      *
      * This function sends a request to the real sensor to synchronize the values.
      */
-    bool syncValues()
+    void syncValues()
     {
-        bool result = false;
-        isValuesSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
         try
         {
+            isValuesSync = false; // Set flag to indicate sensor is not synchronized with real sensor.
+            redrawPending = false; // Reset redraw flag.
+
             auto response = Protocol::update(UID);
-            update(response);
-            if (!response.empty())
+            if (response.status == ResponseStatusEnum::ERROR)
             {
-                result = true;
+                throw SensorSynchronizationFailException("BaseSensor::syncValues", response.error);
             }
+
+            update(response.params); // Update sensor values from response parameters
+
+            isValuesSync = response.status == ResponseStatusEnum::OK; // Set flag to indicate sensor is synchronized with real sensor.
+            redrawPending = isValuesSync; // Set flag to redraw sensor - values updated.
         }
         catch (...)
         {
             throw;
         }
-
-        
-        isValuesSync = result; // Set flag to indicate sensor is synchronized with real sensor.
-        redrawPending = result; // Set flag to redraw sensor - values updated.
-        return result;
     }
 
-    bool checkRestrictions(std::string value, const SensorRestrictions &restrictions)
+
+
+    /**
+     * @brief Check if the given value meets the restrictions defined in the sensor parameter.
+     *
+     * @param value The value to check.
+     * @param param The sensor parameter containing the restrictions.
+     * @return true if the value meets the restrictions, false otherwise.
+     */
+    bool checkRestrictions(std::string value, const SensorParam &param)
     {
+        SensorRestrictions restrictions = param.Restrictions;
         try
         {
             if (!restrictions.Min.empty())
@@ -411,49 +420,42 @@ public:
     }
 
     /**
-     * @brief Connect the sensor to the specified pins.
+     * @brief Connect the sensor to its assigned pins.
      * 
      */
     bool connect() 
-    { 
-        bool result = false;
-        try
-        {
-            std::string pins = getPins();
-            if(pins.empty()) {
-                throw SensorPinAssignmentException("connectSensor", "No pins assigned to sensor.");
-            }
+    {
+        std::string pins = getPins();
+        if(pins.empty()) {
+            throw SensorPinAssignmentException("connectSensor", "No pins assigned to sensor.");
+        }
 
-            auto response = Protocol::connect(UID, pins);
-            result = response;
-        }
-        catch (...)
+        auto response = Protocol::connect(UID, pins);
+        if (response.status == ResponseStatusEnum::ERROR)
         {
-            throw;
+            throw SensorConnectionFailException("BaseSensor::connect", response.error);
         }
-        setStatus(SensorStatus::OK);
-        return result;
+
+        return response.status == ResponseStatusEnum::OK;
     }
 
     /**
-     * @brief Disconnect the sensor from its current pins.
+     * @brief Disconnect the sensor from its assigned pins.
      * 
      */
     bool disconnect() 
-    { 
-        bool result = false;
-        try
+    {
+        auto response = Protocol::disconnect(UID);
+        if (response.status == ResponseStatusEnum::ERROR)
         {
-            auto response = Protocol::disconnect(UID);
-            result = response;
+            throw SensorConnectionFailException("BaseSensor::disconnect", response.error);
         }
-        catch (...)
-        {
-            throw;
+
+        if (response.status == ResponseStatusEnum::OK) {
+            Pins.clear();
         }
-        Pins.clear();
-        setStatus(SensorStatus::OK);
-        return result;
+
+        return response.status == ResponseStatusEnum::OK;
     }
 
     /**
@@ -600,8 +602,7 @@ public:
      * @param error The exception as error.
      */
     void setError(Exception *error)
-    {
-        
+    { 
         if (Error != nullptr)
         {
             delete Error;
@@ -685,6 +686,7 @@ public:
                 throw;
             }
         }
+
         return isValuesSync && isConfigsSync;
     }
 
@@ -729,7 +731,7 @@ public:
                 value = cfg.find(c.first) != cfg.end() ? cfg.at(c.first) : "";
                 if (!value.empty())
                 {
-                    if (!checkRestrictions(value, c.second.Restrictions))
+                    if (!checkRestrictions(value, c.second))
                     {
                         throw InvalidValueException("BaseSensor::config", "Value " + value + " for key " + c.first + " does not meet restrictions.");
                     }
@@ -744,9 +746,6 @@ public:
                     redrawPending = true; // Set flag to redraw sensor - values updated.
                 }
             }
-
-            std::string status = cfg.find("status") != cfg.end() ? cfg.at("status") : "-1";
-            setStatus(status);
         }
         catch(...)
         {
@@ -787,6 +786,7 @@ public:
         {
             return;
         }
+
         std::string value;
         try
         {
@@ -796,7 +796,7 @@ public:
                 value = upd.find(c.first) != upd.end() ? upd.at(c.first) : "";
                 if (!value.empty())
                 {
-                    if (!checkRestrictions(value, c.second.Restrictions))
+                    if (!checkRestrictions(value, c.second))
                     {
                         throw InvalidValueException("BaseSensor::update", "Value " + value + " for key " + c.first + " does not meet restrictions.");
                     }
@@ -812,7 +812,6 @@ public:
             }
 
             std::string status = upd.find("status") != upd.end() ? upd.at("status") : "-1";
-            setStatus(status);
         }
         catch(...)
         {
@@ -822,34 +821,26 @@ public:
 
     /**
      * @brief Prints sensor information.
-     * @throws Exception if print fails.
      */
     void print() const
     {
-        try
+        logMessage("Sensor UID: %s\n", UID.c_str());
+        logMessage("\tSensor Type: %s\n", Type.c_str());
+        logMessage("\tSensor Description: %s\n", Description.c_str());
+        logMessage("\tSensor Status: %d\n", Status);
+        logMessage("\tSensor Error: %s\n", getError().c_str());
+        logMessage("\tSensor Configurations:\n");
+        for (auto &c : Configs)
         {
-            logMessage("Sensor UID: %s\n", UID.c_str());
-            logMessage("\tSensor Type: %s\n", Type.c_str());
-            logMessage("\tSensor Description: %s\n", Description.c_str());
-            logMessage("\tSensor Status: %d\n", Status);
-            logMessage("\tSensor Error: %s\n", getError().c_str());
-            logMessage("\tSensor Configurations:\n");
-            for (auto &c : Configs)
-            {
-                logMessage("\t\t%s: %s %s\n", c.first.c_str(), c.second.Value.c_str(), c.second.Unit.c_str());
-            }
-            logMessage("\tSensor Values:\n");
-            for (auto &v : Values)
-            {
-                logMessage("\t\t%s: %s %s\n", v.first.c_str(), v.second.Value.c_str(), v.second.Unit.c_str());
-            }
-            logMessage("\tSensor Pins: %s\n", getPins().c_str());
-            logMessage("**************************************\n");
+            logMessage("\t\t%s: %s %s\n", c.first.c_str(), c.second.Value.c_str(), c.second.Unit.c_str());
         }
-        catch (...)
+        logMessage("\tSensor Values:\n");
+        for (auto &v : Values)
         {
-            throw;
+            logMessage("\t\t%s: %s %s\n", v.first.c_str(), v.second.Value.c_str(), v.second.Unit.c_str());
         }
+        logMessage("\tSensor Pins: %s\n", getPins().c_str());
+        logMessage("**************************************\n");
     }
 
     /**

@@ -67,7 +67,9 @@ std::string Protocol::buildMessage(const std::unordered_map<std::string, std::st
     return ss.str();
 }
 
-bool Protocol::init_dummy(int verbose) {
+ResponseStatus Protocol::init_dummy() {
+    ResponseStatus response;
+    
     // First init messenger
     initMessenger();
 
@@ -77,112 +79,126 @@ bool Protocol::init_dummy(int verbose) {
     // Send request and receive response
     sendMessage(request); 
 
+    //dummy response for test mode - always successful
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
+    
     // Thats all
     initialized = true;
-    return initialized;
+    return response;
 }
 
-bool Protocol::init(int verbose)  {
+ResponseStatus Protocol::init() {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
+    
     // First init messenger
     initMessenger();
     
     // Build initialization request
-    static std::string request;
     std::string request = "?type=INIT";
     request += "&api=" + API_VERSION;
 
     // Send request and receive response
     sendMessage(request); 
-    std::string response = receiveMessage(500, verbose); // 500 ms timeout for init
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE, PROTOCOL_INIT_TIMEOUT); 
     
     // Parse response
-    auto responseParams = parseMessage(response);
+    auto responseParams = parseMessage(responseMsg);
     
     // Check if initialization was successful
-    if (responseParams.find("status") != responseParams.end()) {
-        initialized = (responseParams["status"] == "1");
-    }
-    else{
-        initialized = false;
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Initialization failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
+        initialized = true;
     }
     
-    return initialized;
+    return response;
 }
 
-bool Protocol::init(const std::string& db_version, int verbose)  {
+ResponseStatus Protocol::init(const std::string& db_version) {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
+    
     // First init messenger
     initMessenger();
     
     // Build initialization request
-    std::unordered_map<std::string, std::string> params;
-    params["type"] = "INIT";
-    params["db"] = db_version;
-    params["api"] = API_VERSION;
-    
-    std::string request = buildMessage(params);
+    std::string request = "?type=INIT";
+    request += "&db=" + db_version;
+    request += "&api=" + API_VERSION;
     
     // Send request and receive response
     sendMessage(request); 
-    std::string response = receiveMessage(500); // 500 ms timeout for init
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE, PROTOCOL_INIT_TIMEOUT); 
     
     // Parse response
-    auto responseParams = parseMessage(response, verbose);
+    auto responseParams = parseMessage(responseMsg);
     
     // Check if initialization was successful
-    if (responseParams.find("status") != responseParams.end()) {
-        initialized = (responseParams["status"] == "1");
-    }
-    else{
-        initialized = false;
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Initialization failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
+        initialized = true;
     }
     
-    return initialized;
+    return response;
 }
 
-
-bool Protocol::init(const std::string& app_name, const std::string& db_version, int verbose) {
+ResponseStatus Protocol::init(const std::string& app_name, const std::string& db_version) {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
+    
     // First init messenger
     initMessenger();
     
     // Build initialization request
-    std::unordered_map<std::string, std::string> params;
-    params["type"] = "INIT";
-    params["app"] = app_name;
-    params["db"] = db_version;
-    params["api"] = API_VERSION;
-    
-    std::string request = buildMessage(params);
+    std::string request = "?type=INIT";
+    request += "&app=" + app_name;
+    request += "&db=" + db_version;
+    request += "&api=" + API_VERSION;
     
     // Send request and receive response
     sendMessage(request); 
-    std::string response = receiveMessage(500); // 500 ms timeout for init
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE, PROTOCOL_INIT_TIMEOUT); 
     
     // Parse response
-    auto responseParams = parseMessage(response);
+    auto responseParams = parseMessage(responseMsg);
     
     // Check if initialization was successful
-    if (responseParams.find("status") != responseParams.end()) {
-        initialized = (responseParams["status"] == "1");
-    }
-    else{
-        initialized = false;
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Initialization failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
+        initialized = true;
     }
     
-    return initialized;
+    return response;
 }
 
-std::unordered_map<std::string, std::string> Protocol::update(const std::string& uid, int verbose) {
-    auto responseParams = std::unordered_map<std::string, std::string>();
-    std::string errorMessage = "";
+ResponseStatus Protocol::update(const std::string& uid) {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
 
     if (!initialized) {
-        responseParams["error"] = "Protocol not initialized";
-        return responseParams; // Return error map in silent mode
+        response.error = "Protocol not initialized";
+        return response;
     }
     
     if (uid.empty()) {
-        responseParams["error"] = "UID cannot be empty";
-        return responseParams; // Return error map in silent mode
+        response.error = "UID cannot be empty";
+        return response;
     }
 
     // Build update request
@@ -191,280 +207,218 @@ std::unordered_map<std::string, std::string> Protocol::update(const std::string&
     
     // Send request and receive response
     sendMessage(request);
-    std::string response = receiveMessage(verbose);
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE); // Use defined verbosity for receive
     
     // Parse response
-    responseParams = parseMessage(response);
+    auto responseParams = parseMessage(responseMsg);
     
     // Check if UID from response matches request
     if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-        errorMessage = "Response UID mismatch - expected: " + uid + ", received: " + 
+        response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
                                 (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
-        responseParams["error"] = errorMessage;
-        return responseParams;
+        return response;
     }
     
     // Check if update was successful
     if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
-        errorMessage = responseParams.find("error") != responseParams.end() 
-                            ? responseParams["error"] : "Update failed - bad status";
-        responseParams["error"] = errorMessage;
-    } 
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Update failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
+    }
 
-    return responseParams; // Return error map in silent mode
+    // For update method only, return all response parameters
+    response.params = responseParams;
+
+    return response; 
 }
 
-std::unordered_map<std::string, std::string> Protocol::config(const std::string& uid, const std::unordered_map<std::string, std::string>& config, int verbose) {
+ResponseStatus Protocol::config(const std::string& uid, const std::unordered_map<std::string, std::string>& config) {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
+
     if (!initialized) {
-        if (verbose) {
-            throw ProtocolNotInitializedException("Protocol::config", "Protocol not initialized before calling config method");
-        }
-        return false; // Return false in silent mode
+        response.error = "Protocol not initialized";
+        return response;
     }
     
     if (uid.empty()) {
-        if (verbose) {
-            throw ValueNotFoundException("Protocol::config", "Sensor UID cannot be empty");
-        }
-        return false; // Return false in silent mode
+        response.error = "UID cannot be empty";
+        return response;
+    }
+
+    // Build configuration request
+    std::string request = "?type=CONFIG";
+    request += "&id=" + uid;
+    
+    // Add configuration parameters
+    for (const auto& configParam : config) {
+        request += "&" + configParam.first + "=" + configParam.second;
     }
     
-    try {
-        // Build configuration request
-        std::string request = "?type=CONFIG";
-        request += "&id=" + uid;
-        
-        // Add configuration parameters
-        for (const auto& configParam : config) {
-            request += "&" + configParam.first + "=" + configParam.second;
-        }
-        
-        std::string request = buildMessage(request);
-        
-        // Send request and receive response
-        sendMessage(request);
-        std::string response = receiveMessage();
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if UID from response matches request
-        if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            if (verbose) {
-                throw ProtocolMethodFailException("Protocol::config", "Response UID mismatch - expected: " + uid + ", received: " + 
-                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
-            }
-            return false; // Return false in silent mode
-        }
-        
-        // Check if configuration was successful
-        return (responseParams.find("status") != responseParams.end() && 
-                responseParams["status"] == "1");
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw e; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
+    // Send request and receive response
+    sendMessage(request);
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE); // Use defined verbosity for receive
+    
+    // Parse response
+    auto responseParams = parseMessage(responseMsg);
+    
+    // Check if UID from response matches request
+    if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
+                                (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
+        return response;
     }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::config", e.what());
-        }
-        return false; // Return false in silent mode
+    
+    // Check if configuration was successful
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Configuration failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
     }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::config", "Unknown error occurred during config");
-        }
-        return false; // Return false in silent mode
-    }
+
+    return response;
 }
 
-bool Protocol::reset(const std::string& uid, int verbose) {
+ResponseStatus Protocol::reset(const std::string& uid) {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
+
     if (!initialized) {
-        if (verbose) {
-            throw ProtocolNotInitializedException("Protocol::reset", "Protocol not initialized before calling reset method");
-        }
-        return false; // Return false in silent mode
+        response.error = "Protocol not initialized";
+        return response;
     }
     
     if (uid.empty()) {
-        if (verbose) {
-            throw ValueNotFoundException("Protocol::reset", "Sensor UID cannot be empty");
-        }
-        return false; // Return false in silent mode
+        response.error = "UID cannot be empty";
+        return response;
+    }
+
+    // Build reset request
+    std::string request = "?type=RESET";
+    request += "&id=" + uid;
+    
+    // Send request and receive response
+    sendMessage(request);
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE); // Use defined verbosity for receive
+    
+    // Parse response
+    auto responseParams = parseMessage(responseMsg);
+    
+    // Check if UID from response matches request
+    if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
+                                (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
+        return response;
     }
     
-    try {
-        // Build reset request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "RESET";
-        params["id"] = uid;
-        
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request);
-        std::string response = receiveMessage();
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if UID from response matches request
-        if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            if (verbose) {
-                throw ProtocolMethodFailException("Protocol::reset", "Response UID mismatch - expected: " + uid + ", received: " + 
-                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
-            }
-            return false; // Return false in silent mode
-        }
-        
-        // Check if reset was successful
-        return (responseParams.find("status") != responseParams.end() && 
-                responseParams["status"] == "1");
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw e; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
+    // Check if reset was successful
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Reset failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
     }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::reset", e.what());
-        }
-        return false; // Return false in silent mode
-    }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::reset", "Unknown error occurred during reset");
-        }
-        return false; // Return false in silent mode
-    }
+
+    return response;
 }
 
-bool Protocol::connect(const std::string& uid, const std::string& pins, int verbose) {
+ResponseStatus Protocol::connect(const std::string& uid, const std::string& pins) {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
+
     if (!initialized) {
-        if (verbose) {
-            throw ProtocolNotInitializedException("Protocol::connect", "Protocol not initialized before calling connect method");
-        }
-        return false; // Return false in silent mode
+        response.error = "Protocol not initialized";
+        return response;
     }
     
     if (uid.empty()) {
-        if (verbose) {
-            throw ValueNotFoundException("Protocol::connect", "Sensor UID cannot be empty");
-        }
-        return false; // Return false in silent mode
+        response.error = "UID cannot be empty";
+        return response;
+    }
+
+    // Build connect request
+    std::string request = "?type=CONNECT";
+    request += "&id=" + uid;
+    request += "&pins=" + pins;
+    
+    // Send request and receive response
+    sendMessage(request);
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE); // Use defined verbosity for receive
+    
+    // Parse response
+    auto responseParams = parseMessage(responseMsg);
+    
+    // Check if UID from response matches request
+    if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
+                                (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
+        return response;
     }
     
-    try {
-        // Build connect request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "CONNECT";
-        params["id"] = uid;
-        params["pins"] = pins;
-        
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request);
-        std::string response = receiveMessage();
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if UID from response matches request
-        if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            if (verbose) {
-                throw ProtocolMethodFailException("Protocol::connect", "Response UID mismatch - expected: " + uid + ", received: " + 
-                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
-            }
-            return false; // Return false in silent mode
-        }
-        
-        // Check if connection was successful
-        return (responseParams.find("status") != responseParams.end() && 
-                responseParams["status"] == "1");
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw e; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
+    // Check if connection was successful
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Connection failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
     }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::connect", e.what());
-        }
-        return false; // Return false in silent mode
-    }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::connect", "Unknown error occurred during connect");
-        }
-        return false; // Return false in silent mode
-    }
+
+    return response;
 }
 
-bool Protocol::disconnect(const std::string& uid, int verbose) {
+ResponseStatus Protocol::disconnect(const std::string& uid) {
+    ResponseStatus response;
+    response.status = ResponseStatusEnum::ERROR;
+
     if (!initialized) {
-        if (verbose) {
-            throw ProtocolNotInitializedException("Protocol::disconnect", "Protocol not initialized before calling disconnect method");
-        }
-        return false; // Return false in silent mode
+        response.error = "Protocol not initialized";
+        return response;
     }
     
     if (uid.empty()) {
-        if (verbose) {
-            throw ValueNotFoundException("Protocol::disconnect", "Sensor UID cannot be empty");
-        }
-        return false; // Return false in silent mode
+        response.error = "UID cannot be empty";
+        return response;
+    }
+
+    // Build disconnect request
+    std::string request = "?type=DISCONNECT";
+    request += "&id=" + uid;
+    
+    // Send request and receive response
+    sendMessage(request);
+    std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE); // Use defined verbosity for receive
+    
+    // Parse response
+    auto responseParams = parseMessage(responseMsg);
+    
+    // Check if UID from response matches request
+    if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
+                                (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
+        return response;
     }
     
-    try {
-        // Build disconnect request
-        std::unordered_map<std::string, std::string> params;
-        params["type"] = "DISCONNECT";
-        params["id"] = uid;
-        
-        std::string request = buildMessage(params);
-        
-        // Send request and receive response
-        sendMessage(request);
-        std::string response = receiveMessage();
-        
-        // Parse response
-        auto responseParams = parseMessage(response);
-        
-        // Check if UID from response matches request
-        if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
-            if (verbose) {
-                throw ProtocolMethodFailException("Protocol::disconnect", "Response UID mismatch - expected: " + uid + ", received: " + 
-                              (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none"));
-            }
-            return false; // Return false in silent mode
-        }
-        
-        // Check if disconnection was successful
-        return (responseParams.find("status") != responseParams.end() && 
-                responseParams["status"] == "1");
-    } catch (const Exception& e) {
-        if (verbose) {
-            throw e; // Re-throw the exception in verbose mode
-        }
-        return false; // Return false in silent mode
+    // Check if disconnection was successful
+    if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+        response.status = ResponseStatusEnum::ERROR;
+        response.error = responseParams.find("error") != responseParams.end() 
+                            ? responseParams["error"] : "Disconnection failed - bad or missing status";
+    } else {
+        response.status = ResponseStatusEnum::OK;
+        response.error = "";
     }
-    catch (std::exception& e) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::disconnect", e.what());
-        }
-        return false; // Return false in silent mode
-    }
-    catch (...) {
-        if (verbose) {
-            throw ProtocolMethodFailException("Protocol::disconnect", "Unknown error occurred during disconnect");
-        }
-        return false; // Return false in silent mode
-    }
+
+    return response;
 }
 
 bool Protocol::isInitialized() {

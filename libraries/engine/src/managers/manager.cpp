@@ -40,8 +40,10 @@ bool SensorManager::init() {
         createSensorList(Sensors);
 
         logMessage("\tinitializing of protocol...\n");
-        if (!Protocol::init_dummy()) {
-            throw SensorInitializationFailException("SensorManager::init", "Protocol initialization failed", ErrorCode::CRITICAL_ERROR_CODE);
+        auto response = Protocol::init_dummy();
+        if (response.status == ResponseStatusEnum::ERROR)
+        {
+            throw SensorInitializationFailException("SensorManager::init", response.error, ErrorCode::CRITICAL_ERROR_CODE);
         }
         logMessage("\tdone!\n");
     }
@@ -79,8 +81,10 @@ bool SensorManager::init(std::string configFile) {
         std::string app = "VirtualSensors 1.0"; //Get from config?
         std::string db = "1.0"; //Get from config?
         logMessage("Initializing of protocol...\n");
-        if (!Protocol::init(app, db)) {
-            throw SensorInitializationFailException("SensorManager::init", "Protocol initialization failed", ErrorCode::CRITICAL_ERROR_CODE);
+        auto response = Protocol::init(app, db);
+        if (response.status == ResponseStatusEnum::ERROR)
+        {
+            throw SensorInitializationFailException("SensorManager::init", response.error, ErrorCode::CRITICAL_ERROR_CODE);
         }
     }
     catch(const Exception &e)
