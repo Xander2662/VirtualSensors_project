@@ -15,7 +15,7 @@
 
 #include "config.hpp"
 
-#include "gui/manager_GUI.hpp"
+#include "gui/gui_manager.hpp"
 #include "managers/manager.hpp"
 
 #endif // ENGINE_HPP

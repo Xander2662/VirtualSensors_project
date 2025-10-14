@@ -17,11 +17,6 @@
 #include "../sensors/sensor_factory.hpp"
 #include "helpers.hpp"
 
-SensorManager& SensorManager::getInstance() {
-    static SensorManager instance;
-    return instance;
-}
-
 SensorManager::SensorManager() : Sensors(), currentIndex(0) {
     PinMap.fill(nullptr);
 }
@@ -63,7 +58,6 @@ bool SensorManager::init() {
 
     Status = ManagerStatus::READY;
     currentIndex = 0;
-    activePin = NUM_PINS; // no active pin
     logMessage("Initialization done!\n");
     return initialized = true;
 }
@@ -108,7 +102,6 @@ bool SensorManager::init(std::string configFile) {
     
     Status = ManagerStatus::READY;
     currentIndex = 0;
-    activePin = NUM_PINS; // no active pin
     logMessage("Initialization done!\n");
     return initialized = true;
 }
@@ -160,7 +153,7 @@ bool SensorManager::resync()
     return syncSensor(currentSensor);
 }
 
-bool SensorManager::assign() 
+bool SensorManager::connect() 
 {
     bool result = true;
     for (auto* sensor : Sensors) {
@@ -175,47 +168,31 @@ void SensorManager::erase() {
 }
 
 /////////////////////////
-// pin management
+// Pin management
 /////////////////////////
 
-bool SensorManager::assignSensorToPin(BaseSensor* sensor) {
+bool SensorManager::assignSensorToPin(BaseSensor* sensor, int activePin) {
     if (activePin >= NUM_PINS) return false;
 
-    try
-    {
-        PinMap[activePin] = sensor;
-        sensor->assignPin(std::to_string(activePin));
-        logMessage("Sensor %s assigned to pin %zu\n", sensor->UID.c_str(), activePin);
-    }
-    catch(const std::exception& e)
-    {
-        logMessage("Error assigning sensor to pin: %s\n", e.what());
-        return false;
-    }
+    PinMap[activePin] = sensor;
+    sensor->assignPin(std::to_string(activePin));
+    logMessage("Sensor %s assigned to pin %zu\n", sensor->UID.c_str(), activePin);
 
     return true;
 }
 
-bool SensorManager::unassignSensorFromPin() {
+bool SensorManager::unassignSensorFromPin(int activePin) {
     if (activePin >= NUM_PINS) return false;
 
-    try
-    {
-        BaseSensor* sensor = PinMap[activePin];
-        PinMap[activePin] = nullptr;
-        
-        sensor->unassignPin(std::to_string(activePin));
-        logMessage("Sensor %s unassigned from pin %zu\n", sensor->UID.c_str(), activePin);
-    }
-    catch(const std::exception& e)
-    {
-        logMessage("Error unassigning sensor from pin: %s\n", e.what());
-        return false;
-    }
+    BaseSensor* sensor = PinMap[activePin];
+    if (!sensor) return false;
+
+    PinMap[activePin] = nullptr;
+    sensor->unassignPin(std::to_string(activePin));
+    logMessage("Sensor %s unassigned from pin %zu\n", sensor->UID.c_str(), activePin);
 
     return true;
 }
-
 
 BaseSensor* SensorManager::getAssignedSensor(size_t pinIndex) const {
     if (pinIndex >= NUM_PINS) return nullptr;

@@ -61,9 +61,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"12", "bits", DataType::INT, 0});
+            addConfigParameter("resolution", {"12", "bits", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("value", {"0", "", DataType::INT, 0});
+            addValueParameter("value", {"0", "", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -95,9 +95,9 @@ public:
         Error = nullptr;
         try
         {
-            addValueParameter("XCoordination", {"50", "%", DataType::INT, 0});
-            addValueParameter("YCoordination", {"50", "%", DataType::INT, 0});
-            addValueParameter("Button", {"0", "ON/OFF", DataType::INT, 0});
+            addValueParameter("XCoordination", {"50", "%", SensorDataType::INT, 0});
+            addValueParameter("YCoordination", {"50", "%", SensorDataType::INT, 0});
+            addValueParameter("Button", {"0", "ON/OFF", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -127,9 +127,9 @@ public:
         Description = "DHT11 Temperature & Humidity sensor";
         Error = nullptr;
 
-        addConfigParameter("Unit", {"", "", DataType::STRING, 0});
-        addValueParameter("temp", {"0", "°C", DataType::INT, 0});
-        addValueParameter("humi", {"0", "%", DataType::INT, 0});
+        addConfigParameter("Unit", {"", "", SensorDataType::STRING, 0});
+        addValueParameter("temp", {"0", "°C", SensorDataType::INT, 0});
+        addValueParameter("humi", {"0", "%", SensorDataType::INT, 0});
     }
 };
 
@@ -178,10 +178,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("precision", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("milliTesla Meter", {"0", "milliTesla", DataType::FLOAT, 0});
-            addValueParameter("Magnet Detector", {"0", "", DataType::INT, 0});
+            addValueParameter("milliTesla Meter", {"0", "milliTesla", SensorDataType::FLOAT, 0});
+            addValueParameter("Magnet Detector", {"0", "", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -235,9 +235,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Res", {"5", "digits", DataType::INT, 0});
+            addConfigParameter("Res", {"5", "digits", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("intensity", {"0", "Lux", DataType::INT, 0});
+            addValueParameter("intensity", {"0", "Lux", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -292,9 +292,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("precision", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("milliTesla", {"0", "milliTesla", DataType::FLOAT, 0});
+            addValueParameter("milliTesla", {"0", "milliTesla", SensorDataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -348,10 +348,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Res", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("Res", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("temp", {"0", "°C", DataType::FLOAT, 0});
-            addValueParameter("alarm", {"0", "", DataType::STRING, 0});
+            addValueParameter("temp", {"0", "°C", SensorDataType::FLOAT, 0});
+            addValueParameter("alarm", {"0", "", SensorDataType::STRING, 0});
         }
         catch (const std::exception &e)
         {
@@ -405,9 +405,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("precision", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
+            addValueParameter("Temperature", {"0", "°C", SensorDataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -462,10 +462,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("precision", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("precision", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("temperature", {"0", "Celsia", DataType::FLOAT, 0});
-            addValueParameter("humidity", {"0", "%", DataType::INT, 0});
+            addValueParameter("temperature", {"0", "Celsia", SensorDataType::FLOAT, 0});
+            addValueParameter("humidity", {"0", "%", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -522,9 +522,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("resolution", {"1", "bits", DataType::INT, 0});
+            addConfigParameter("resolution", {"1", "bits", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("Magnet Detector", {"0", "", DataType::INT, 0});
+            addValueParameter("Magnet Detector", {"0", "", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -579,7 +579,7 @@ public:
         try
         {
             // Default values
-            addValueParameter("Motion Detector", {"0", "", DataType::INT, 0});
+            addValueParameter("Motion Detector", {"0", "", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {
@@ -635,10 +635,10 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("Precision", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
-            addValueParameter("Pressure", {"0", "hPa", DataType::FLOAT, 0});
+            addValueParameter("Temperature", {"0", "°C", SensorDataType::FLOAT, 0});
+            addValueParameter("Pressure", {"0", "hPa", SensorDataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -693,15 +693,15 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("Precision", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("Temperature", {"0", "°C", DataType::FLOAT, 0});
-            addValueParameter("acm_x", {"0", "g", DataType::FLOAT, 0});
-            addValueParameter("acm_y", {"0", "g", DataType::FLOAT, 0});
-            addValueParameter("acm_z", {"0", "g", DataType::FLOAT, 0});
-            addValueParameter("gyr_x", {"0", "°/s", DataType::FLOAT, 0});
-            addValueParameter("gyr_y", {"0", "°/s", DataType::FLOAT, 0});
-            addValueParameter("gyr_z", {"0", "°/s", DataType::FLOAT, 0});
+            addValueParameter("Temperature", {"0", "°C", SensorDataType::FLOAT, 0});
+            addValueParameter("acm_x", {"0", "g", SensorDataType::FLOAT, 0});
+            addValueParameter("acm_y", {"0", "g", SensorDataType::FLOAT, 0});
+            addValueParameter("acm_z", {"0", "g", SensorDataType::FLOAT, 0});
+            addValueParameter("gyr_x", {"0", "°/s", SensorDataType::FLOAT, 0});
+            addValueParameter("gyr_y", {"0", "°/s", SensorDataType::FLOAT, 0});
+            addValueParameter("gyr_z", {"0", "°/s", SensorDataType::FLOAT, 0});
         }
         catch (const std::exception &e)
         {
@@ -756,9 +756,9 @@ public:
         try
         {
             // Default configs
-            addConfigParameter("Precision", {"2", "decimals", DataType::INT, 0});
+            addConfigParameter("Precision", {"2", "decimals", SensorDataType::INT, 0});
             // Default values
-            addValueParameter("dist", {"0", "mm", DataType::INT, 0});
+            addValueParameter("dist", {"0", "mm", SensorDataType::INT, 0});
         }
         catch (const std::exception &e)
         {

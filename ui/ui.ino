@@ -1,6 +1,6 @@
 //Elecrow DIS08070H board-template main source file
 #include<Arduino.h>
-#define ESP_PLATFORM
+//#define ESP_PLATFORM
 #define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 #include <lgfx/v1/platforms/esp32s3/Panel_RGB.hpp>
@@ -8,6 +8,8 @@
 #include <lvgl.h>
 #include <ui.h>
 #include <engine.hpp>  // include engine header
+#include <gui/gui_manager.hpp>  // include new GUI manager
+#include <gui/gui_callbacks.hpp>  // include GUI callback declarations
 
 /*Don't forget to set Sketchbook location in File/Preferences to the path of your UI project (the parent foder of this INO file)*/
 
@@ -145,10 +147,35 @@ void my_touchpad_read (lv_indev_drv_t * indev_driver, lv_indev_data_t * data)
     delay(15);
 }
 
-SensorManager& sensorManager = SensorManager::getInstance();
+SensorManager sensorManager;  // Create SensorManager instance
+GuiManager guiManager(sensorManager);  // Create GUI manager instance
+
+// Global GUI screen switching functions for use by GUI components
+void switchToMenu() {
+    if (guiManager.isInitialized()) {
+        // Stop sensors when returning to menu
+        sensorManager.setRunning(false);
+        guiManager.showMenu();
+    }
+}
+
+void switchToVisualization() {
+    if (guiManager.isInitialized()) {
+        guiManager.showVisualization();
+    }
+}
+
+void switchToWiki() {
+    if (guiManager.isInitialized()) {
+        guiManager.showWiki();
+    }
+}
+
 void setup ()
 {
     Serial.begin( 115200 ); /* prepare for possible serial debug */
+    Serial.println( "Starting setup..." );
+    delay( 10 );
 
     //Init Display
     lcd.begin();
@@ -187,26 +214,14 @@ void setup ()
     ui_init();
     //lcd.fillScreen(TFT_BLACK);
     
-
     while(!sensorManager.init()) {
         Serial.println("Waiting for SensorManager initialization...");
         delay(100);
     }
-    /*
-    delay(5);
-    sensorManager.print();
-    sensorManager.setActivePin(0);
-    sensorManager.assignSensorToPin(sensorManager.getCurrentSensor());
-    sensorManager.setActivePin(1);
-    sensorManager.assignSensorToPin(sensorManager.getCurrentSensor());
-    sensorManager.print();
-    sensorManager.unassignSensorFromPin();
-    sensorManager.print();
-    sensorManager.assign();
-    sensorManager.resync();
-    */
-    manager_GUI::getInstance().init();
-    manager_GUI::getInstance().showMenu();
+    
+    // Initialize the new GUI manager
+    guiManager.init();
+    switchToMenu();  // Start in menu screen
     
     Serial.println( "Setup done" );
 }
@@ -228,10 +243,12 @@ void loop ()
         delay(10);
     }
 
-    // Always attempt redraw (safe on empty list)
-    if (sensorManager.isRunning()) {
-        manager_GUI::getInstance().drawCurrentSensor();
-       delay(1);
+    // Draw sensor data when sensors are running and in visualization mode
+    if (sensorManager.isRunning() && guiManager.isInitialized()) {
+        if (guiManager.getCurrentState() == GuiState::VISUALIZATION) {
+            guiManager.getVisualizationGui().drawCurrentSensor();
+        }
+        delay(1);
     }
     //logMessage("Loop start\n");
     lv_timer_handler();

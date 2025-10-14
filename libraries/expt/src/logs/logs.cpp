@@ -50,7 +50,7 @@ void splashMessage(const char *format, ...) {
     vsnprintf(buffer, sizeof(buffer), format, args);
 
     #ifdef SPLASHER_H
-     show_splash_popup("Message", buffer, 3000); // Show splash for 3 seconds
+     show_splash_popup("Message", buffer, 5000); // Show splash for 5 seconds
     #endif   
 
     va_end(args);

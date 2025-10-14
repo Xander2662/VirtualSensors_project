@@ -1,8 +1,8 @@
 /**
  * @file main_menu.hpp
- * @brief Declaration of the manager_GUI widget
+ * @brief Declaration of the GuiManager widget
  *
- * This header defines the manager_GUI class which provides
+ * This header defines the GuiManager class which provides
  * a widget with a Start button and 6 pin selection buttons.
  *
  * @copyright 2025 MTA
@@ -19,18 +19,10 @@
 #include "../managers/manager.hpp"
 #include "../sensors/base_sensor.hpp"
 
-class manager_GUI
+class GuiManager
 {
 private:
-    /**
-     * @brief Private constructor for singleton pattern
-     */
-    manager_GUI();
-    ~manager_GUI() = default;
-
-    manager_GUI(const manager_GUI &) = delete;
-    manager_GUI &operator=(const manager_GUI &) = delete;
-
+    SensorManager &sensorManager;  ///< Reference to the SensorManager instance
     bool initialized = false;  ///< Initialization state flag
 
     // --- MENU GUI MEMBERS ---
@@ -166,9 +158,15 @@ private:
 
 public:
     /**
-     * @brief Get the singleton instance of manager_GUI
+     * @brief Private constructor for singleton pattern
      */
-    static manager_GUI &getInstance();
+    GuiManager(SensorManager &manager);
+    ~GuiManager() = default;
+    
+    /**
+     * @brief Get the SensorManager instance
+     */
+    SensorManager &getSensorManager();
 
     /**
      * @brief Initialize the GUI manager and sensors

@@ -38,13 +38,22 @@ enum class ManagerStatus
 
 /**
  * @class SensorManager
- * @brief Singleton class for managing sensors and their pin assignments.
+ * @brief Class for managing sensors and their pin assignments.
  *
  * Provides methods for adding, accessing, synchronizing, and assigning sensors to pins.
  * Maintains a list of sensors and a mapping of sensors to hardware pins.
  */
 class SensorManager {
 private:
+    std::array<BaseSensor*, NUM_PINS> PinMap; ///< Mapping of pins to sensors
+    std::vector<BaseSensor*> Sensors;         ///< List of all managed sensors
+
+    size_t currentIndex = 0;                      ///< Index of the current sensor
+
+    bool initialized = false;                 ///< Initialization state flag
+    ManagerStatus Status = ManagerStatus::STOPPED; ///< Current status of the manager
+
+public:
     /**
      * @brief Private constructor for singleton pattern
      */
@@ -54,23 +63,6 @@ private:
      * @brief Destructor
      */
     ~SensorManager();
-
-    std::array<BaseSensor*, NUM_PINS> PinMap; ///< Mapping of pins to sensors
-    std::vector<BaseSensor*> Sensors;         ///< List of all managed sensors
-
-    size_t currentIndex = 0;                      ///< Index of the current sensor
-    size_t activePin = NUM_PINS;              ///< Currently active pin for assignment
-
-    bool initialized = false;                 ///< Initialization state flag
-    ManagerStatus Status = ManagerStatus::STOPPED; ///< Current status of the manager
-
-public:
-
-    /**
-     * @brief Get the singleton instance of SensorManager
-     * @return Reference to the SensorManager instance
-     */
-    static SensorManager& getInstance();
 
     /**
      * @brief Initialize the manager and sensors
@@ -89,10 +81,6 @@ public:
      * @return True if initialized, false otherwise
      */
     bool isInitialized() const { return initialized; }
-
-    // Deleted copy semantics to enforce singleton
-    SensorManager(const SensorManager&) = delete;
-    SensorManager& operator=(const SensorManager&) = delete;
 
     /**
      * @brief Check if the manager is currently running
@@ -161,9 +149,9 @@ public:
     bool resync();
 
     /**
-     * @brief Assign sensors to pins (bulk operation)
+     * @brief Connect sensors to pins (bulk operation)
      */
-    bool assign();
+    bool connect();
 
     /**
      * @brief Erase all sensors and pin assignments
@@ -176,12 +164,12 @@ public:
      * @brief Assign a sensor to the currently active pin
      * @param sensor Pointer to the sensor to assign
      */
-    bool assignSensorToPin(BaseSensor* sensor);
+    bool assignSensorToPin(BaseSensor* sensor, int activePin);
 
     /**
      * @brief Unassign the sensor from the currently active pin
      */
-    bool unassignSensorFromPin();
+    bool unassignSensorFromPin(int activePin);
 
     /**
      * @brief Get the sensor assigned to a specific pin
@@ -197,6 +185,12 @@ public:
     BaseSensor* getCurrentSensor();
 
     /**
+     * @brief Get access to the current sensor index
+     * @return Reference to the current index
+     */
+    size_t& getCurrentIndex() { return currentIndex; }
+
+    /**
      * @brief Get read-only access to the list of sensors
      * @return Const reference to the vector of sensor pointers
      */
@@ -209,21 +203,24 @@ public:
     const std::array<BaseSensor*, NUM_PINS>& getPinMap() const { return PinMap; }
 
     /**
-     * @brief Get access to the current sensor index
-     * @return Reference to the current index
+     * @brief Move to the next sensor in the list (wraps around)
+     * @return Reference to the updated current index
      */
-    size_t& getCurrentIndex() { return currentIndex; }
+    size_t& nextSensor() { 
+        if (Sensors.empty()) return currentIndex;
+        currentIndex = (currentIndex + 1) % Sensors.size();
+        return currentIndex;
+    }
 
     /**
-     * @brief Set the active pin for assignment
-     * @param pin Index of the pin to set as active
+     * @brief Move to the previous sensor in the list (wraps around)
+     * @return Reference to the updated current index
      */
-    void setActivePin(size_t pin) { activePin = pin; }
-
-    /**
-     * @brief Reset the active pin to an invalid state
-     */
-    void resetActivePin() { activePin = NUM_PINS; }
+    size_t& previousSensor() {
+        if (Sensors.empty()) return currentIndex;
+        currentIndex = (currentIndex == 0) ? Sensors.size() - 1 : currentIndex - 1;
+        return currentIndex;
+    }
 };
 
 #endif // MANAGER_HPP 
