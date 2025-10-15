@@ -23,6 +23,7 @@
 // Uncomment to enable LVGL support
 #ifndef USE_LVGL
 #define USE_LVGL
+#define SPLASHER_TIMEOUT_MS 5000  // Default splash timeout in milliseconds
 #endif
 
 // Uncomment to enable ESP32 platform

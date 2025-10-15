@@ -284,7 +284,7 @@ public:
     SensorStatus Status;     ///< Sensor status.
     std::string Type;        ///< Sensor type as text.
     std::string Description; ///< Description of the sensor.
-    Exception *Error;        ///< Pointer to an exception object (if any).
+    std::string LastError;   ///< Error message (if any).
 
     // lv_obj_t *ui_Container; ///< Pointer to the UI widgets container.
     /**
@@ -314,7 +314,7 @@ public:
      */
     BaseSensor() : UID("DummySensor"), Status(SensorStatus::OK)
     {
-        Error = nullptr;
+        LastError = "";
 
         init();
     }
@@ -326,7 +326,7 @@ public:
      */
     BaseSensor(std::string uid) : UID(uid), Status(SensorStatus::OK)
     {
-        Error = nullptr;
+        LastError = "";
 
         init();
     }
@@ -336,7 +336,6 @@ public:
      */
     virtual ~BaseSensor()
     {
-        delete Error;
     }
 
     std::unordered_map<std::string, SensorParam> getValues() const { return Values; }
@@ -373,6 +372,41 @@ public:
      * @param pending The new redraw pending status.
      */
     void setRedrawPending(bool pending) { redrawPending = pending; }
+
+    /**
+     * @brief Get the sensor unique identifier.
+     *
+     * @return The sensor UID.
+     */
+    std::string getId() const { return UID; }
+
+    /**
+     * @brief Get the sensor name (same as UID for compatibility).
+     *
+     * @return The sensor name.
+     */
+    std::string getName() const { return Type + " (" + UID + ")"; }
+
+    /**
+     * @brief Get the sensor type name.
+     *
+     * @return The sensor type.
+     */
+    std::string getTypeName() const { return Type; }
+
+    /**
+     * @brief Get the sensor description.
+     *
+     * @return The sensor description.
+     */
+    std::string getDescription() const { return Description; }
+
+    /**
+     * @brief Get the sensor status.
+     *
+     * @return The sensor status.
+     */
+    SensorStatus getStatus() const { return Status; }
 
     /**
      * @brief Assign a pin to the sensor.
@@ -601,24 +635,17 @@ public:
      *
      * @param error The exception as error.
      */
-    void setError(Exception *error)
+    void setError(std::string error)
     { 
-        if (Error != nullptr)
+        LastError = error;
+        if (!error.empty())
         {
-            delete Error;
+            setStatus(SensorStatus::ERROR);
         }
-        
-        if(error != nullptr)
+        else
         {
-            Error = error;
-            if (Error->Code != ErrorCode::WARNING_CODE)
-            {
-                Status = SensorStatus::ERROR;
-            }
-            return;
+            setStatus(SensorStatus::OK);
         }
-
-        Status = SensorStatus::OK;
     }
 
     /**
@@ -628,11 +655,12 @@ public:
      */
     std::string getError() const
     {
-        if (Error)
-        {
-            return Error->Message;
-        }
-        return "No error";
+        return LastError;
+    }
+
+    void clearError() 
+    {
+        setError("");
     }
 
     /**
@@ -853,6 +881,8 @@ public:
         redrawPending = true; // Set flag to redraw sensor - values updated.
         isConfigsSync = true; // Set flag to indicate sensor is synchronized by default with real sensor.
         isValuesSync = false; // Set flag to indicate sensor is not synchronized with real sensor
+
+        clearError();
     };
 };
 

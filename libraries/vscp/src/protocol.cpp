@@ -11,13 +11,37 @@
  */
 
 #include "protocol.hpp"
+//#include <expt.hpp> // For std::exception and logs
 
-#include <sstream>
+#include <sstream> // For std::stringstream
 #include <algorithm> // For std::transform
+#include <cctype> // For std::isspace
 
 // Static member definitions
 const std::string Protocol::API_VERSION = "1.2";
 bool Protocol::initialized = false;
+
+// Helper function to trim whitespace and invisible characters from strings
+static std::string trim(const std::string& str) {
+    // Find first non-whitespace character
+    size_t start = 0;
+    while (start < str.length() && (std::isspace(static_cast<unsigned char>(str[start])) || str[start] < 32)) {
+        start++;
+    }
+    
+    // If string is all whitespace
+    if (start == str.length()) {
+        return "";
+    }
+    
+    // Find last non-whitespace character
+    size_t end = str.length() - 1;
+    while (end > start && (std::isspace(static_cast<unsigned char>(str[end])) || str[end] < 32)) {
+        end--;
+    }
+    
+    return str.substr(start, end - start + 1);
+}
 
 std::unordered_map<std::string, std::string> Protocol::parseMessage(const std::string& message, bool caseSensitive) {
     static std::unordered_map<std::string, std::string> params;
@@ -42,29 +66,17 @@ std::unordered_map<std::string, std::string> Protocol::parseMessage(const std::s
     while (std::getline(ss, pair, '&')) {
         size_t equalPos = pair.find('=');
         if (equalPos != std::string::npos) {
-            std::string key = pair.substr(0, equalPos);
-            std::string value = pair.substr(equalPos + 1);
-            params[key] = value;
+            std::string key = trim(pair.substr(0, equalPos));
+            std::string value = trim(pair.substr(equalPos + 1));
+            
+            // Only add non-empty keys
+            if (!key.empty()) {
+                params[key] = value;
+            }
         }
     }
     
     return params;
-}
-
-std::string Protocol::buildMessage(const std::unordered_map<std::string, std::string>& params) {
-    std::stringstream ss;
-    ss << "?";
-    
-    bool first = true;
-    for (const auto& pair : params) {
-        if (!first) {
-            ss << "&";
-        }
-        ss << pair.first << "=" << pair.second;
-        first = false;
-    }
-    
-    return ss.str();
 }
 
 ResponseStatus Protocol::init_dummy() {
@@ -111,12 +123,11 @@ ResponseStatus Protocol::init() {
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
                             ? responseParams["error"] : "Initialization failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
-        initialized = true;
-    }
-    
+    } 
+
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
+    initialized = true; 
     return response;
 }
 
@@ -144,12 +155,11 @@ ResponseStatus Protocol::init(const std::string& db_version) {
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
                             ? responseParams["error"] : "Initialization failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
-        initialized = true;
-    }
-    
+    } 
+
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
+    initialized = true; 
     return response;
 }
 
@@ -178,12 +188,11 @@ ResponseStatus Protocol::init(const std::string& app_name, const std::string& db
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
                             ? responseParams["error"] : "Initialization failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
-        initialized = true;
-    }
-    
+    } 
+
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
+    initialized = true; 
     return response;
 }
 
@@ -214,25 +223,25 @@ ResponseStatus Protocol::update(const std::string& uid) {
     
     // Check if UID from response matches request
     if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.status = ResponseStatusEnum::ERROR;
         response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
                                 (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
         return response;
     }
     
-    // Check if update was successful
+    // Check if connection was successful
     if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
-                            ? responseParams["error"] : "Update failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
+                            ? responseParams["error"] : "Connection failed - bad or missing status";
+        return response;
     }
 
-    // For update method only, return all response parameters
-    response.params = responseParams;
-
-    return response; 
+    response.params = responseParams; // Store all response parameters
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
+    return response;
 }
 
 ResponseStatus Protocol::config(const std::string& uid, const std::unordered_map<std::string, std::string>& config) {
@@ -265,23 +274,25 @@ ResponseStatus Protocol::config(const std::string& uid, const std::unordered_map
     // Parse response
     auto responseParams = parseMessage(responseMsg);
     
-    // Check if UID from response matches request
+     // Check if UID from response matches request
     if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.status = ResponseStatusEnum::ERROR;
         response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
                                 (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
         return response;
     }
     
-    // Check if configuration was successful
+    // Check if connection was successful
     if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
-                            ? responseParams["error"] : "Configuration failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
+                            ? responseParams["error"] : "Connection failed - bad or missing status";
+        return response;
     }
 
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
     return response;
 }
 
@@ -312,21 +323,23 @@ ResponseStatus Protocol::reset(const std::string& uid) {
     
     // Check if UID from response matches request
     if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.status = ResponseStatusEnum::ERROR;
         response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
                                 (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
         return response;
     }
     
-    // Check if reset was successful
+    // Check if connection was successful
     if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
-                            ? responseParams["error"] : "Reset failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
+                            ? responseParams["error"] : "Connection failed - bad or missing status";
+        return response;
     }
 
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
     return response;
 }
 
@@ -352,12 +365,12 @@ ResponseStatus Protocol::connect(const std::string& uid, const std::string& pins
     // Send request and receive response
     sendMessage(request);
     std::string responseMsg = receiveMessage(PROTOCOL_VERBOSE); // Use defined verbosity for receive
-    
     // Parse response
     auto responseParams = parseMessage(responseMsg);
     
     // Check if UID from response matches request
     if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.status = ResponseStatusEnum::ERROR;
         response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
                                 (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
         return response;
@@ -365,14 +378,15 @@ ResponseStatus Protocol::connect(const std::string& uid, const std::string& pins
     
     // Check if connection was successful
     if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
                             ? responseParams["error"] : "Connection failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
+        return response;
     }
 
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
     return response;
 }
 
@@ -403,21 +417,23 @@ ResponseStatus Protocol::disconnect(const std::string& uid) {
     
     // Check if UID from response matches request
     if (responseParams.find("id") == responseParams.end() || responseParams["id"] != uid) {
+        response.status = ResponseStatusEnum::ERROR;
         response.error = "Response UID mismatch - expected: " + uid + ", received: " + 
                                 (responseParams.find("id") != responseParams.end() ? responseParams["id"] : "none");
         return response;
     }
     
-    // Check if disconnection was successful
+    // Check if connection was successful
     if (responseParams.find("status") == responseParams.end() || responseParams["status"] != "1") {
+
         response.status = ResponseStatusEnum::ERROR;
         response.error = responseParams.find("error") != responseParams.end() 
-                            ? responseParams["error"] : "Disconnection failed - bad or missing status";
-    } else {
-        response.status = ResponseStatusEnum::OK;
-        response.error = "";
+                            ? responseParams["error"] : "Connection failed - bad or missing status";
+        return response;
     }
 
+    response.status = ResponseStatusEnum::OK;
+    response.error = "";
     return response;
 }
 

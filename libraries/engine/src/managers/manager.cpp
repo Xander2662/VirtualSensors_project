@@ -18,7 +18,6 @@
 #include "helpers.hpp"
 
 SensorManager::SensorManager() : Sensors(), currentIndex(0) {
-    PinMap.fill(nullptr);
 }
 
 SensorManager::~SensorManager() {
@@ -58,6 +57,7 @@ bool SensorManager::init() {
 
     Status = ManagerStatus::READY;
     currentIndex = 0;
+    resetPinMap();
     logMessage("Initialization done!\n");
     return initialized = true;
 }
@@ -102,8 +102,27 @@ bool SensorManager::init(std::string configFile) {
     
     Status = ManagerStatus::READY;
     currentIndex = 0;
+    resetPinMap();
     logMessage("Initialization done!\n");
     return initialized = true;
+}
+
+void SensorManager::resetPinMap() {
+    for (size_t i = 0; i < NUM_PINS; ++i) {
+        PinMap[i].pinNumber = i;
+        PinMap[i].locked = false;
+
+        PinMap[i].unassignSensor();
+    }
+}
+
+BaseSensor* SensorManager::getCurrentSensor()
+{
+    if (currentIndex < PinMap.size())
+    {
+        return PinMap[currentIndex].assignedSensor;
+    }
+    return nullptr;
 }
 
 BaseSensor* SensorManager::getSensor(std::string uid) {
@@ -113,21 +132,8 @@ BaseSensor* SensorManager::getSensor(std::string uid) {
     return nullptr;
 }
 
-BaseSensor* SensorManager::getCurrentSensor()
-{
-    if (currentIndex < Sensors.size())
-    {
-        return Sensors[currentIndex];
-    }
-    return nullptr;
-}
-
 void SensorManager::addSensor(BaseSensor* sensor) {
     if (sensor) Sensors.push_back(sensor);
-}
-
-bool SensorManager::assignSensor(BaseSensor* sensor) {
-    return connectSensor(sensor);
 }
 
 bool SensorManager::sync(std::string id) {
@@ -149,6 +155,8 @@ void SensorManager::print() {
 
 bool SensorManager::resync() 
 {
+    if(!isRunning()) return false;
+
     BaseSensor* currentSensor = getCurrentSensor();
     return syncSensor(currentSensor);
 }
@@ -156,13 +164,17 @@ bool SensorManager::resync()
 bool SensorManager::connect() 
 {
     bool result = true;
-    for (auto* sensor : Sensors) {
-        result &= connectSensor(sensor);
+    for (auto virtualPin : PinMap) {
+        if(virtualPin.assignedSensor) {
+            result &= connectSensor(virtualPin.assignedSensor);
+        }
     }
     return result;
 }
 
 void SensorManager::erase() {
+    resetPinMap();
+    currentIndex = 0;
     for (auto* sensor : Sensors) delete sensor;
     Sensors.clear();
 }
@@ -174,27 +186,31 @@ void SensorManager::erase() {
 bool SensorManager::assignSensorToPin(BaseSensor* sensor, int activePin) {
     if (activePin >= NUM_PINS) return false;
 
-    PinMap[activePin] = sensor;
-    sensor->assignPin(std::to_string(activePin));
-    logMessage("Sensor %s assigned to pin %zu\n", sensor->UID.c_str(), activePin);
-
-    return true;
+    return PinMap[activePin].assignSensor(sensor);
 }
 
 bool SensorManager::unassignSensorFromPin(int activePin) {
     if (activePin >= NUM_PINS) return false;
 
-    BaseSensor* sensor = PinMap[activePin];
-    if (!sensor) return false;
-
-    PinMap[activePin] = nullptr;
-    sensor->unassignPin(std::to_string(activePin));
-    logMessage("Sensor %s unassigned from pin %zu\n", sensor->UID.c_str(), activePin);
-
-    return true;
+    PinMap[activePin].unassignSensor();
 }
 
 BaseSensor* SensorManager::getAssignedSensor(size_t pinIndex) const {
     if (pinIndex >= NUM_PINS) return nullptr;
-    return PinMap[pinIndex];
+    return PinMap[pinIndex].assignedSensor;
+}
+
+int SensorManager::getPinNumber(size_t pinIndex) const {
+    if (pinIndex >= NUM_PINS) return -1;
+    return PinMap[pinIndex].pinNumber;
+}
+
+bool SensorManager::isPinAvailable(size_t pinIndex) const {
+    if (pinIndex >= NUM_PINS) return false;
+    return PinMap[pinIndex].isAvailable();
+}
+
+bool SensorManager::isPinLocked(size_t pinIndex) const {
+    if (pinIndex >= NUM_PINS) return false;
+    return PinMap[pinIndex].isLocked();
 }

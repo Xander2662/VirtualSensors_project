@@ -56,7 +56,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "ADC";
         Description = "Analog to Digital Converter";
-        Error = nullptr;
+        
 
         try
         {
@@ -92,7 +92,7 @@ public:
     {
         Type = "Joystick";
         Description = "Joystick peripheral";
-        Error = nullptr;
+        
         try
         {
             addValueParameter("XCoordination", {"50", "%", SensorDataType::INT, 0});
@@ -125,7 +125,7 @@ public:
     {
         Type = "DHT11";
         Description = "DHT11 Temperature & Humidity sensor";
-        Error = nullptr;
+        
 
         addConfigParameter("Unit", {"", "", SensorDataType::STRING, 0});
         addValueParameter("temp", {"0", "°C", SensorDataType::INT, 0});
@@ -173,7 +173,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "LinearHallAndDigital";
         Description = "Returns milliTesla of a measured magnet and if he goes past linearity";
-        Error = nullptr;
+        
 
         try
         {
@@ -230,7 +230,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "PhotoResistor";
         Description = "Returns Lux of a measured environment, which users is in";
-        Error = nullptr;
+        
 
         try
         {
@@ -287,7 +287,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "LinearHall";
         Description = "Returns milliTesla of a measured magnet";
-        Error = nullptr;
+        
 
         try
         {
@@ -343,7 +343,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "DS18B20";
         Description = "Returns temperature in °C and if the temperature goes past a hardware-configured value";
-        Error = nullptr;
+        
 
         try
         {
@@ -400,7 +400,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "AnalogTemperature";
         Description = "Returns temperature in °C";
-        Error = nullptr;
+        
 
         try
         {
@@ -457,7 +457,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "TH";
         Description = "Temperature & Humidity Sensor";
-        Error = nullptr;
+        
 
         try
         {
@@ -517,7 +517,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "DigitalHall";
         Description = "Returns 1 of a measured magnet and if he goes past linearity";
-        Error = nullptr;
+        
 
         try
         {
@@ -574,7 +574,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "PhotoInterrupter";
         Description = "Returns 1 of a measured magnet and if he goes past linearity";
-        Error = nullptr;
+        
 
         try
         {
@@ -630,7 +630,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "TP";
         Description = "Temperature & Pressure Sensor";
-        Error = nullptr;
+        
 
         try
         {
@@ -688,7 +688,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "GAT";
         Description = "Gyroscope/Accelerometr/Temperature sensor";
-        Error = nullptr;
+        
 
         try
         {
@@ -751,7 +751,7 @@ public:
         // Additional initialization for sensor can be added here.
         Type = "TOF";
         Description = "Time of flight sensor";
-        Error = nullptr;
+        
 
         try
         {

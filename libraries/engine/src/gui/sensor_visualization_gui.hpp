@@ -16,9 +16,8 @@
 #include <array>
 #include <map>
 
+#include "gui_callbacks.hpp"
 #include "../managers/manager.hpp"
-#include "../sensors/base_sensor.hpp"
-#include "../helpers.hpp"
 #include "../exceptions/data_exceptions.hpp"
 
 /**
@@ -29,13 +28,13 @@
  * - Displaying current sensor data and values
  * - Handling sensor navigation (prev/next)
  * - Managing sensor synchronization operations
- * - Providing sensor wiki/information display
  * - Handling sensor-specific events and interactions
  */
 class SensorVisualizationGui
 {
 private:
-    SensorManager &sensorManager;  ///< Reference to the SensorManager instance
+    SensorManager& sensorManager;  ///< Reference to the sensor manager instance
+    BaseSensor* currentSensor = nullptr; ///< Currently visualized sensor
     bool initialized = false;      ///< Initialization state flag
 
     // --- SENSOR VISUALIZATION MEMBERS ---
@@ -61,19 +60,13 @@ private:
     lv_chart_series_t *ui_Chart_series_V1;  ///< Chart series for value 1
     lv_chart_series_t *ui_Chart_series_V2;  ///< Chart series for value 2
 
-    // --- WIKI MEMBERS ---
-    lv_obj_t *ui_SensorWidgetWiki;          ///< Widget for sensor wiki
-    lv_obj_t *ui_SensorLabelWiki;           ///< Wiki label for sensor name
-    lv_obj_t *ui_SensorLabelDescription;    ///< Wiki label for sensor description
-    lv_obj_t *ui_SensorImage;               ///< Image for sensor wiki
+
 
     // --- NAVIGATION AND CONTROL MEMBERS ---
     lv_obj_t *ui_btnPrev;                   ///< Previous sensor button
     lv_obj_t *ui_btnPrevLabel;              ///< Label for previous button
     lv_obj_t *ui_btnNext;                   ///< Next sensor button
     lv_obj_t *ui_btnNextLabel;              ///< Label for next button
-    lv_obj_t *ui_btnConfirm;                ///< Confirm button
-    lv_obj_t *ui_btnConfirmLabel;           ///< Label for confirm button
     lv_obj_t *ui_btnSync;                   ///< Sync sensor button
     lv_obj_t *ui_btnSyncLabel;              ///< Label for sync button
     lv_obj_t *ui_btnBack;                   ///< Back to menu button
@@ -82,9 +75,8 @@ private:
     /**
      * @brief Add navigation buttons to a widget
      * @param parentWidget The parent widget to add buttons to
-     * @param isVisualisation If true, for visualisation, else for wiki
      */
-    void addNavButtonsToWidget(lv_obj_t *parentWidget, bool isVisualisation = true);
+    void addNavButtonsToWidget(lv_obj_t *parentWidget);
 
     /**
      * @brief Add control buttons (sync, back) to a widget
@@ -162,9 +154,9 @@ private:
 public:
     /**
      * @brief Constructor
-     * @param manager Reference to the SensorManager instance
+     * @param sensorManager Reference to the sensor manager instance
      */
-    SensorVisualizationGui(SensorManager &manager);
+    SensorVisualizationGui(SensorManager& sensorManager);
     
     /**
      * @brief Destructor
@@ -188,11 +180,6 @@ public:
     void constructVisualization();
 
     /**
-     * @brief Construct the sensor wiki widget
-     */
-    void constructWiki();
-
-    /**
      * @brief Draw/update the currently selected sensor's visualization
      */
     void drawCurrentSensor();
@@ -209,9 +196,8 @@ public:
 
     /**
      * @brief Go to the first sensor in the list
-     * @param showWikiTrigger If true, show wiki, otherwise show visualization
      */
-    void goToFirstSensor(bool showWikiTrigger = false);
+    void goToFirstSensor();
 
     /**
      * @brief Synchronize the current sensor data
@@ -228,28 +214,6 @@ public:
      * @brief Hide the sensor visualization screen
      */
     void hideVisualization();
-
-    /**
-     * @brief Show the sensor wiki screen
-     */
-    void showWiki();
-
-    /**
-     * @brief Hide the sensor wiki screen
-     */
-    void hideWiki();
-
-    /**
-     * @brief Get reference to the sensor manager
-     * @return Reference to SensorManager instance
-     */
-    SensorManager& getSensorManager() { return sensorManager; }
-
-    /**
-     * @brief Get the current sensor being displayed
-     * @return Pointer to current sensor or nullptr if none
-     */
-    BaseSensor* getCurrentSensor();
 };
 
 #endif // SENSOR_VISUALIZATION_GUI_HPP

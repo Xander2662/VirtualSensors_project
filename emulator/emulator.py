@@ -53,12 +53,12 @@ class VSCPEmulator:
         
         # Dummy sensor data
         self.sensor_data = {
-            "sensor_001": {"Temperature": 25.5, "Humidity": 60.2, "type": "DHT22"},
-            "sensor_002": {"Distance": 150, "type": "Ultrasonic"},
-            "sensor_003": {"Pressure": 1013.25, "Temperature": 22.1, "type": "BMP280"},
-            "sensor_004": {"X": 45, "Y": 78, "Button": 0, "type": "Joystick"},
-            "sensor_005": {"Lux": 350, "type": "Light"},
-            "sensor_006": {"MagField": 12.5, "Detected": 0, "type": "Magnetic"},
+            "0": {"temp": 25.5, "alarm": 60.2, "type": "DHT22"},
+            "1": {"temp": 150, "humi": 80},
+            "2": {"Pressure": 1013.25, "Temperature": 22.1, "type": "BMP280"},
+            "3": {"X": 45, "Y": 78, "Button": 0, "type": "Joystick"},
+            "4": {"Lux": 350, "type": "Light"},
+            "5": {"MagField": 12.5, "Detected": 0, "type": "Magnetic"},
             "imu_001": {
                 "acm_x": -2.1, "acm_y": 0.8, "acm_z": 9.8,
                 "gyr_x": 0.05, "gyr_y": -0.02, "gyr_z": 0.01,
@@ -121,6 +121,11 @@ class VSCPEmulator:
     def handle_init(self, params: Dict[str, str]) -> str:
         """Handle INIT method - handshake and version check"""
         print(f"🔄 INIT request: {params}")
+        
+        # Dummy response for testing
+        response_params = {'status': '1'}
+        self.initialized = True
+        return self.build_message(response_params)
         
         # Extract parameters
         app = params.get('app', 'Unknown')
@@ -246,19 +251,19 @@ class VSCPEmulator:
     def handle_connect(self, params: Dict[str, str]) -> str:
         """Handle CONNECT method - connect sensor to pin"""
         uid = params.get('id', '')
-        pin = params.get('pin', '')
-        print(f"🔌 CONNECT request: sensor {uid} to pin {pin}")
+        pins = params.get('pins', '')
+        print(f"🔌 CONNECT request: sensor {uid} to pins {pins}")
         
         if not self.initialized:
             return self.build_message({'status': '0', 'error': 'Protocol not initialized'})
         
-        if uid and pin:
+        if uid and pins:
             try:
-                pin_num = int(pin)
+                pins_num = [int(pin) for pin in pins.split(',')]
                 # Check if pin is already used
                 used_by = None
                 for sensor_id, used_pin in self.connected_sensors.items():
-                    if used_pin == pin_num:
+                    if used_pin in pins_num:
                         used_by = sensor_id
                         break
                 
@@ -266,32 +271,31 @@ class VSCPEmulator:
                     response_params = {
                         'id': uid,
                         'status': '0',
-                        'error': f'Pin {pin} already used by sensor {used_by}'
+                        'error': f'Pins {pins} already used by sensor {used_by}'
                     }
-                    print(f"✗ Pin {pin} conflict: used by {used_by}")
+                    print(f"✗ Pins {pins} conflict: used by {used_by}")
                 else:
-                    self.connected_sensors[uid] = pin_num
+                    self.connected_sensors[uid] = pins_num
                     response_params = {
                         'id': uid,
-                        'status': '1',
-                        'pin': pin
+                        'status': '1'
                     }
-                    print(f"✓ Sensor {uid} connected to pin {pin}")
-                    
+                    print(f"✓ Sensor {uid} connected to pins {pins}")
+
             except ValueError:
                 response_params = {
                     'id': uid,
                     'status': '0',
-                    'error': f'Invalid pin number: {pin}'
+                    'error': f'Invalid pin number: {pins}'
                 }
-                print(f"✗ Invalid pin number: {pin}")
+                print(f"✗ Invalid pin number: {pins}")
         else:
             response_params = {
                 'id': uid,
                 'status': '0',
                 'error': 'Missing sensor ID or pin number'
             }
-            print(f"✗ Missing parameters: uid={uid}, pin={pin}")
+            print(f"✗ Missing parameters: uid={uid}, pins={pins}")
         
         return self.build_message(response_params)
     
@@ -355,6 +359,8 @@ class VSCPEmulator:
                     data = self.ser.read(self.ser.in_waiting).decode('utf-8', errors='ignore')
                     buffer += data
                     
+                    if data and '\n' in buffer:
+                        print(f"DEBUG: {data}") 
                     # Process complete messages (ending with newline or containing '?')
                     while '\n' in buffer or '?' in buffer:
                         if '\n' in buffer:
@@ -414,7 +420,10 @@ class VSCPEmulator:
 
 def main():
     """Main entry point"""
-    emulator = VSCPEmulator(port='COM5', baudrate=115200)
+    port = input("Enter serial port (e.g., COM3 or /dev/ttyUSB0): ").strip()
+    if not port:
+        port = 'COM8'  # Default port for testing
+    emulator = VSCPEmulator(port=port, baudrate=115200)
     emulator.run()
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@
 #include "logs.hpp"
 
 std::string buildMessage(const char *format, ...) {
-    char buffer[256];
+    char buffer[512];
     va_list args;
     va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
@@ -50,7 +50,7 @@ void splashMessage(const char *format, ...) {
     vsnprintf(buffer, sizeof(buffer), format, args);
 
     #ifdef SPLASHER_H
-     show_splash_popup("Message", buffer, 5000); // Show splash for 5 seconds
+     show_splash_popup("Message", buffer, SPLASHER_TIMEOUT_MS); // Show splash for 5 seconds
     #endif   
 
     va_end(args);

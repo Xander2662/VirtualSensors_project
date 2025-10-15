@@ -7,6 +7,7 @@
 #include <lgfx/v1/platforms/esp32s3/Bus_RGB.hpp>
 #include <lvgl.h>
 #include <ui.h>
+#include <expt.hpp>
 #include <engine.hpp>  // include engine header
 #include <gui/gui_manager.hpp>  // include new GUI manager
 #include <gui/gui_callbacks.hpp>  // include GUI callback declarations
@@ -147,28 +148,21 @@ void my_touchpad_read (lv_indev_drv_t * indev_driver, lv_indev_data_t * data)
     delay(15);
 }
 
+
 SensorManager sensorManager;  // Create SensorManager instance
 GuiManager guiManager(sensorManager);  // Create GUI manager instance
 
 // Global GUI screen switching functions for use by GUI components
 void switchToMenu() {
-    if (guiManager.isInitialized()) {
-        // Stop sensors when returning to menu
-        sensorManager.setRunning(false);
-        guiManager.showMenu();
-    }
-}
-
-void switchToVisualization() {
-    if (guiManager.isInitialized()) {
-        guiManager.showVisualization();
-    }
+    guiManager.switchContent(GuiState::MENU);
 }
 
 void switchToWiki() {
-    if (guiManager.isInitialized()) {
-        guiManager.showWiki();
-    }
+    guiManager.switchContent(GuiState::WIKI);
+}
+
+void switchToVisualization() {
+    guiManager.switchContent(GuiState::VISUALIZATION);
 }
 
 void setup ()
@@ -212,8 +206,7 @@ void setup ()
     digitalWrite(TFT_BL, HIGH);
 
     ui_init();
-    //lcd.fillScreen(TFT_BLACK);
-    
+
     while(!sensorManager.init()) {
         Serial.println("Waiting for SensorManager initialization...");
         delay(100);
@@ -221,8 +214,9 @@ void setup ()
     
     // Initialize the new GUI manager
     guiManager.init();
-    switchToMenu();  // Start in menu screen
-    
+    guiManager.switchContent(GuiState::MENU);  // Start in menu screen
+   
+    splashMessage("Hello from Elecrow DIS08070H!");
     Serial.println( "Setup done" );
 }
 
@@ -236,23 +230,15 @@ int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 void loop ()
 {
     if (LOOP_SYNC_COUNTER-- < 0) {
-        if (sensorManager.isRunning()) {
-            sensorManager.resync();
-        }
+        sensorManager.resync(); // Sync sensor data, if running
         LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
-        delay(10);
-    }
-
-    // Draw sensor data when sensors are running and in visualization mode
-    if (sensorManager.isRunning() && guiManager.isInitialized()) {
-        if (guiManager.getCurrentState() == GuiState::VISUALIZATION) {
-            guiManager.getVisualizationGui().drawCurrentSensor();
-        }
         delay(1);
     }
+
+    // Redraw GUI based on current state
+    guiManager.redraw();
+    delay(1);
     //logMessage("Loop start\n");
     lv_timer_handler();
     delay(CYCLE_DRAW_MS);
 }
-
-

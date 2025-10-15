@@ -13,9 +13,10 @@
 #ifndef GUI_MANAGER_HPP
 #define GUI_MANAGER_HPP
 
+#include "../managers/manager.hpp"
 #include "menu_gui.hpp"
 #include "sensor_visualization_gui.hpp"
-#include "../managers/manager.hpp"
+#include "sensor_wiki_gui.hpp"
 
 /**
  * @brief Enumeration for different GUI states
@@ -23,7 +24,8 @@
 enum class GuiState {
     MENU,           ///< Main menu with pin assignment
     VISUALIZATION,  ///< Sensor data visualization
-    WIKI           ///< Sensor documentation/wiki
+    WIKI,           ///< Sensor documentation/wiki
+    NONE            ///< No active GUI
 };
 
 /**
@@ -37,6 +39,7 @@ private:
     SensorManager &sensorManager;           ///< Reference to sensor manager
     MenuGui menuGui;                        ///< Menu and pin assignment component
     SensorVisualizationGui vizGui;          ///< Sensor visualization component
+    SensorWikiGui wikiGui;                  ///< Sensor wiki component
     
     GuiState currentState;                  ///< Current GUI state
     bool initialized;                       ///< Initialization flag
@@ -87,6 +90,28 @@ public:
      */
     void showWiki();
     
+    /**
+     * @brief Switch content to specified GUI state
+     * 
+     * This method switches to the specified GuiState and manages
+     * SensorManager running state accordingly:
+     * - MENU: stops sensors (setRunning(false))
+     * - VISUALIZATION: starts sensors (setRunning(true))
+     * - WIKI: no sensor state change
+     * 
+     * @param targetState The GUI state to switch to
+     */
+    void switchContent(GuiState targetState);
+    
+    /**
+     * @brief Redraw GUI content based on current state
+     * 
+     * This method redraws GUI components depending on the current GuiState.
+     * For VISUALIZATION state, it redraws the current sensor data.
+     * Note: This method only handles GUI redrawing, not data synchronization.
+     */
+    void redraw();
+    
     // === COMPONENT ACCESS ===
     
     /**
@@ -101,6 +126,12 @@ public:
      */
     SensorVisualizationGui& getVisualizationGui() { return vizGui; }
     
+    /**
+     * @brief Get reference to sensor wiki GUI component
+     * @return Reference to SensorWikiGui
+     */
+    SensorWikiGui& getWikiGui() { return wikiGui; }
+
     /**
      * @brief Get reference to sensor manager
      * @return Reference to SensorManager

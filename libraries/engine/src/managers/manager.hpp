@@ -18,6 +18,7 @@
 #include <array>
 
 #include "../sensors/base_sensor.hpp"
+#include "pin_structure.hpp"
 
 /**
  * @enum ManagerStatus
@@ -45,7 +46,7 @@ enum class ManagerStatus
  */
 class SensorManager {
 private:
-    std::array<BaseSensor*, NUM_PINS> PinMap; ///< Mapping of pins to sensors
+    std::array<VirtualPin, NUM_PINS> PinMap; ///< Mapping of pins to sensors
     std::vector<BaseSensor*> Sensors;         ///< List of all managed sensors
 
     size_t currentIndex = 0;                      ///< Index of the current sensor
@@ -121,6 +122,11 @@ public:
     void addSensor(BaseSensor* sensor);
 
     /**
+     * @brief Reset the pin map, unassigning all sensors from pins
+     */
+    void resetPinMap();
+
+    /**
      * @brief Synchronize a sensor by ID
      * @param id Unique identifier string
      */
@@ -131,12 +137,6 @@ public:
      * @param uid Unique identifier string
      */
     void print(std::string uid);
-
-    /**
-     * @brief Assign a sensor and connect it to its pins
-     * @param sensor Pointer to the sensor to assign and connect
-     */
-    bool assignSensor(BaseSensor* sensor);
 
     /**
      * @brief Print information about all sensors
@@ -179,6 +179,27 @@ public:
     BaseSensor* getAssignedSensor(size_t pinIndex) const;
 
     /**
+     * @brief Get the GPIO pin number for a specific pin index
+     * @param pinIndex Index of the pin (0-based)
+     * @return GPIO pin number, or -1 if invalid index
+     */
+    int getPinNumber(size_t pinIndex) const;
+
+    /**
+     * @brief Check if a pin index is available for assignment
+     * @param pinIndex Index of the pin (0-based)
+     * @return True if pin is available, false if occupied or invalid
+     */
+    bool isPinAvailable(size_t pinIndex) const;
+
+    /**
+     * @brief Check if a pin index is locked
+     * @param pinIndex Index of the pin (0-based)
+     * @return True if pin is locked, false if available or invalid
+     */
+    bool isPinLocked(size_t pinIndex) const;
+
+    /**
      * @brief Get the currently selected sensor
      * @return Pointer to the current sensor
      */
@@ -200,26 +221,33 @@ public:
      * @brief Get read-only access to the pin map
      * @return Const reference to the array of pin assignments
      */
-    const std::array<BaseSensor*, NUM_PINS>& getPinMap() const { return PinMap; }
+    const std::array<VirtualPin, NUM_PINS>& getPinMap() const { return PinMap; }
+
+    /**
+     * @brief Reset the current sensor index to zero
+     */
+    void resetCurrentIndex() { currentIndex = 0; }
 
     /**
      * @brief Move to the next sensor in the list (wraps around)
      * @return Reference to the updated current index
      */
-    size_t& nextSensor() { 
-        if (Sensors.empty()) return currentIndex;
-        currentIndex = (currentIndex + 1) % Sensors.size();
-        return currentIndex;
+    BaseSensor* nextSensor() { 
+        if (PinMap.empty()) return nullptr;
+
+        currentIndex = (currentIndex + 1) % PinMap.size();
+        return getCurrentSensor();
     }
 
     /**
      * @brief Move to the previous sensor in the list (wraps around)
      * @return Reference to the updated current index
      */
-    size_t& previousSensor() {
-        if (Sensors.empty()) return currentIndex;
-        currentIndex = (currentIndex == 0) ? Sensors.size() - 1 : currentIndex - 1;
-        return currentIndex;
+    BaseSensor* previousSensor() {
+        if (PinMap.empty()) return nullptr;
+
+        currentIndex = (currentIndex == 0) ? PinMap.size() - 1 : currentIndex - 1;
+        return getCurrentSensor();
     }
 };
 

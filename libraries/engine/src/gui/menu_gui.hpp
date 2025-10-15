@@ -16,8 +16,8 @@
 #include "lvgl.h"
 #include <array>
 
+#include "gui_callbacks.hpp"
 #include "../managers/manager.hpp"
-#include "../sensors/base_sensor.hpp"
 
 /**
  * @class MenuGui
@@ -32,7 +32,7 @@
 class MenuGui
 {
 private:
-    SensorManager &sensorManager;  ///< Reference to the SensorManager instance
+    SensorManager& sensorManager;  ///< Reference to the SensorManager instance
     bool initialized = false;      ///< Initialization state flag
     int activePinIndex = -1;       ///< Currently selected/active pin index (-1 = none)
 
@@ -66,20 +66,13 @@ private:
      * @param pinIndex Index of the clicked pin
      */
     void handlePinClick(int pinIndex);
-    
-    /**
-     * @brief Get pin index from container object
-     * @param container The pin container object
-     * @return Pin index or -1 if not found
-     */
-    int getIndexFromContainer(lv_obj_t* container);
 
 public:
     /**
      * @brief Constructor
-     * @param manager Reference to the SensorManager instance
+     * @param sensorManager Reference to the SensorManager instance
      */
-    MenuGui(SensorManager &manager);
+    MenuGui(SensorManager& sensorManager);
     
     /**
      * @brief Destructor
@@ -137,24 +130,16 @@ public:
     bool unassignSensorFromActivePin();
 
     /**
-     * @brief Check if a pin has a sensor assigned
-     * @param pinIndex Index of the pin to check
-     * @return True if pin has an assigned sensor, false otherwise
+     * @brief Initialize pin configuration with locking logic
      */
-    bool isPinAssigned(int pinIndex) const;
+    void initializePins();
 
     /**
-     * @brief Get the sensor assigned to a specific pin
-     * @param pinIndex Index of the pin
-     * @return Pointer to assigned sensor or nullptr if none
+     * @brief Get pin state color for visualization
+     * @param pinIndex Pin index
+     * @return LVGL color value for pin state
      */
-    BaseSensor* getAssignedSensor(int pinIndex) const;
-
-    /**
-     * @brief Get reference to the sensor manager
-     * @return Reference to SensorManager instance
-     */
-    SensorManager& getSensorManager() { return sensorManager; }
+    uint32_t getPinStateColor(int pinIndex) const;
 };
 
 #endif // MENU_GUI_HPP
