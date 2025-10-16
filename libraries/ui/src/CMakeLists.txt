@@ -1,4 +1,4 @@
-SET(SOURCES ui_HomeScreen.c
+SET(SOURCES ui_Booting.c
     ui.c
     ui_comp_hook.c
     ui_helpers.c

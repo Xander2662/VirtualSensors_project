@@ -14,6 +14,8 @@
 #ifndef GUI_CALLBACKS_HPP
 #define GUI_CALLBACKS_HPP
 
+#include <string>
+
 /**
  * @brief Switch to menu screen and stop sensors
  * 
@@ -36,5 +38,16 @@ extern void switchToVisualization();
  * This function switches the GUI to sensor wiki/documentation mode.
  */
 extern void switchToWiki();
+
+/**
+ * @brief Switch to crash screen with specified reason
+ * 
+ * This function switches the GUI to the crash screen and displays
+ * the provided reason for the crash. It is typically called when
+ * a critical error occurs in the system.
+ * 
+ * @param reason The reason for the crash to display
+ */
+extern void switchToCrashScreen(const std::string &reason);
 
 #endif // GUI_CALLBACKS_HPP

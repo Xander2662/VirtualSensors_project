@@ -25,7 +25,13 @@ SensorManager::~SensorManager() {
 }
 
 bool SensorManager::init() {
+    if(initialized)
+    {
+        erase();
+    }
+
     initialized = false;
+    Status = ManagerStatus::ERROR;
     try
     {
         initMessenger();
@@ -34,36 +40,44 @@ bool SensorManager::init() {
         createSensorList(Sensors);
 
         logMessage("\tinitializing of protocol...\n");
-        auto response = Protocol::init_dummy();
+        ResponseStatus response;
+        for (size_t i = 0; i < SensorManager::MAX_INIT_ATTEMPTS; i++)
+        {
+            response = Protocol::init_dummy();
+            if (response.status == ResponseStatusEnum::OK)
+            {
+                logMessage("\t\tProtocol initialized successfully!\n");
+                break;
+            }
+            logMessage("\t\tProtocol initialization failed, retrying...\n");
+            delay_ms(100);
+        }
         if (response.status == ResponseStatusEnum::ERROR)
         {
             throw SensorInitializationFailException("SensorManager::init", response.error, ErrorCode::CRITICAL_ERROR_CODE);
         }
         logMessage("\tdone!\n");
     }
-    catch(const Exception &e)
-    {
-        e.print();
-        Status = ManagerStatus::ERROR;;
-        return false;
-    }
     catch(...)
     {
-        logMessage("Unknown exception during initialization!\n");
-        Status = ManagerStatus::ERROR;
-        return false;
+        throw;
     }
 
 
     Status = ManagerStatus::READY;
-    currentIndex = 0;
     resetPinMap();
     logMessage("Initialization done!\n");
     return initialized = true;
 }
 
 bool SensorManager::init(std::string configFile) {
+    if(initialized)
+    {
+        erase();
+    }
+
     initialized = false;
+    Status = ManagerStatus::ERROR;
     try
     {
         initMessenger();
@@ -75,54 +89,33 @@ bool SensorManager::init(std::string configFile) {
         std::string app = "VirtualSensors 1.0"; //Get from config?
         std::string db = "1.0"; //Get from config?
         logMessage("Initializing of protocol...\n");
-        auto response = Protocol::init(app, db);
+        ResponseStatus response;
+        for (size_t i = 0; i < SensorManager::MAX_INIT_ATTEMPTS; i++)
+        {
+            response = Protocol::init(app, db);
+            if (response.status == ResponseStatusEnum::OK)
+            {
+                logMessage("\t\tProtocol initialized successfully!\n");
+                break;
+            }
+            logMessage("\t\tProtocol initialization failed, retrying...\n");
+            delay_ms(100);
+        }
         if (response.status == ResponseStatusEnum::ERROR)
         {
             throw SensorInitializationFailException("SensorManager::init", response.error, ErrorCode::CRITICAL_ERROR_CODE);
         }
-    }
-    catch(const Exception &e)
-    {
-        e.print();
-        Status = ManagerStatus::ERROR;
-        return false;
-    }
-    catch (const std::exception &e)
-    {
-        logMessage("Standard exception during initialization: %s\n", e.what());
-        Status = ManagerStatus::ERROR;
-        return false;
+        logMessage("\tdone!\n");
     }
     catch(...)
     {
-        logMessage("Unknown exception during initialization!\n");
-        Status = ManagerStatus::ERROR;
-        return false;
+        throw;
     }
     
     Status = ManagerStatus::READY;
-    currentIndex = 0;
     resetPinMap();
     logMessage("Initialization done!\n");
     return initialized = true;
-}
-
-void SensorManager::resetPinMap() {
-    for (size_t i = 0; i < NUM_PINS; ++i) {
-        PinMap[i].pinNumber = i;
-        PinMap[i].locked = false;
-
-        PinMap[i].unassignSensor();
-    }
-}
-
-BaseSensor* SensorManager::getCurrentSensor()
-{
-    if (currentIndex < PinMap.size())
-    {
-        return PinMap[currentIndex].assignedSensor;
-    }
-    return nullptr;
 }
 
 BaseSensor* SensorManager::getSensor(std::string uid) {
@@ -163,12 +156,23 @@ bool SensorManager::resync()
 
 bool SensorManager::connect() 
 {
+    //TODO:disconnect existing connections first
     bool result = true;
     for (auto virtualPin : PinMap) {
-        if(virtualPin.assignedSensor) {
+        if(virtualPin.isAssigned()) {
+            //First disconnect if already connected
+            disconnectSensor(virtualPin.assignedSensor);
+            //Reassign pin
+            virtualPin.assignedSensor->assignPin(std::to_string(virtualPin.pinNumber));
+        }
+    }
+
+    for (auto virtualPin : PinMap) {
+        if(virtualPin.isAssigned()) {
             result &= connectSensor(virtualPin.assignedSensor);
         }
     }
+
     return result;
 }
 
@@ -180,8 +184,53 @@ void SensorManager::erase() {
 }
 
 /////////////////////////
+// Sensor selection management
+/////////////////////////
+
+void SensorManager::selectSensorsFromPinMap() {
+    SelectedSensors.clear();
+    for (const auto& pin : PinMap) {
+        if (pin.assignedSensor) {
+            SelectedSensors.push_back(pin.assignedSensor);
+        }
+    }
+    resetCurrentIndex();
+}
+
+BaseSensor* SensorManager::getCurrentSensor()
+{
+    if (SelectedSensors.empty()) return nullptr;
+
+    if (currentIndex < SelectedSensors.size())
+    {
+        return SelectedSensors[currentIndex];
+    }
+    return nullptr;
+}
+
+BaseSensor* SensorManager::nextSensor() { 
+    currentIndex = (currentIndex + 1) % SelectedSensors.size();
+    return getCurrentSensor();
+}
+
+BaseSensor* SensorManager::previousSensor() {
+    currentIndex = (currentIndex == 0) ? SelectedSensors.size() - 1 : currentIndex - 1;
+    return getCurrentSensor();
+}
+
+/////////////////////////
 // Pin management
 /////////////////////////
+
+void SensorManager::resetPinMap() {
+    resetCurrentIndex();
+    for (size_t i = 0; i < NUM_PINS; ++i) {
+        PinMap[i].pinNumber = i;
+        PinMap[i].locked = false;
+
+        PinMap[i].unassignSensor();
+    }
+}
 
 bool SensorManager::assignSensorToPin(BaseSensor* sensor, int activePin) {
     if (activePin >= NUM_PINS) return false;

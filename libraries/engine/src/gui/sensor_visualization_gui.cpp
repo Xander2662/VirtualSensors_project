@@ -248,9 +248,9 @@ void SensorVisualizationGui::constructVisualization() {
     lv_obj_clear_flag(ui_Chart, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
                                     LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE);
     lv_chart_set_type(ui_Chart, LV_CHART_TYPE_LINE);
-    lv_chart_set_div_line_count(ui_Chart, 9, 10);
-    lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_X, 10, 0, 10, 1, true, 50);
-    lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 5, 2, true, 50);
+    lv_chart_set_div_line_count(ui_Chart, HISTORY_CAP-1, HISTORY_CAP);
+    lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_X, HISTORY_CAP/2, 0, HISTORY_CAP, 1, true, 50);
+    lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, HISTORY_CAP, 5, 5, 2, true, 50);
 
     // Chart series for value 1
     ui_Chart_series_V1 = lv_chart_add_series(ui_Chart, lv_color_hex(0x009BFF), LV_CHART_AXIS_PRIMARY_Y);
@@ -562,16 +562,25 @@ void SensorVisualizationGui::updateChart() {
 }
 
 void SensorVisualizationGui::goToPreviousSensor() {
+    sensorManager.setRunning(false); // Pause any ongoing sensor updates
     currentSensor = sensorManager.previousSensor();
+    delay_ms(10); // Small delay to ensure UI responsiveness
+    sensorManager.setRunning(true); // Resume sensor updates
 }
 
 void SensorVisualizationGui::goToNextSensor() {
+    sensorManager.setRunning(false); // Pause any ongoing sensor updates
     currentSensor = sensorManager.nextSensor();
+    delay_ms(10); // Small delay to ensure UI responsiveness
+    sensorManager.setRunning(true); // Resume sensor updates
 }
 
 void SensorVisualizationGui::goToFirstSensor() {
+    sensorManager.setRunning(false); // Pause any ongoing sensor updates
     sensorManager.resetCurrentIndex();
     currentSensor = sensorManager.getCurrentSensor();
+    delay_ms(10); // Small delay to ensure UI responsiveness
+    sensorManager.setRunning(true); // Resume sensor updates
 }
 
 bool SensorVisualizationGui::syncCurrentSensor() {

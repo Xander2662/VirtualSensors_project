@@ -9,15 +9,13 @@
 ///////////////////// VARIABLES ////////////////////
 
 
-// SCREEN: ui_HomeScreen
-void ui_HomeScreen_screen_init(void);
-lv_obj_t * ui_HomeScreen;
-void ui_event_ButtonClickMe(lv_event_t * e);
-lv_obj_t * ui_ButtonClickMe;
-lv_obj_t * ui_LabelClickMe;
-lv_obj_t * ui_SliderTest;
+// SCREEN: ui_Booting
+void ui_Booting_screen_init(void);
+lv_obj_t * ui_Booting;
+lv_obj_t * ui_LabelBooting;
+lv_obj_t * ui_LabelPleaseWait;
+lv_obj_t * ui_SpinnerBooting;
 // CUSTOM VARIABLES
-lv_obj_t * uic_ButtonClickMe;
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;
@@ -35,14 +33,6 @@ lv_obj_t * ui____initial_actions0;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event_ButtonClickMe(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        clickMeButtonEventHandler(e);
-    }
-}
 
 ///////////////////// SCREENS ////////////////////
 
@@ -52,7 +42,7 @@ void ui_init(void)
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
-    //ui_HomeScreen_screen_init();
-    //ui____initial_actions0 = lv_obj_create(NULL);
-    //lv_disp_load_scr(ui_HomeScreen);
+    ui_Booting_screen_init();
+    ui____initial_actions0 = lv_obj_create(NULL);
+    lv_disp_load_scr(ui_Booting);
 }

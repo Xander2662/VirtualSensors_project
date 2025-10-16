@@ -33,7 +33,6 @@ void SensorWikiGui::init() {
     try {
         // logMessage("Initializing SensorWikiGui...\n");
         buildWikiGui();
-        updateSensorInfo();
         initialized = true;
         // logMessage("SensorWikiGui initialization completed!\n");
     }
@@ -68,14 +67,14 @@ void SensorWikiGui::buildWikiGui() {
     // Sensor title
     ui_SensorTitle = lv_label_create(ui_SensorInfo);
     lv_obj_set_size(ui_SensorTitle, 480, 40);
-    lv_obj_set_pos(ui_SensorTitle, 10, 10);
+    lv_obj_set_pos(ui_SensorTitle, 10, 15);
     lv_label_set_text(ui_SensorTitle, "Sensor Name");
     lv_obj_set_style_text_font(ui_SensorTitle, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_SensorTitle, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     
     // Sensor description
     ui_SensorDescription = lv_textarea_create(ui_SensorInfo);
-    lv_obj_set_size(ui_SensorDescription, 480, 180);
+    lv_obj_set_size(ui_SensorDescription, 400, 90);
     lv_obj_set_pos(ui_SensorDescription, 10, 60);
     lv_textarea_set_text(ui_SensorDescription, "Sensor description will appear here...");
     lv_obj_add_flag(ui_SensorDescription, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
@@ -83,7 +82,7 @@ void SensorWikiGui::buildWikiGui() {
     
     // Sensor specifications
     ui_SensorSpecs = lv_textarea_create(ui_SensorInfo);
-    lv_obj_set_size(ui_SensorSpecs, 480, 120);
+    lv_obj_set_size(ui_SensorSpecs, 400, 210);
     lv_obj_set_pos(ui_SensorSpecs, 10, 250);
     lv_textarea_set_text(ui_SensorSpecs, "Specifications will appear here...");
     lv_obj_add_flag(ui_SensorSpecs, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
@@ -257,6 +256,11 @@ void SensorWikiGui::handleSelectButtonClick() {
         // logMessage("Cannot select sensor: no sensor or no active pin\n");
         return;
     }
+
+    // Check if pin is available
+    if (!sensorManager.isPinAvailable(activePinIndex)) {
+        sensorManager.unassignSensorFromPin(activePinIndex);
+    }
     
     // Assign sensor to pin through sensor manager
     bool success = sensorManager.assignSensorToPin(sensor, activePinIndex);
@@ -265,7 +269,8 @@ void SensorWikiGui::handleSelectButtonClick() {
         // Switch back to menu
         handleBackButtonClick();
     } else {
-        // logMessage("Failed to assign sensor to pin\n");
+        splashMessage("Failed to assign sensor to pin\n");
+        return;
     }
 }
 

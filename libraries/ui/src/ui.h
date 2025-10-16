@@ -25,15 +25,13 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
-// SCREEN: ui_HomeScreen
-void ui_HomeScreen_screen_init(void);
-extern lv_obj_t * ui_HomeScreen;
-void ui_event_ButtonClickMe(lv_event_t * e);
-extern lv_obj_t * ui_ButtonClickMe;
-extern lv_obj_t * ui_LabelClickMe;
-extern lv_obj_t * ui_SliderTest;
+// SCREEN: ui_Booting
+void ui_Booting_screen_init(void);
+extern lv_obj_t * ui_Booting;
+extern lv_obj_t * ui_LabelBooting;
+extern lv_obj_t * ui_LabelPleaseWait;
+extern lv_obj_t * ui_SpinnerBooting;
 // CUSTOM VARIABLES
-extern lv_obj_t * uic_ButtonClickMe;
 
 // EVENTS
 

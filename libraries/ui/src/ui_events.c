@@ -4,8 +4,3 @@
 // Project name: SquareLine_Project
 
 #include "ui.h"
-
-void clickMeButtonEventHandler(lv_event_t * e)
-{
-	// Your code here
-}

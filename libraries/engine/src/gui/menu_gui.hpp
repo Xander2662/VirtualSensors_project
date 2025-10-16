@@ -38,6 +38,7 @@ private:
 
     // --- MENU GUI MEMBERS ---
     lv_obj_t *ui_MenuWidget;                ///< Main menu widget
+    lv_obj_t *ui_PinScrollContainer;        ///< Scrollable container for pins
     lv_obj_t *ui_ButtonStartGroup;          ///< Group for start button
     lv_obj_t *ui_ButtonStartCornerTopLeft;  ///< Top-left corner decoration
     lv_obj_t *ui_ButtonStartCornerBottomRight; ///< Bottom-right corner decoration
@@ -116,18 +117,6 @@ public:
      * @return Index of the active pin (-1 if none selected)
      */
     int getActivePin() const { return activePinIndex; }
-
-    /**
-     * @brief Assign the current sensor to the active pin
-     * @return True if assignment was successful, false otherwise
-     */
-    bool assignCurrentSensorToActivePin();
-
-    /**
-     * @brief Unassign sensor from the active pin
-     * @return True if unassignment was successful, false otherwise
-     */
-    bool unassignSensorFromActivePin();
 
     /**
      * @brief Initialize pin configuration with locking logic

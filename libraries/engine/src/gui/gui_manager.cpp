@@ -10,61 +10,78 @@
  */
 
 #include "gui_manager.hpp"
-#include "menu_gui.hpp"
-#include "sensor_visualization_gui.hpp"
-#include "sensor_wiki_gui.hpp"
 #include "../helpers.hpp"
+
+const int FPS = 60;
+const int CYCLE_DRAW_MS = (1000/FPS);
+const int CYCLE_SYNC_MS = 100;
+
+const int LOOP_SYNC_TH = CYCLE_SYNC_MS/CYCLE_DRAW_MS;
+int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 
 GuiManager::GuiManager(SensorManager &manager) 
     : sensorManager(manager), 
       menuGui(manager), 
       vizGui(manager),
       wikiGui(manager),
+      crashGui(),
       currentState(GuiState::NONE),
       initialized(false) {
 }
 
-void GuiManager::init() {
-    if (!sensorManager.isInitialized())
-    {
-        splashMessage("SensorManager not initialized. Cannot initialize GuiManager.\n");
-        return;
-    }
-    
+bool GuiManager::init(std::string configFile) {
+    initialized = false;  
+    currentState = GuiState::NONE;
+    logMessage("Initializing GUI Manager...\n");
 
-    if (initialized) {
-        // logMessage("GuiManager already initialized\n");
-        return;
-    }
-    
     try {
-        logMessage("Initializing GUI Manager...\n");
-        currentState = GuiState::NONE;
-        
+        // First initialize the crash GUI
+        crashGui.init();
+
+        // Ensure SensorManager is initialized
+        if(configFile.empty())
+            sensorManager.init();
+        else
+            sensorManager.init(configFile);
+
         // Initialize all GUI components
         menuGui.init();
         vizGui.init();
-        wikiGui.init();
-        
-        initialized = true;
-        logMessage("GUI Manager initialization completed!\n");
-        
-    } catch (const std::exception &e) {
-        splashMessage("GUI Manager initialization failed: %s\n", e.what());
-        initialized = false;
+        wikiGui.init();  
     }
+    catch (const Exception &e) {
+        showCrashScreen(e.flush());
+        return false;
+    }
+    catch (const std::exception &e) {
+        showCrashScreen(e.what());
+        return false;
+    }
+    catch (...) {
+        showCrashScreen("Unknown exception during GUI initialization!");
+        return false;
+    }
+
+    currentState = GuiState::READY;
+    initialized = true;
+    logMessage("GUI Manager initialization completed!\n");
+    return initialized;
+}
+
+bool GuiManager::init() {
+    return init(""); // Call the overload with empty config
 }
 
 void GuiManager::hideAllComponents() {
-    if (menuGui.isInitialized()) {
-        menuGui.hideMenu();
+    if (!initialized) {
+        // logMessage("GuiManager not initialized, cannot hide components\n");
+        return;
     }
-    if (vizGui.isInitialized()) {
-        vizGui.hideVisualization();
-    }
-    if (wikiGui.isInitialized()) {
-        wikiGui.hideWiki();
-    }
+
+    menuGui.hideMenu();
+    vizGui.hideVisualization();
+    wikiGui.hideWiki();
+    crashGui.hideCrash();
 }
 
 void GuiManager::showMenu() {
@@ -73,6 +90,7 @@ void GuiManager::showMenu() {
         return;
     }
     
+    sensorManager.setRunning(false);
     hideAllComponents();
     menuGui.showMenu();
     currentState = GuiState::MENU;
@@ -85,8 +103,11 @@ void GuiManager::showVisualization() {
         return;
     }
     
+    sensorManager.setRunning(false);
     hideAllComponents();
     vizGui.showVisualization();
+    sensorManager.setRunning(true);
+
     vizGui.drawCurrentSensor(); // Refresh display
     currentState = GuiState::VISUALIZATION;
     // logMessage("Switched to VISUALIZATION state\n");
@@ -97,11 +118,20 @@ void GuiManager::showWiki() {
         // logMessage("GuiManager not initialized\n");
         return;
     }
-    
+
+    sensorManager.setRunning(false);
     hideAllComponents();
     wikiGui.showWiki(menuGui.getActivePin());
     currentState = GuiState::WIKI;
     // logMessage("Switched to WIKI state\n");
+}
+
+void GuiManager::showCrashScreen(const std::string &reason) {
+    sensorManager.setRunning(false);
+    currentState = GuiState::CRASH;
+    hideAllComponents();
+
+    crashGui.showCrash(reason);   
 }
 
 void GuiManager::switchContent(GuiState targetState) {
@@ -118,14 +148,12 @@ void GuiManager::switchContent(GuiState targetState) {
     
     switch (targetState) {
         case GuiState::MENU:
-            sensorManager.setRunning(false);
             showMenu();
             // logMessage("Switched content to MENU\n");
             break;
             
         case GuiState::VISUALIZATION:
             showVisualization();
-            sensorManager.setRunning(true);
             // logMessage("Switched content to VISUALIZATION\n");
             break;
             
@@ -135,24 +163,37 @@ void GuiManager::switchContent(GuiState targetState) {
             // logMessage("Switched content to WIKI\n");
             break;
 
-        case GuiState::NONE:
+        case GuiState::READY:
             hideAllComponents();
             sensorManager.setRunning(false);
             // logMessage("Switched content to NONE (all components hidden)\n");
             break;
-            
+
+        case GuiState::CRASH:
+            showCrashScreen("Unexpected error");
+            break;
+
         default:
             // logMessage("Unknown target GUI state %d, switching to MENU\n", static_cast<int>(targetState));
+            splashMessage("Unknown target GUI state %d, nothing to display...\n", static_cast<int>(targetState));
             sensorManager.setRunning(false);
-            showMenu();
             break;
     }
 }
 
 void GuiManager::redraw() {
+    lv_timer_handler();
+    delay_ms(CYCLE_DRAW_MS);
+
     if (!initialized) {
-        // logMessage("GuiManager not initialized, cannot redraw\n");
         return;
+    }
+
+    // Sync sensor data periodically
+    if (LOOP_SYNC_COUNTER-- < 0) {
+        sensorManager.resync(); // Sync sensor data, if running
+        LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
+        delay_ms(1);
     }
     
     switch (currentState) {

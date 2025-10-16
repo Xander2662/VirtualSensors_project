@@ -17,6 +17,7 @@
 #include "menu_gui.hpp"
 #include "sensor_visualization_gui.hpp"
 #include "sensor_wiki_gui.hpp"
+#include "crash_gui.hpp"
 
 /**
  * @brief Enumeration for different GUI states
@@ -25,7 +26,9 @@ enum class GuiState {
     MENU,           ///< Main menu with pin assignment
     VISUALIZATION,  ///< Sensor data visualization
     WIKI,           ///< Sensor documentation/wiki
-    NONE            ///< No active GUI
+    READY,          ///< No active GUI
+    CRASH,          ///< Crash screen
+    NONE            ///< Not ready / No active GUI
 };
 
 /**
@@ -40,6 +43,7 @@ private:
     MenuGui menuGui;                        ///< Menu and pin assignment component
     SensorVisualizationGui vizGui;          ///< Sensor visualization component
     SensorWikiGui wikiGui;                  ///< Sensor wiki component
+    CrashGui crashGui;                      ///< Crash screen component
     
     GuiState currentState;                  ///< Current GUI state
     bool initialized;                       ///< Initialization flag
@@ -58,8 +62,16 @@ public:
     
     /**
      * @brief Initialize the unified GUI manager and all components
+     * @return true if initialization was successful, false otherwise
      */
-    void init();
+    bool init();
+
+    /**
+     * @brief Initialize the unified GUI manager and all components with config file
+     * @param configFile Path to configuration file
+     * @return true if initialization was successful, false otherwise
+     */
+    bool init(std::string configFile);
     
     /**
      * @brief Check if the GUI manager is initialized
@@ -89,6 +101,11 @@ public:
      * @brief Switch to sensor wiki screen
      */
     void showWiki();
+
+    /**
+     * @brief Switch to crash screen
+     */
+    void showCrashScreen(const std::string &reason = "Unexpected error"); 
     
     /**
      * @brief Switch content to specified GUI state
@@ -137,6 +154,7 @@ public:
      * @return Reference to SensorManager
      */
     SensorManager& getSensorManager() { return sensorManager; }
+
 };
 
 #endif // GUI_MANAGER_HPP

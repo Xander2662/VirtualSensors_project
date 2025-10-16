@@ -10,7 +10,7 @@
 #ifndef MANAGER_HPP
 #define MANAGER_HPP
 
-#define NUM_PINS 6
+#define NUM_PINS 12
 
 #include <vector>
 #include <cstddef>
@@ -48,6 +48,7 @@ class SensorManager {
 private:
     std::array<VirtualPin, NUM_PINS> PinMap; ///< Mapping of pins to sensors
     std::vector<BaseSensor*> Sensors;         ///< List of all managed sensors
+    std::vector<BaseSensor*> SelectedSensors; ///< List of fixed sensors (from config file)
 
     size_t currentIndex = 0;                      ///< Index of the current sensor
 
@@ -55,6 +56,7 @@ private:
     ManagerStatus Status = ManagerStatus::STOPPED; ///< Current status of the manager
 
 public:
+    const static uint8_t MAX_INIT_ATTEMPTS = 3; ///< Maximum initialization attempts
     /**
      * @brief Private constructor for singleton pattern
      */
@@ -200,6 +202,25 @@ public:
     bool isPinLocked(size_t pinIndex) const;
 
     /**
+     * @brief Get read-only access to the list of sensors
+     * @return Const reference to the vector of sensor pointers
+     */
+    const std::vector<BaseSensor*>& getSensors() const { return Sensors; }
+
+    /**
+     * @brief Get read-only access to the pin map
+     * @return Const reference to the array of pin assignments
+     */
+    const std::array<VirtualPin, NUM_PINS>& getPinMap() const { return PinMap; }
+
+    // --- Sensors mapping ---
+    
+    /**
+     * @brief Select sensors that are assigned to pins into the SelectedSensors list
+     */
+    void selectSensorsFromPinMap(); 
+
+    /**
      * @brief Get the currently selected sensor
      * @return Pointer to the current sensor
      */
@@ -212,18 +233,6 @@ public:
     size_t& getCurrentIndex() { return currentIndex; }
 
     /**
-     * @brief Get read-only access to the list of sensors
-     * @return Const reference to the vector of sensor pointers
-     */
-    const std::vector<BaseSensor*>& getSensors() const { return Sensors; }
-
-    /**
-     * @brief Get read-only access to the pin map
-     * @return Const reference to the array of pin assignments
-     */
-    const std::array<VirtualPin, NUM_PINS>& getPinMap() const { return PinMap; }
-
-    /**
      * @brief Reset the current sensor index to zero
      */
     void resetCurrentIndex() { currentIndex = 0; }
@@ -232,23 +241,13 @@ public:
      * @brief Move to the next sensor in the list (wraps around)
      * @return Reference to the updated current index
      */
-    BaseSensor* nextSensor() { 
-        if (PinMap.empty()) return nullptr;
-
-        currentIndex = (currentIndex + 1) % PinMap.size();
-        return getCurrentSensor();
-    }
+    BaseSensor* nextSensor();
 
     /**
      * @brief Move to the previous sensor in the list (wraps around)
      * @return Reference to the updated current index
      */
-    BaseSensor* previousSensor() {
-        if (PinMap.empty()) return nullptr;
-
-        currentIndex = (currentIndex == 0) ? PinMap.size() - 1 : currentIndex - 1;
-        return getCurrentSensor();
-    }
+    BaseSensor* previousSensor();
 };
 
 #endif // MANAGER_HPP 

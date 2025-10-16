@@ -56,5 +56,15 @@ void splashMessage(const char *format, ...) {
     va_end(args);
 }
 
+void delay_ms(uint32_t ms) {
+    #ifdef ARDUINO_H
+        delay(ms); // Arduino delay
+    #elif defined(_WIN32) || defined(_WIN64)
+        Sleep(ms); // Windows sleep
+    #else
+        usleep(ms * 1000); // POSIX sleep
+    #endif
+}
+
 #endif // LOGS_HPP
 

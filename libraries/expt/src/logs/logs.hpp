@@ -50,6 +50,16 @@
 */
  void splashMessage(const char *format, ...);
 
+
+  /**
+    * @brief Delays execution for a specified number of milliseconds.
+    * 
+    * This function provides a cross-platform way to introduce delays.
+    * 
+    * @param ms Number of milliseconds to delay.
+    */
+ void delay_ms(uint32_t ms);
+
  
  #endif // LOGS_H
  
