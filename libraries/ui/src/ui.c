@@ -45,4 +45,6 @@ void ui_init(void)
     ui_Booting_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_Booting);
+
+    //lv_obj_set_style_bg_color(dispp, lv_color_hex(0xB5B5B5), LV_PART_MAIN | LV_STATE_DEFAULT);
 }

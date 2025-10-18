@@ -46,6 +46,8 @@ private:
     lv_obj_t* ui_SensorDescription; ///< Sensor description text
     lv_obj_t* ui_SensorSpecsTitle;  ///< Sensor specifications title
     lv_obj_t* ui_SensorSpecs;       ///< Sensor specifications
+    lv_obj_t* ui_SensorConfTitle;  ///< Sensor configuration title
+    lv_obj_t* ui_SensorConf;       ///< Sensor configuration
     lv_obj_t* ui_SelectButton;      ///< Select sensor button
     lv_obj_t* ui_BackButton;        ///< Back to menu button
     lv_obj_t* ui_PrevButton;        ///< Previous sensor button
@@ -96,6 +98,13 @@ private:
      * @return Formatted specifications string
      */
     std::string getSensorSpecsText(BaseSensor* sensor);
+
+    /**
+     * @brief Get sensor configuration text
+     * @param sensor Pointer to sensor
+     * @return Formatted configuration string
+     */
+    std::string getSensorConfText(BaseSensor* sensor);
 
 public:
     /**
