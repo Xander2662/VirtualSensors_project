@@ -42,7 +42,9 @@ private:
     lv_obj_t* ui_SensorList;        ///< List of available sensors
     lv_obj_t* ui_SensorInfo;        ///< Sensor information display
     lv_obj_t* ui_SensorTitle;       ///< Sensor name/title
+    lv_obj_t* ui_SensorDescriptionTitle; ///< Sensor description title
     lv_obj_t* ui_SensorDescription; ///< Sensor description text
+    lv_obj_t* ui_SensorSpecsTitle;  ///< Sensor specifications title
     lv_obj_t* ui_SensorSpecs;       ///< Sensor specifications
     lv_obj_t* ui_SelectButton;      ///< Select sensor button
     lv_obj_t* ui_BackButton;        ///< Back to menu button

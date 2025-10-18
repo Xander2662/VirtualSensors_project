@@ -19,7 +19,9 @@ SensorWikiGui::SensorWikiGui(SensorManager& sensorManager)
     ui_SensorList = nullptr;
     ui_SensorInfo = nullptr;
     ui_SensorTitle = nullptr;
+    ui_SensorDescriptionTitle = nullptr;
     ui_SensorDescription = nullptr;
+    ui_SensorSpecsTitle = nullptr;
     ui_SensorSpecs = nullptr;
     ui_SelectButton = nullptr;
     ui_BackButton = nullptr;
@@ -69,21 +71,37 @@ void SensorWikiGui::buildWikiGui() {
     lv_obj_set_size(ui_SensorTitle, 480, 40);
     lv_obj_set_pos(ui_SensorTitle, 10, 15);
     lv_label_set_text(ui_SensorTitle, "Sensor Name");
-    lv_obj_set_style_text_font(ui_SensorTitle, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_SensorTitle, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_SensorTitle, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    
+    // Sensor description title
+    ui_SensorDescriptionTitle = lv_label_create(ui_SensorInfo);
+    lv_obj_set_size(ui_SensorDescriptionTitle, 480, 40);
+    lv_obj_set_pos(ui_SensorDescriptionTitle, 10, 60);
+    lv_label_set_text(ui_SensorDescriptionTitle, "Description:");
+    lv_obj_set_style_text_font(ui_SensorDescriptionTitle, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_SensorDescriptionTitle, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     
     // Sensor description
     ui_SensorDescription = lv_textarea_create(ui_SensorInfo);
     lv_obj_set_size(ui_SensorDescription, 400, 90);
-    lv_obj_set_pos(ui_SensorDescription, 10, 60);
+    lv_obj_set_pos(ui_SensorDescription, 10, 80);
     lv_textarea_set_text(ui_SensorDescription, "Sensor description will appear here...");
     lv_obj_add_flag(ui_SensorDescription, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ui_SensorDescription, LV_OBJ_FLAG_CLICKABLE);
     
+    // Sensor specifications title
+    ui_SensorSpecsTitle = lv_label_create(ui_SensorInfo);
+    lv_obj_set_size(ui_SensorSpecsTitle, 480, 40);
+    lv_obj_set_pos(ui_SensorSpecsTitle, 10, 100);
+    lv_label_set_text(ui_SensorSpecsTitle, "Specifications:");
+    lv_obj_set_style_text_font(ui_SensorSpecsTitle, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_SensorSpecsTitle, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+
     // Sensor specifications
     ui_SensorSpecs = lv_textarea_create(ui_SensorInfo);
     lv_obj_set_size(ui_SensorSpecs, 400, 210);
-    lv_obj_set_pos(ui_SensorSpecs, 10, 250);
+    lv_obj_set_pos(ui_SensorSpecs, 10, 130);
     lv_textarea_set_text(ui_SensorSpecs, "Specifications will appear here...");
     lv_obj_add_flag(ui_SensorSpecs, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ui_SensorSpecs, LV_OBJ_FLAG_CLICKABLE);
