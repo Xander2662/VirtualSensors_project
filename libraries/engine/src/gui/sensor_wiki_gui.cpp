@@ -147,7 +147,7 @@ void SensorWikiGui::buildWikiGui() {
     
     ui_NextButton = lv_btn_create(controlPanel);
     lv_obj_set_size(ui_NextButton, 90, 40);
-    lv_obj_set_pos(ui_NextButton, 120, 20);
+    lv_obj_set_pos(ui_NextButton, 110, 20);
     lv_obj_t* nextLabel = lv_label_create(ui_NextButton);
     lv_label_set_text(nextLabel, "Next >");
     lv_obj_center(nextLabel);
@@ -185,9 +185,9 @@ void SensorWikiGui::buildWikiGui() {
     }, LV_EVENT_CLICKED, this);
     
     // Sensor list (simple for now)
-    ui_SensorList = lv_list_create(controlPanel);
+    /*ui_SensorList = lv_list_create(controlPanel);
     lv_obj_set_size(ui_SensorList, 210, 180);
-    lv_obj_set_pos(ui_SensorList, 0, 140);
+    lv_obj_set_pos(ui_SensorList, 0, 140);*/
 }
 
 void SensorWikiGui::updateSensorInfo() {
