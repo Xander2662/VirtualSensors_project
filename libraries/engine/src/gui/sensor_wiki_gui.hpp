@@ -6,7 +6,7 @@
  * sensor information display and selection functionality.
  *
  * @copyright 2025 MTA
- * @author Ing. Jiri Konecny
+ * @author Ing. Jiri Konecny, Ondřej Wrubel
  */
 
 #ifndef SENSOR_WIKI_GUI_HPP

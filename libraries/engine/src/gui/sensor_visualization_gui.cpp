@@ -399,7 +399,7 @@ void SensorVisualizationGui::updateSensorDataDisplay() {
             std::string units1 = currentSensor->getValueUnits(key1);
             
             lv_label_set_text(ui_LabelValueValue_1, value1.c_str());
-            lv_label_set_text(ui_LabelDescValue_1, units1.empty() ? "[units]" : ("[" + units1 + "]").c_str());
+            lv_label_set_text(ui_LabelDescValue_1, units1.empty() ? "" : ("[" + units1 + "]").c_str());
             lv_label_set_text(ui_LabelTypeValue_1, key1.c_str());
         }
         catch (const std::exception& e) {
@@ -415,7 +415,7 @@ void SensorVisualizationGui::updateSensorDataDisplay() {
             std::string units2 = currentSensor->getValueUnits(key2);
             
             lv_label_set_text(ui_LabelValueValue_2, value2.c_str());
-            lv_label_set_text(ui_LabelDescValue_2, units2.empty() ? "[units]" : ("[" + units2 + "]").c_str());
+            lv_label_set_text(ui_LabelDescValue_2, units2.empty() ? "" : ("[" + units2 + "]").c_str());
             lv_label_set_text(ui_LabelTypeValue_2, key2.c_str());
             
             // Make second container visible

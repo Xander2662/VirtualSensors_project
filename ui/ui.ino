@@ -222,23 +222,13 @@ void setup ()
 
 const int FPS = 60;
 const int CYCLE_DRAW_MS = (1000/FPS);
-const int CYCLE_SYNC_MS = 100;
-
-const int LOOP_SYNC_TH = CYCLE_SYNC_MS/CYCLE_DRAW_MS;
-int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 
 void loop ()
 {
-    if (LOOP_SYNC_COUNTER-- < 0) {
-        sensorManager.resync(); // Sync sensor data, if running
-        LOOP_SYNC_COUNTER = LOOP_SYNC_TH;   
-        delay(1);
-    }
-
     // Redraw GUI based on current state
     guiManager.redraw();
     delay(1);
-    //logMessage("Loop start\n");
+    //logMessage("Loop start\n");   
     lv_timer_handler();
     delay(CYCLE_DRAW_MS);
 }

@@ -6,7 +6,7 @@
  * displaying sensor information and handling sensor selection.
  *
  * @copyright 2025 MTA
- * @author Ing. Jiri Konecny
+ * @author Ing. Jiri Konecny, Ondřej Wrubel
  */
 
 #include "sensor_wiki_gui.hpp"
