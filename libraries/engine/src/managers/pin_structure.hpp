@@ -165,8 +165,8 @@ struct VirtualPin {
      */
     uint32_t getStateColor() const {
         switch (state) {
-            case PinState::AVAILABLE: return 0x00FF00; // Green
-            case PinState::USED:      return 0xFF0000; // Red
+            case PinState::AVAILABLE: return 0x009BFF; // Blue
+            case PinState::USED:      return 0x4CB9FF; // Light blue
             case PinState::LOCKED:    return 0x808080; // Gray
             default:                  return 0x808080; // Default gray
         }
