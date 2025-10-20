@@ -1,14 +1,16 @@
 //Elecrow DIS08070H board-template main source file
-
 #include<Arduino.h>
+//#define ESP_PLATFORM
 #define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 #include <lgfx/v1/platforms/esp32s3/Panel_RGB.hpp>
 #include <lgfx/v1/platforms/esp32s3/Bus_RGB.hpp>
 #include <lvgl.h>
 #include <ui.h>
-#include "config.hpp"
-#include "manager.hpp"
+#include <expt.hpp>
+#include <engine.hpp>  // include engine header
+#include <gui/gui_manager.hpp>  // include new GUI manager
+#include <gui/gui_callbacks.hpp>  // include GUI callback declarations
 
 /*Don't forget to set Sketchbook location in File/Preferences to the path of your UI project (the parent foder of this INO file)*/
 
@@ -146,10 +148,32 @@ void my_touchpad_read (lv_indev_drv_t * indev_driver, lv_indev_data_t * data)
     delay(15);
 }
 
-SensorManager Manager = SensorManager();
+
+SensorManager sensorManager;  // Create SensorManager instance
+GuiManager guiManager(sensorManager);  // Create GUI manager instance
+
+// Global GUI screen switching functions for use by GUI components
+void switchToMenu() {
+    guiManager.switchContent(GuiState::MENU);
+}
+
+void switchToWiki() {
+    guiManager.switchContent(GuiState::WIKI);
+}
+
+void switchToVisualization() {
+    guiManager.switchContent(GuiState::VISUALIZATION);
+}
+
+void switchToCrashScreen(const std::string &reason) {
+    guiManager.showCrashScreen(reason);
+}
+
 void setup ()
 {
     Serial.begin( 115200 ); /* prepare for possible serial debug */
+    Serial.println( "Starting setup..." );
+    delay( 10 );
 
     //Init Display
     lcd.begin();
@@ -185,33 +209,24 @@ void setup ()
     pinMode(TFT_BL, OUTPUT);
     digitalWrite(TFT_BL, HIGH);
 
-    ui_init();
-    //lcd.fillScreen(TFT_BLACK);
-    Manager.init(false);
-    Manager.print();
+    ui_init(); 
+    lv_timer_handler();
+    // Initialize the new GUI manager
+    if(!guiManager.init())  // Optionally pass config file
+    {
+        return;
+    }
 
-    Manager.reconstruct();
-
+    // Wait a moment to show the boot screen
+    delay(2000);
+    switchToMenu(); // Start in menu screen
+   
+    //splashMessage("Hello from Elecrow DIS08070H!");
     Serial.println( "Setup done" );
 }
 
-const int FPS = 60;
-const int CYCLE_DRAW_MS = (1000/FPS);
-const int CYCLE_SYNC_MS = 100;
-
-const int LOOP_SYNC_TH = CYCLE_SYNC_MS/CYCLE_DRAW_MS;
-int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
-
 void loop ()
 {
-    if( LOOP_SYNC_COUNTER-- < 0)
-    {
-      Manager.resync();
-      LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
-      delay(10);
-    }
-    Manager.redraw();
-    lv_timer_handler(); /* let the GUI do its work */
-    delay(CYCLE_DRAW_MS);
+    // Redraw GUI based on current state
+    guiManager.redraw();
 }
-

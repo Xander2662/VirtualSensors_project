@@ -1,9 +1,1 @@
-*.cbp
-*.depend
-*.layout
-
-obj/
-bin/
-build/
-
-.vscode/
+/.vscode
