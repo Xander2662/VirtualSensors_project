@@ -35,7 +35,7 @@ class VSCPEmulator:
     def __init__(self, port='COM3', baudrate=115200, timeout=0.1):
         """Initialize the VSCP emulator"""
         self.API_VERSION = "1.2"
-        self.DB_VERSION = "1.0.0"
+        self.DB_VERSION = "dummy"
         self.APP_NAME = "VSCP Emulator"
         self.APP_VERSION = "1.0.0"
         
@@ -123,9 +123,9 @@ class VSCPEmulator:
         print(f"🔄 INIT request: {params}")
         
         # Dummy response for testing
-        response_params = {'status': '1'}
-        self.initialized = True
-        return self.build_message(response_params)
+        #response_params = {'status': '1'}
+        #self.initialized = True
+        #return self.build_message(response_params)
         
         # Extract parameters
         app = params.get('app', 'Unknown')
