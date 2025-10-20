@@ -49,7 +49,7 @@ private:
     lv_obj_t* ui_SensorConfTitle;  ///< Sensor configuration title
     lv_obj_t* ui_SensorConf;       ///< Sensor configuration
     lv_obj_t* ui_SelectButton;      ///< Select sensor button
-    lv_obj_t* ui_BackButton;        ///< Back to menu button
+    lv_obj_t* ui_BackButton;        ///< Back to menu button    
     lv_obj_t* ui_PrevButton;        ///< Previous sensor button
     lv_obj_t* ui_NextButton;        ///< Next sensor button
     
