@@ -17,8 +17,6 @@
 #include <algorithm>      ///< For std::replace, std::transform
 #include <unordered_map>   ///< For std::unordered_map
 #include <sstream>        ///< For std::stringstream
-//#include <cctype>          ///< For std::toupper
-
 /**********************
  *      TYPEDEFS
  **********************/
