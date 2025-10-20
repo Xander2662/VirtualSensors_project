@@ -85,7 +85,7 @@ void SensorVisualizationGui::constructVisualization() {
                                          LV_OBJ_FLAG_SCROLL_CHAIN);
     lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
     
     // Value container 1
     ui_ContainerForValue_1 = lv_obj_create(ui_SensorWidget);
@@ -284,9 +284,9 @@ void SensorVisualizationGui::addNavButtonsToWidget(lv_obj_t *parentWidget) {
     ui_btnPrev = lv_btn_create(parentWidget);
     lv_obj_set_width(ui_btnPrev, 80);
     lv_obj_set_height(ui_btnPrev, 40);
-    lv_obj_set_x(ui_btnPrev, -320);
-    lv_obj_set_y(ui_btnPrev, 170);
-    lv_obj_set_align(ui_btnPrev, LV_ALIGN_CENTER);
+    lv_obj_set_x(ui_btnPrev, 35);
+    lv_obj_set_y(ui_btnPrev, -40);
+    lv_obj_set_align(ui_btnPrev, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_add_event_cb(ui_btnPrev, [](lv_event_t *e) {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
         self->goToPreviousSensor();
@@ -301,9 +301,9 @@ void SensorVisualizationGui::addNavButtonsToWidget(lv_obj_t *parentWidget) {
     ui_btnNext = lv_btn_create(parentWidget);
     lv_obj_set_width(ui_btnNext, 80);
     lv_obj_set_height(ui_btnNext, 40);
-    lv_obj_set_x(ui_btnNext, -230);
-    lv_obj_set_y(ui_btnNext, 170);
-    lv_obj_set_align(ui_btnNext, LV_ALIGN_CENTER);
+    lv_obj_set_x(ui_btnNext, 183);
+    lv_obj_set_y(ui_btnNext, -40);
+    lv_obj_set_align(ui_btnNext, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_add_event_cb(ui_btnNext, [](lv_event_t *e) {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
         self->goToNextSensor();
