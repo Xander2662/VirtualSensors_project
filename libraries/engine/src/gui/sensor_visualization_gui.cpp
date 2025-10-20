@@ -35,8 +35,14 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager& sensorManager) : s
     ui_btnNextLabel = nullptr;
     ui_btnSync = nullptr;
     ui_btnSyncLabel = nullptr;
+    ui_btnSyncGroup = nullptr;
+    ui_btnSyncCornerTopLeft = nullptr;
+    ui_btnSyncCornerBottomRight = nullptr;
     ui_btnBack = nullptr;
     ui_btnBackLabel = nullptr;
+    ui_btnBackGroup = nullptr;
+    ui_btnBackCornerBottomLeft = nullptr;
+    ui_btnBackCornerTopRight = nullptr;
 }
 
 void SensorVisualizationGui::init() {
@@ -320,12 +326,36 @@ void SensorVisualizationGui::addNavButtonsToWidget(lv_obj_t *parentWidget) {
 void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget) {
     if (!parentWidget) return;
     
+    ui_btnSyncGroup = lv_obj_create(parentWidget);
+    lv_obj_remove_style_all(ui_btnSyncGroup);
+    lv_obj_set_width(ui_btnSyncGroup, 100);
+    lv_obj_set_height(ui_btnSyncGroup, 40);
+    lv_obj_set_align(ui_btnSyncGroup, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_btnSyncGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_btnSyncCornerTopLeft = lv_obj_create(ui_btnSyncGroup);
+    lv_obj_remove_style_all(ui_btnSyncCornerTopLeft);
+    lv_obj_set_width(ui_btnSyncCornerTopLeft, 20);
+    lv_obj_set_height(ui_btnSyncCornerTopLeft, 20);
+    lv_obj_clear_flag(ui_btnSyncCornerTopLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_btnSyncCornerTopLeft, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_btnSyncCornerTopLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_btnSyncCornerTopLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_btnSyncCornerBottomRight = lv_obj_create(ui_btnSyncGroup);
+    lv_obj_remove_style_all(ui_btnSyncCornerBottomRight);
+    lv_obj_set_width(ui_btnSyncCornerBottomRight, 20);
+    lv_obj_set_height(ui_btnSyncCornerBottomRight, 20);
+    lv_obj_set_align(ui_btnSyncCornerBottomRight, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_btnSyncCornerBottomRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_btnSyncCornerBottomRight, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_btnSyncCornerBottomRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_btnSyncCornerBottomRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     // Sync button for refreshing sensor data
-    ui_btnSync = lv_btn_create(parentWidget);
-    lv_obj_set_width(ui_btnSync, 80);
+    ui_btnSync = lv_btn_create(ui_btnSyncGroup);
+    lv_obj_set_width(ui_btnSync, 100);
     lv_obj_set_height(ui_btnSync, 40);
-    lv_obj_set_x(ui_btnSync, 200);
-    lv_obj_set_y(ui_btnSync, 170);
     lv_obj_set_align(ui_btnSync, LV_ALIGN_CENTER);
     lv_obj_add_event_cb(ui_btnSync, [](lv_event_t *e) {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));

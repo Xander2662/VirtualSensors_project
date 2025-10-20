@@ -69,11 +69,14 @@ private:
     lv_obj_t *ui_btnNextLabel;              ///< Label for next button
     lv_obj_t *ui_btnSync;                   ///< Sync sensor button
     lv_obj_t *ui_btnSyncLabel;              ///< Label for sync button
+    lv_obj_t *ui_btnSyncGroup;              ///< Group container for sync button
+    lv_obj_t *ui_btnSyncCornerTopLeft;      ///< Decorative corner for sync button
+    lv_obj_t *ui_btnSyncCornerBottomRight;  ///< Decorative corner for sync button
     lv_obj_t *ui_btnBack;                   ///< Back to menu button
     lv_obj_t *ui_btnBackLabel;              ///< Label for back button
-    lv_obj_t* ui_btnBackGroup;            ///< Group container for back button
-    lv_obj_t* ui_btnBackCornerBottomLeft; ///< Decorative corner for back button
-    lv_obj_t* ui_btnBackCornerTopRight;   ///< Decorative corner for back button
+    lv_obj_t* ui_btnBackGroup;              ///< Group container for back button
+    lv_obj_t* ui_btnBackCornerBottomLeft;   ///< Decorative corner for back button
+    lv_obj_t* ui_btnBackCornerTopRight;     ///< Decorative corner for back button
 
     /**
      * @brief Add navigation buttons to a widget
