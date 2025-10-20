@@ -128,7 +128,10 @@ void CrashGui::buildCrashGui() {
 }
 
 void CrashGui::showCrash(const std::string& reason) {
-    if (!initialized || !ui_CrashWidget) return;
+    if (!initialized || !ui_CrashWidget) 
+    {
+        init();
+    }
     
     // Update reason text
     if (ui_ReasonLabel) {

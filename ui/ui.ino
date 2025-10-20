@@ -165,6 +165,10 @@ void switchToVisualization() {
     guiManager.switchContent(GuiState::VISUALIZATION);
 }
 
+void switchToCrashScreen(const std::string &reason) {
+    guiManager.showCrashScreen(reason);
+}
+
 void setup ()
 {
     Serial.begin( 115200 ); /* prepare for possible serial debug */
@@ -205,30 +209,24 @@ void setup ()
     pinMode(TFT_BL, OUTPUT);
     digitalWrite(TFT_BL, HIGH);
 
-    ui_init();
-
-    while(!sensorManager.init()) {
-        Serial.println("Waiting for SensorManager initialization...");
-        delay(100);
-    }
-    
+    ui_init(); 
+    lv_timer_handler();
     // Initialize the new GUI manager
-    guiManager.init();
-    guiManager.switchContent(GuiState::MENU);  // Start in menu screen
+    if(!guiManager.init())  // Optionally pass config file
+    {
+        return;
+    }
+
+    // Wait a moment to show the boot screen
+    delay(2000);
+    switchToMenu(); // Start in menu screen
    
-    splashMessage("Hello from Elecrow DIS08070H!");
+    //splashMessage("Hello from Elecrow DIS08070H!");
     Serial.println( "Setup done" );
 }
-
-const int FPS = 60;
-const int CYCLE_DRAW_MS = (1000/FPS);
 
 void loop ()
 {
     // Redraw GUI based on current state
     guiManager.redraw();
-    delay(1);
-    //logMessage("Loop start\n");   
-    lv_timer_handler();
-    delay(CYCLE_DRAW_MS);
 }

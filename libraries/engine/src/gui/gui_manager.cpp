@@ -39,10 +39,11 @@ bool GuiManager::init(std::string configFile) {
         crashGui.init();
 
         // Ensure SensorManager is initialized
-        if(configFile.empty())
-            sensorManager.init();
-        else
-            sensorManager.init(configFile);
+        if(!sensorManager.init(configFile))
+        {
+            crashGui.showCrash("SensorManager initialization failed!");
+            return false;
+        }             
 
         // Initialize all GUI components
         menuGui.init();

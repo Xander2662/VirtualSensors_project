@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <string>
 #include <array>
+#include "expt.hpp"
 
 #include "../sensors/base_sensor.hpp"
 #include "pin_structure.hpp"
@@ -55,8 +56,12 @@ private:
     bool initialized = false;                 ///< Initialization state flag
     ManagerStatus Status = ManagerStatus::STOPPED; ///< Current status of the manager
 
+    std::string configFilePath;          ///< Path to configuration file
+    std::string DB_VERSION = "dummy";    ///< Database version
+    std::string APP_NAME = "Visens_v1.0.0"; ///< Application name
+
 public:
-    const static uint8_t MAX_INIT_ATTEMPTS = 3; ///< Maximum initialization attempts
+    const static uint8_t MAX_INIT_ATTEMPTS = 5; ///< Maximum initialization attempts
     /**
      * @brief Private constructor for singleton pattern
      */
@@ -68,16 +73,17 @@ public:
     ~SensorManager();
 
     /**
-     * @brief Initialize the manager and sensors
+     * @brief Load configuration file
+     * @param configFile Path to configuration file
      */
-    bool init();
+    void loadConfigFile(std::string configFile);
 
     /**
      * @brief Initialize the manager with a configuration file
      * @param configFile Path to the configuration file
      * @return True if initialization was successful, false otherwise
      */
-    bool init(std::string configFile);
+    bool init(std::string configFile = "");
 
     /**
      * @brief Check if the manager has been initialized

@@ -24,50 +24,16 @@ SensorManager::~SensorManager() {
     for (auto* s : Sensors) delete s;
 }
 
-bool SensorManager::init() {
-    if(initialized)
+void SensorManager::loadConfigFile(std::string configFile) {
+    configFilePath = configFile;
+    if (configFile.empty())
     {
-        erase();
-    }
-
-    initialized = false;
-    Status = ManagerStatus::ERROR;
-    try
-    {
-        initMessenger();
-
         logMessage("Initializing manager via fixed sensors list...\n");
         createSensorList(Sensors);
-
-        logMessage("\tinitializing of protocol...\n");
-        ResponseStatus response;
-        for (size_t i = 0; i < SensorManager::MAX_INIT_ATTEMPTS; i++)
-        {
-            response = Protocol::init_dummy();
-            if (response.status == ResponseStatusEnum::OK)
-            {
-                logMessage("\t\tProtocol initialized successfully!\n");
-                break;
-            }
-            logMessage("\t\tProtocol initialization failed, retrying...\n");
-            delay_ms(100);
-        }
-        if (response.status == ResponseStatusEnum::ERROR)
-        {
-            throw SensorInitializationFailException("SensorManager::init", response.error, ErrorCode::CRITICAL_ERROR_CODE);
-        }
-        logMessage("\tdone!\n");
-    }
-    catch(...)
-    {
-        throw;
+        return;
     }
 
-
-    Status = ManagerStatus::READY;
-    resetPinMap();
-    logMessage("Initialization done!\n");
-    return initialized = true;
+    throw Exception("SensorManager::init", "Initialization from config file not implemented yet", ErrorCode::NOT_DEFINED_ERROR);
 }
 
 bool SensorManager::init(std::string configFile) {
@@ -81,25 +47,20 @@ bool SensorManager::init(std::string configFile) {
     try
     {
         initMessenger();
+        loadConfigFile(configFile);
 
-        logMessage("Initializing manager via configuration file: %s\n", configFile.c_str());
-        //Init from config file here
-        throw Exception("SensorManager::init", "Initialization from config file not implemented yet", ErrorCode::NOT_DEFINED_ERROR);
-
-        std::string app = "VirtualSensors 1.0"; //Get from config?
-        std::string db = "1.0"; //Get from config?
-        logMessage("Initializing of protocol...\n");
+        logMessage("\tinitializing of protocol...\n");
         ResponseStatus response;
         for (size_t i = 0; i < SensorManager::MAX_INIT_ATTEMPTS; i++)
         {
-            response = Protocol::init(app, db);
+            response = Protocol::init(APP_NAME, DB_VERSION);
             if (response.status == ResponseStatusEnum::OK)
             {
                 logMessage("\t\tProtocol initialized successfully!\n");
                 break;
             }
             logMessage("\t\tProtocol initialization failed, retrying...\n");
-            delay_ms(100);
+            delay_ms(500);
         }
         if (response.status == ResponseStatusEnum::ERROR)
         {
@@ -111,12 +72,15 @@ bool SensorManager::init(std::string configFile) {
     {
         throw;
     }
-    
+
+
     Status = ManagerStatus::READY;
     resetPinMap();
     logMessage("Initialization done!\n");
     return initialized = true;
 }
+
+
 
 BaseSensor* SensorManager::getSensor(std::string uid) {
     for (auto* sensor : Sensors) {
