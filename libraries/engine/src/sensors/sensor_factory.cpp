@@ -14,9 +14,9 @@ void createSensorList(std::vector<BaseSensor*> &memory)
 {
     memory.clear();
     //Add sensors here
-    memory.push_back(new DigitalTemperature("0"));
-    memory.push_back(new DHT11("1"));
-    memory.push_back(new PhotoResistor("15"));
+    memory.push_back(new DigitalTemperature("S00"));
+    memory.push_back(new DHT11("S01"));
+    memory.push_back(new PhotoResistor("S15"));
 }
 
 void createSensorList(std::vector<BaseSensor*> &memory, std::string stringSource)

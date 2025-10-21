@@ -10,7 +10,7 @@
 #ifndef MANAGER_HPP
 #define MANAGER_HPP
 
-#define NUM_PINS 12
+#define NUM_PINS 18
 
 #include <vector>
 #include <cstddef>
@@ -57,8 +57,8 @@ private:
     ManagerStatus Status = ManagerStatus::STOPPED; ///< Current status of the manager
 
     std::string configFilePath;          ///< Path to configuration file
-    std::string DB_VERSION = "dummy";    ///< Database version
-    std::string APP_NAME = "Visens_v1.0.0"; ///< Application name
+    std::string DB_VERSION = "";    ///< Database version
+    std::string APP_NAME = ""; ///< Application name
 
 public:
     const static uint8_t MAX_INIT_ATTEMPTS = 5; ///< Maximum initialization attempts
