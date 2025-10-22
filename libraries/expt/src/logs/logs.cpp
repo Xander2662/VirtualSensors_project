@@ -7,9 +7,6 @@
  * Ing. Jiri Konecny
  */
 
-#ifndef LOGS_HPP
-#define LOGS_HPP
-
 #include "logs.hpp"
 
 std::string buildMessage(const char *format, ...) {
@@ -32,6 +29,10 @@ void logMessage(const char *format, ...) {
     va_start(args, format);
 
     #ifdef ARDUINO_H
+        if(!Serial)
+        {
+            initLogger();
+        }
         // Create a buffer for formatted output
         char buffer[256];
         vsnprintf(buffer, sizeof(buffer), format, args);
@@ -66,5 +67,14 @@ void delay_ms(uint32_t ms) {
     #endif
 }
 
-#endif // LOGS_HPP
+void initLogger() {
+    #ifdef ARDUINO_H
+        Serial.begin(UART0_BAUDRATE); // Initialize Serial for Arduino
+        unsigned long startTime = millis();
+
+        while ((millis() - startTime) < UART0_INIT_TIMEOUT && !Serial) {
+            // Wait for Serial to initialize or timeout
+        }
+    #endif
+}
 

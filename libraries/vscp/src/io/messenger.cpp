@@ -15,57 +15,37 @@
     #include <Arduino.h>  ///< Include Arduino 
     #include <HardwareSerial.h> ///< Include Arduino Serial functions
 
-    HardwareSerial UART1(UART1_PORT);
+    HardwareSerial UART1_VIRTUAL(UART1_PORT);
+    static bool uart1_initialized = false;
 
     void sendMessage(const std::string &message) {
-        if(!UART1){
+        if(!uart1_initialized){
             initMessenger();
         }
         
-        UART1.println(message.c_str());
+        UART1_VIRTUAL.println(message.c_str());
     }
     
     std::string receiveMessage(int verbose, int timeout) {
         String msg = ""; // static so it persists between calls
         unsigned long startTime = millis();
 
-        if(!UART1){
+        if(!uart1_initialized){
             initMessenger();
         }
 
-        while (UART1.available() == 0 && (millis() - startTime) < UART_TIMEOUT) {
-        // Wait until data arrives or timeout occurs
-        }
-
-        if (UART1.available() > 0) {
-            // Read response
-            msg = UART1.readString();
-        } else {
-            // Handle timeout situation
-            if(verbose > 0)
-            {
-                msg = "Timeout occurred while waiting for message.";
-            }
-            else
-            {
-                msg = "";
-            }
-        }
+        UART1_VIRTUAL.setTimeout(timeout > 0 ? timeout : UART_TIMEOUT);
+        msg = UART1_VIRTUAL.readStringUntil('\n');
+        msg.trim();
+        if (msg.length()==0 && verbose>0) msg = "Timeout";
 
         return std::string(msg.c_str());
     }
 
     bool initMessenger(unsigned long baudrate = UART1_BAUDRATE, unsigned int mode = SERIAL_8N1, int tx = UART1_TX, int rx = UART1_RX) {
-        UART1.begin(baudrate, mode, tx, rx);
-        unsigned long startTime = millis();
-
-        while ((millis() - startTime) < UART_INIT_TIMEOUT && !UART1) {
-            // Wait for Serial to initialize or timeout
-        }
-        if (!UART1) {
-            return false; // Initialization failed
-        }
-        return true;
+        UART1_VIRTUAL.begin(baudrate, mode, rx, tx);
+        UART1_VIRTUAL.setTimeout(UART_TIMEOUT);
+        return uart1_initialized = true;
     }
 
     bool initMessenger() {

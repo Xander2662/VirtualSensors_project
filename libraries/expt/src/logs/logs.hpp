@@ -60,6 +60,13 @@
     */
  void delay_ms(uint32_t ms);
 
+/**
+  * @brief Initializes the logger system.
+  * 
+  * This function sets up the logging environment, such as initializing Serial communication for Arduino.
+  */
+ void initLogger();
+
  
  #endif // LOGS_H
  

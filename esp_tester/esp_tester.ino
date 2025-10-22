@@ -1,26 +1,32 @@
 //Put all files from libraries to the same folder as program
-#include "config.hpp"
-#include "manager.hpp"
 //#include <Arduiono.h>
-
-SensorManager Manager = SensorManager();
+#include <vscp.hpp>
+#include <expt.hpp>
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
-  while(!Serial);
+  initLogger();
 
-  Manager.init(false);
-  Manager.print();
+  logMessage("ESP Tester started");
+}
 
-  Manager.reconstruct();
+void handle_input(String input) {
+  input.toLowerCase();
+  // is "init" in the input?
+  if (input.indexOf("init") != -1) {
+    logMessage("Initialization command received");
+    // Add initialization code here
+    sendMessage("?status=1");
+  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  Manager.resync();
-  delay(50);
-  Manager.redraw();
-  delay(2500);
-  //Manager.print();
+  // Read the Serial input
+  String input = String(receiveMessage());
+  logMessage("?status=1");
+  //handle_input(input);
+  //Serial.print("Received: ");
+  //Serial.println(input);
+
+  delay(10);
 }

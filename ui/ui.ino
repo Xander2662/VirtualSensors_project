@@ -171,8 +171,9 @@ void switchToCrashScreen(const std::string &reason) {
 
 void setup ()
 {
-    Serial.begin( 115200 ); /* prepare for possible serial debug */
-    Serial.println( "Starting setup..." );
+    //Serial.begin( 115200 ); /* prepare for possible serial debug */
+    //Serial.println( "Starting setup..." );
+    initLogger();
     delay( 10 );
 
     //Init Display

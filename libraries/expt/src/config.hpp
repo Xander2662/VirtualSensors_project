@@ -13,18 +13,19 @@
 #define CONFIG_EXPT_H
 
 /// Uncomment to enable Arduino-based environments
-#ifndef ARDUINO_H
 #define ARDUINO_H 
+#ifdef ARDUINO_H 
+#define UART0_BAUDRATE 115200
+#define UART0_TIMEOUT 100 // only for receive
+#define UART0_INIT_TIMEOUT 1000
 #endif
 
 /// Uncomment to enable standard console applications (PC/Linux)
 //#define STDIO_H 
 
 // Uncomment to enable LVGL support
-#ifndef USE_LVGL
 #define USE_LVGL
 #define SPLASHER_TIMEOUT_MS 5000  // Default splash timeout in milliseconds
-#endif
 
 // Uncomment to enable ESP32 platform
 //#define ESP_PLATFORM
