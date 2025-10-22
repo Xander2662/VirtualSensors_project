@@ -14,6 +14,9 @@ void createSensorList(std::vector<BaseSensor*> &memory)
 {
     memory.clear();
     //Add sensors here
+    memory.push_back(new MicrophoneSensor("mic_001"));
+    memory.push_back(new CameraSensor("cam_001"));
+    memory.push_back(new CpuTempSensor("cpu_temp"));
     memory.push_back(new DigitalTemperature("S00"));
     memory.push_back(new DHT11("S01"));
     memory.push_back(new PhotoResistor("S15"));

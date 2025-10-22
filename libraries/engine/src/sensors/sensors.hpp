@@ -16,6 +16,153 @@
 #include "base_sensor.hpp" ///< BaseSensor class.
 
 /**************************************************************************/
+// EMULATED SENSORS
+/**************************************************************************/
+
+/* Microphone Sensor 
+Emulated microphone sensor returning dBFS and peak values.
+*/
+class MicrophoneSensor : public BaseSensor
+{
+public:
+    /**
+     * @brief Constructs a new object.
+     *
+     * Initializes default values and sets the sensor type and description.
+     *
+     * @param uid The unique sensor identifier.
+     */
+    MicrophoneSensor(std::string uid) : BaseSensor(uid) { init(); }
+
+    /**
+     * @brief Virtual destructor.
+     */
+    virtual ~MicrophoneSensor() {}
+
+    /**
+     * @brief Initializes the sensor.
+     *
+     * Additional initialization code can be added here.
+     *
+     * @throws Exception if initialization fails.
+     */
+
+    virtual void init() override
+    {
+        // Additional initialization for sensor can be added here.
+        Type = "SLM (dBFS)";
+        Description = "Emulated microphone sensor";
+        
+
+        try
+        {
+            // Default values
+            addValueParameter("dBFS", {"0.0", "dBm", SensorDataType::FLOAT});
+            addValueParameter("peak", {"0.0", "dBm", SensorDataType::FLOAT});
+        }
+        catch (const std::exception &e)
+        {
+            throw;
+        }
+    }
+};
+
+
+/* Camera Sensor
+Emulated camera sensor returning estimated lux value.
+*/
+class CameraSensor : public BaseSensor
+{
+public:
+    /**
+     * @brief Constructs a new object.
+     *
+     * Initializes default values and sets the sensor type and description.
+     *
+     * @param uid The unique sensor identifier.
+     */
+    CameraSensor(std::string uid) : BaseSensor(uid) { init(); }
+
+    /**
+     * @brief Virtual destructor.
+     */
+    virtual ~CameraSensor() {}
+
+    /**
+     * @brief Initializes the sensor.
+     *
+     * Additional initialization code can be added here.
+     *
+     * @throws Exception if initialization fails.
+     */
+
+    virtual void init() override
+    {
+        // Additional initialization for sensor can be added here.
+        Type = "CAM Lux meter";
+        Description = "Emulated camera-lux meter sensor";
+        
+
+        try
+        {
+            // Default values
+            addValueParameter("lux_est", {"0.0", "lux", SensorDataType::FLOAT});
+        }
+        catch (const std::exception &e)
+        {
+            throw;
+        }
+    }
+};
+
+/* CPU Temperature Sensor
+Emulated CPU temperature sensor returning real temperature value.
+*/
+class CpuTempSensor : public BaseSensor
+{
+public:
+    /**
+     * @brief Constructs a new object.
+     *
+     * Initializes default values and sets the sensor type and description.
+     *
+     * @param uid The unique sensor identifier.
+     */
+    CpuTempSensor(std::string uid) : BaseSensor(uid) { init(); }
+
+    /**
+     * @brief Virtual destructor.
+     */
+    virtual ~CpuTempSensor() {}
+
+    /**
+     * @brief Initializes the sensor.
+     *
+     * Additional initialization code can be added here.
+     *
+     * @throws Exception if initialization fails.
+     */
+
+    virtual void init() override
+    {
+        // Additional initialization for sensor can be added here.
+        Type = "CPU Temp";
+        Description = "Emulated cpu real temperature sensor";
+        
+
+        try
+        {
+            // Default values
+            addValueParameter("temp", {"0.0", "C", SensorDataType::FLOAT});
+        }
+        catch (const std::exception &e)
+        {
+            throw;
+        }
+    }
+};
+
+/**************************************************************************/
 // SENSORS
 /**************************************************************************/
 

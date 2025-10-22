@@ -35,7 +35,7 @@ class VSCPEmulator:
     def __init__(self, port='COM3', baudrate=115200, timeout=0.1):
         """Initialize the VSCP emulator"""
         self.API_VERSION = "1.2"
-        self.DB_VERSION = "dummy"
+        self.DB_VERSION = "1.0.0"
         self.APP_NAME = "VSCP Emulator"
         self.APP_VERSION = "1.0.0"
         
@@ -53,29 +53,16 @@ class VSCPEmulator:
         
         # Dummy sensor data
         self.sensor_data = {
-            "S00": {"temp": 25.5, "alarm": 60.2, "type": "DHT22"},
-            "S01": {"temp": 25.5, "humi": 80},
-            "S15": {"intensity": 85, "type": "Light"},
-            "S02": {"Pressure": 1013.25, "Temperature": 22.1, "type": "BMP280"},
-            "S03": {"X": 45, "Y": 78, "Button": 0, "type": "Joystick"},
-            "S05": {"MagField": 12.5, "Detected": 0, "type": "Magnetic"},
+            "0": {"temp": 25.5, "alarm": 60.2, "type": "DHT22"},
+            "1": {"temp": 25.5, "humi": 80},
+            "15": {"intensity": 85, "type": "Light"},
+            "2": {"Pressure": 1013.25, "Temperature": 22.1, "type": "BMP280"},
+            "3": {"X": 45, "Y": 78, "Button": 0, "type": "Joystick"},
+            "5": {"MagField": 12.5, "Detected": 0, "type": "Magnetic"},
             "imu_001": {
                 "acm_x": -2.1, "acm_y": 0.8, "acm_z": 9.8,
                 "gyr_x": 0.05, "gyr_y": -0.02, "gyr_z": 0.01,
                 "type": "IMU"
-            },
-            "mic_001": {
-                "dBFS": -20.5,
-                "peak": -15.0,
-                "type": "SLM"
-            },
-            "cam_001": {
-                "lux_est": 11.5,
-                "type": "CAM"
-            },
-            "cpu_temp": {
-                "temp": 55.3,
-                "type": "CPU Temp" 
             }
         }
         
@@ -136,19 +123,19 @@ class VSCPEmulator:
         print(f"🔄 INIT request: {params}")
         
         # Dummy response for testing
-        #response_params = {'status': '1'}
-        #self.initialized = True
-        #return self.build_message(response_params)
+        response_params = {'status': '1'}
+        self.initialized = True
+        return self.build_message(response_params)
         
         # Extract parameters
         app = params.get('app', 'Unknown')
-        dbversion = params.get('db', 'Unknown')
+        dbversion = params.get('db', '0.0.0')
         api = params.get('api', '0.0.0')
         
         # Simulate version compatibility check
         response_params = {}
         
-        if api == self.API_VERSION:
+        if api == self.API_VERSION and dbversion == self.DB_VERSION:
             self.initialized = True
             response_params = {
                 'status': '1',
@@ -448,6 +435,7 @@ def main():
     port = input(f"Enter serial port (default: {default_port}): ").strip()
     if not port:
         port = default_port
+    
     emulator = VSCPEmulator(port=port, baudrate=115200)
     emulator.run()
 
