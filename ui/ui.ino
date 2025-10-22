@@ -220,7 +220,7 @@ void setup ()
 
     // Wait a moment to show the boot screen
     delay(2000);
-    switchToMenu(); // Start in menu screen
+    switchToWiki(); // Start in wiki screen
    
     //splashMessage("Hello from Elecrow DIS08070H!");
     Serial.println( "Setup done" );

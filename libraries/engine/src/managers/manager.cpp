@@ -172,6 +172,21 @@ BaseSensor* SensorManager::getCurrentSensor()
     return nullptr;
 }
 
+BaseSensor* SensorManager::getCurrentWikiSensor(){
+    if(!currentWikiSensor){
+        return nullptr;
+    }
+    return currentWikiSensor;
+}
+
+void SensorManager::setCurrentWikiSensor(BaseSensor* sensor){
+    if(!sensor){
+        currentWikiSensor = nullptr;
+        return;
+    }
+    currentWikiSensor = sensor;
+}
+
 BaseSensor* SensorManager::nextSensor() { 
     currentIndex = (currentIndex + 1) % SelectedSensors.size();
     return getCurrentSensor();

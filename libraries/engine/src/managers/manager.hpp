@@ -52,6 +52,7 @@ private:
     std::vector<BaseSensor*> SelectedSensors; ///< List of fixed sensors (from config file)
 
     size_t currentIndex = 0;                      ///< Index of the current sensor
+    BaseSensor* currentWikiSensor = nullptr;    ///< Pointer to the current chosen wiki sensor
 
     bool initialized = false;                 ///< Initialization state flag
     ManagerStatus Status = ManagerStatus::STOPPED; ///< Current status of the manager
@@ -231,6 +232,18 @@ public:
      * @return Pointer to the current sensor
      */
     BaseSensor* getCurrentSensor();
+
+    /**
+     * @brief Get the currently chosen sensor used in wiki for menu sensor assignment
+     * @return Pointer to the current chosen sensor
+     */
+    BaseSensor* getCurrentWikiSensor();
+
+    /**
+     * @brief Set the currently chosen sensor used in wiki for menu sensor assignment
+     * @param sensor Pointer to the sensor to set as current chosen
+     */
+    void setCurrentWikiSensor(BaseSensor* sensor);
 
     /**
      * @brief Get access to the current sensor index

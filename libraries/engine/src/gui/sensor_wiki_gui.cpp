@@ -27,7 +27,8 @@ SensorWikiGui::SensorWikiGui(SensorManager &sensorManager)
     ui_SensorConfTitle = nullptr;
     ui_SensorConf = nullptr;
     ui_SelectButton = nullptr;
-    ui_BackButton = nullptr;
+    ui_StartButton = nullptr;
+    ui_StartButtonLabel = nullptr;
     ui_PrevButton = nullptr;
     ui_NextButton = nullptr;
 }
@@ -180,18 +181,18 @@ void SensorWikiGui::buildWikiGui()
         self->handleSelectButtonClick(); }, LV_EVENT_CLICKED, this);
 
     // Back button
-    ui_BackButton = lv_btn_create(controlPanel);
-    lv_obj_set_size(ui_BackButton, 210, 40);
-    lv_obj_set_pos(ui_BackButton, 17, 330);
-    lv_obj_set_style_bg_color(ui_BackButton, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_t *backLabel = lv_label_create(ui_BackButton);
-    lv_label_set_text(backLabel, "BACK TO MENU");
-    lv_obj_center(backLabel);
-    lv_obj_set_style_text_color(backLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_BackButton, [](lv_event_t *e)
+    ui_StartButton = lv_btn_create(controlPanel);
+    lv_obj_set_size(ui_StartButton, 210, 40);
+    lv_obj_set_pos(ui_StartButton, 17, 330);
+    lv_obj_set_style_bg_color(ui_StartButton, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_StartButtonLabel = lv_label_create(ui_StartButton);
+    lv_label_set_text(ui_StartButtonLabel, "START VISUALISATION");
+    lv_obj_center(ui_StartButtonLabel);
+    lv_obj_set_style_text_color(ui_StartButtonLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_StartButton, [](lv_event_t *e)
                         {
         auto self = static_cast<SensorWikiGui*>(lv_event_get_user_data(e));
-        self->handleBackButtonClick(); }, LV_EVENT_CLICKED, this);
+        self->handleStartButtonClick(); }, LV_EVENT_CLICKED, this);
 
     // Sensor list (simple for now)
     ui_SensorList = lv_list_create(controlPanel);
@@ -331,38 +332,56 @@ void SensorWikiGui::navigateSensor(int direction)
     updateSensorInfo();
 }
 
+
 void SensorWikiGui::handleSelectButtonClick()
 {
     BaseSensor *sensor = getSelectedSensor();
-    if (!sensor || activePinIndex < 0)
+    if (!sensor)
     {
-        // logMessage("Cannot select sensor: no sensor or no active pin\n");
         return;
     }
-
-    // Check if pin is available
-    if (!sensorManager.isPinAvailable(activePinIndex))
-    {
-        sensorManager.unassignSensorFromPin(activePinIndex);
-    }
-
-    // Assign sensor to pin through sensor manager
-    bool success = sensorManager.assignSensorToPin(sensor, activePinIndex);
-    if (success)
-    {
-        // logMessage("Sensor %s assigned to pin %d\n", sensor->getName().c_str(), activePinIndex);
-        // Switch back to menu
-        handleBackButtonClick();
-    }
-    else
-    {
-        splashMessage("Failed to assign sensor to pin\n");
-        return;
-    }
+    sensorManager.setCurrentWikiSensor(sensor);
+    switchToMenu();
 }
 
-void SensorWikiGui::handleBackButtonClick()
+void SensorWikiGui::handleStartButtonClick()
 {
-    hideWiki();
-    switchToMenu();
+    // Stop sensor manager to allow configuration changes
+    sensorManager.setRunning(false);
+    sensorManager.selectSensorsFromPinMap(); // Update selected sensors from pin assignments
+    sensorManager.setCurrentWikiSensor(nullptr); // Clear current wiki sensor
+
+    // Check if any sensors are assigned to pins
+    const auto& pinMap = sensorManager.getPinMap();
+    size_t count = 0;
+    for (const auto& virtualPin : pinMap) {
+        if (virtualPin.isAssigned()) count++;
+    }
+
+    if (count == 0) {
+        splashMessage("No sensors assigned to pins!\n");
+        return;
+    }
+
+    // Connect all assigned sensors to pins
+    lv_label_set_text(ui_StartButtonLabel, "Wait..");
+    //Disable button to prevent multiple clicks
+    lv_obj_clear_flag(ui_StartButton, LV_OBJ_FLAG_CLICKABLE);
+
+    lv_timer_handler(); // Ensure UI updates
+    lv_refr_now(NULL);  // Force immediate screen refresh
+
+    if (!sensorManager.connect()) {
+        lv_label_set_text(ui_StartButtonLabel, "START VISUALISATION");
+        lv_obj_add_flag(ui_StartButton, LV_OBJ_FLAG_CLICKABLE);
+        splashMessage("Error during sensor connection!\n");
+        return;
+    }
+    lv_label_set_text(ui_StartButtonLabel, "START VISUALISATION");
+    lv_obj_add_flag(ui_StartButton, LV_OBJ_FLAG_CLICKABLE);
+    // Start sensor operations
+    // logMessage("Starting sensor operations with %zu sensors assigned\n", count);
+    
+    // Switch to visualization screen
+    switchToVisualization();
 }

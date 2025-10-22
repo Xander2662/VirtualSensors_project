@@ -46,10 +46,11 @@ private:
     lv_obj_t* ui_SensorDescription; ///< Sensor description text
     lv_obj_t* ui_SensorSpecsTitle;  ///< Sensor specifications title
     lv_obj_t* ui_SensorSpecs;       ///< Sensor specifications
-    lv_obj_t* ui_SensorConfTitle;  ///< Sensor configuration title
-    lv_obj_t* ui_SensorConf;       ///< Sensor configuration
+    lv_obj_t* ui_SensorConfTitle;   ///< Sensor configuration title
+    lv_obj_t* ui_SensorConf;        ///< Sensor configuration
     lv_obj_t* ui_SelectButton;      ///< Select sensor button
-    lv_obj_t* ui_BackButton;        ///< Back to menu button    
+    lv_obj_t* ui_StartButton;       ///< Back to menu button    
+    lv_obj_t* ui_StartButtonLabel;  ///< Back to menu button label
     lv_obj_t* ui_PrevButton;        ///< Previous sensor button
     lv_obj_t* ui_NextButton;        ///< Next sensor button
     
@@ -77,7 +78,7 @@ private:
     /**
      * @brief Handle back button click (return to menu)
      */
-    void handleBackButtonClick();
+    void handleStartButtonClick();
     
     /**
      * @brief Handle previous/next sensor navigation

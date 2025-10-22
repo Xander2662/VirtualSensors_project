@@ -3,7 +3,7 @@
  * @brief Declaration of the MenuGui widget
  *
  * This header defines the MenuGui class which provides
- * a widget with a Start button and pin selection/assignment functionality.
+ * a widget with a Connect button and pin selection/assignment functionality.
  * Focused on menu visualization and sensor-to-pin assignment operations.
  *
  * @copyright 2025 MTA
@@ -24,7 +24,7 @@
  * @brief Handles menu visualization and sensor-to-pin assignment functionality.
  *
  * This class is responsible for:
- * - Displaying the main menu with start button and pin selection
+ * - Displaying the main menu with Connect button and pin selection
  * - Managing pin assignment interface and active pin selection
  * - Handling menu-related events and navigation
  * - Providing interface for sensor-to-pin mapping operations
@@ -39,11 +39,11 @@ private:
     // --- MENU GUI MEMBERS ---
     lv_obj_t *ui_MenuWidget;                ///< Main menu widget
     lv_obj_t *ui_PinScrollContainer;        ///< Scrollable container for pins
-    lv_obj_t *ui_ButtonStartGroup;          ///< Group for start button
-    lv_obj_t *ui_ButtonStartCornerTopLeft;  ///< Top-left corner decoration
-    lv_obj_t *ui_ButtonStartCornerBottomRight; ///< Bottom-right corner decoration
-    lv_obj_t *ui_btnStart;                  ///< Start button
-    lv_obj_t *ui_ButtonStartLabel;          ///< Label for start button
+    lv_obj_t *ui_ButtonConnectGroup;          ///< Group for Connect button
+    lv_obj_t *ui_ButtonConnectCornerTopLeft;  ///< Top-left corner decoration
+    lv_obj_t *ui_ButtonConnectCornerBottomRight; ///< Bottom-right corner decoration
+    lv_obj_t *ui_btnConnect;                  ///< Connect button
+    lv_obj_t *ui_ButtonConnectLabel;          ///< Label for Connect button
     std::array<lv_obj_t *, NUM_PINS> pinContainers; ///< Containers for pin selection
     std::array<lv_obj_t *, NUM_PINS> pinLabels;     ///< Labels for pin selection
 
@@ -58,9 +58,9 @@ private:
     void updatePinVisualStates();
     
     /**
-     * @brief Handle start button click event
+     * @brief Handle Connect button click event
      */
-    void handleStartButtonClick();
+    void handleConnectButtonClick();
     
     /**
      * @brief Handle pin button click event
