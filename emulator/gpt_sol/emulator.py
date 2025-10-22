@@ -53,9 +53,9 @@ class VSCPEmulator:
         
         # Dummy sensor data
         self.sensor_data = {
-            "S00": {"temp": 25.5, "alarm": 60.2, "type": "DHT22"},
-            "S01": {"temp": 25.5, "humi": 80},
-            "S15": {"intensity": 85, "type": "Light"},
+            "0": {"temp": 25.5, "alarm": 60.2, "type": "DHT22"},
+            "1": {"temp": 25.5, "humi": 80},
+            "15": {"intensity": 85, "type": "Light"},
             "2": {"Pressure": 1013.25, "Temperature": 22.1, "type": "BMP280"},
             "3": {"X": 45, "Y": 78, "Button": 0, "type": "Joystick"},
             "5": {"MagField": 12.5, "Detected": 0, "type": "Magnetic"},
@@ -435,6 +435,7 @@ def main():
     port = input(f"Enter serial port (default: {default_port}): ").strip()
     if not port:
         port = default_port
+    
     emulator = VSCPEmulator(port=port, baudrate=115200)
     emulator.run()
 

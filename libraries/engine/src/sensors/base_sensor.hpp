@@ -108,7 +108,7 @@ struct SensorParam
     std::string Value;                ///< Parameter value.
     std::string Unit;                 ///< Parameter unit.
     SensorDataType DType;                   ///< Parameter data type.
-    int lastHistoryIndex;             ///< Last history index.
+    int lastHistoryIndex = 0;             ///< Last history index.
     std::string History[HISTORY_CAP]; ///< Parameter history.
     SensorRestrictions Restrictions;  ///< Parameter restrictions.
 };
