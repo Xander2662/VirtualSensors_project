@@ -401,7 +401,7 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget) {
     lv_obj_add_event_cb(ui_btnBack, [](lv_event_t *e) {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
         // // logMessage("Back button pressed - returning to menu\n");
-        switchToMenu();
+        switchToWiki();
     }, LV_EVENT_CLICKED, this);
     
     ui_btnBackLabel = lv_label_create(ui_btnBack);

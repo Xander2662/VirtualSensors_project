@@ -221,6 +221,7 @@ bool SensorManager::unassignSensorFromPin(int activePin) {
     if (activePin >= NUM_PINS) return false;
 
     PinMap[activePin].unassignSensor();
+    return true;
 }
 
 BaseSensor* SensorManager::getAssignedSensor(size_t pinIndex) const {

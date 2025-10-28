@@ -298,19 +298,45 @@ void MenuGui::handlePinClick(int pinIndex)
     setActivePin(pinIndex);
     if (!sensorManager.isPinAvailable(activePinIndex))
     {
-        sensorManager.unassignSensorFromPin(activePinIndex);
-    }
-    bool success = sensorManager.assignSensorToPin(sensor, activePinIndex);
-    if (success)
-    {
-        initializePins();
+        if (sensor != sensorManager.getAssignedSensor(activePinIndex))
+        {
+            if (sensorManager.unassignSensorFromPin(activePinIndex))
+            {
+                bool success = sensorManager.assignSensorToPin(sensor, activePinIndex);
+                initializePins();
+            }
+            else
+            {
+                splashMessage("Failed to unassign sensor from pin\n");
+                return;
+            }
         }
+        else if (sensorManager.unassignSensorFromPin(activePinIndex))
+        {
+            initializePins();
+        }
+        else
+        {
+            splashMessage("Failed to unassign sensor from pin\n");
+            return;
+        }
+    }
     else
     {
-        splashMessage("Failed to assign sensor to pin\n");
-        return;
+        bool success = sensorManager.assignSensorToPin(sensor, activePinIndex);
+        if (success)
+        {
+            initializePins();
+        }
+        else
+        {
+            splashMessage("Failed to assign sensor to pin\n");
+            return;
+        }
     }
 }
-void MenuGui::initializePins() {
-     updatePinVisualStates(); 
-    }
+
+void MenuGui::initializePins()
+{
+    updatePinVisualStates();
+}
