@@ -116,8 +116,8 @@ void MenuGui::buildMenu()
 
     // Create scrollable container for pins
     ui_PinScrollContainer = lv_obj_create(ui_MenuWidget);
-    lv_obj_set_size(ui_PinScrollContainer, 600, 280);
-    lv_obj_align(ui_PinScrollContainer, LV_ALIGN_CENTER, 0, -20);
+    lv_obj_set_size(ui_PinScrollContainer, 750, 375);
+    lv_obj_align(ui_PinScrollContainer, LV_ALIGN_CENTER, 0, 20);
 
     // Configure scrollable container
     lv_obj_set_scroll_dir(ui_PinScrollContainer, LV_DIR_VER);
@@ -136,7 +136,7 @@ void MenuGui::buildMenu()
     for (int i = 0; i < NUM_PINS; ++i)
     {
         pinContainers[i] = lv_btn_create(ui_PinScrollContainer);
-        lv_obj_set_size(pinContainers[i], 180, 80);
+        lv_obj_set_size(pinContainers[i], 234, 100);
 
         // Pin container event handler
         lv_obj_add_event_cb(pinContainers[i], [](lv_event_t *e)
