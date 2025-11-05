@@ -78,7 +78,7 @@ void SensorWikiGui::buildWikiGui()
 
     // Sensor title
     ui_SensorTitle = lv_label_create(ui_SensorInfo);
-    lv_obj_set_size(ui_SensorTitle, 300, 40);
+    lv_obj_set_size(ui_SensorTitle, 400, 40);
     lv_obj_set_pos(ui_SensorTitle, 5, -5);
     lv_label_set_text(ui_SensorTitle, "Sensor Name");
     lv_obj_set_style_text_font(ui_SensorTitle, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -184,7 +184,6 @@ void SensorWikiGui::buildWikiGui()
     ui_StartButton = lv_btn_create(controlPanel);
     lv_obj_set_size(ui_StartButton, 210, 40);
     lv_obj_set_pos(ui_StartButton, 17, 330);
-    lv_obj_set_style_bg_color(ui_StartButton, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     ui_StartButtonLabel = lv_label_create(ui_StartButton);
     lv_label_set_text(ui_StartButtonLabel, "START VISUALISATION");
     lv_obj_center(ui_StartButtonLabel);

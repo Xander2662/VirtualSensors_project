@@ -12,7 +12,8 @@
 #include "sensor_visualization_gui.hpp"
 #include "../helpers.hpp"
 
-SensorVisualizationGui::SensorVisualizationGui(SensorManager& sensorManager) : sensorManager(sensorManager) {
+SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : sensorManager(sensorManager)
+{
     // Initialize all GUI pointers to nullptr
     ui_SensorWidget = nullptr;
     ui_SensorLabel = nullptr;
@@ -45,24 +46,29 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager& sensorManager) : s
     ui_btnBackCornerTopRight = nullptr;
 }
 
-void SensorVisualizationGui::init() {
-    if (initialized) return;
-    
-    try {
+void SensorVisualizationGui::init()
+{
+    if (initialized)
+        return;
+
+    try
+    {
         // // logMessage("Initializing SensorVisualizationGui...\n");
         constructVisualization();
         initialized = true;
         // // logMessage("SensorVisualizationGui initialization completed!\n");
     }
-    catch (const std::exception &e) {
+    catch (const std::exception &e)
+    {
         // // logMessage("SensorVisualizationGui initialization failed: %s\n", e.what());
         initialized = false;
     }
 }
 
-void SensorVisualizationGui::constructVisualization() {
+void SensorVisualizationGui::constructVisualization()
+{
     // // logMessage("\t>constructing sensor visualization...\n");
-    
+
     // Main sensor widget container
     ui_SensorWidget = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(ui_SensorWidget);
@@ -70,8 +76,8 @@ void SensorVisualizationGui::constructVisualization() {
     lv_obj_set_height(ui_SensorWidget, 440);
     lv_obj_set_align(ui_SensorWidget, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
-                                          LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
-                                          LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);
+                                           LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
+                                           LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);
     lv_obj_set_style_radius(ui_SensorWidget, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_SensorWidget, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_SensorWidget, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -87,12 +93,12 @@ void SensorVisualizationGui::constructVisualization() {
     lv_obj_set_y(ui_SensorLabel, -185);
     lv_obj_set_align(ui_SensorLabel, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_SensorLabel, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                         LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                         LV_OBJ_FLAG_SCROLL_CHAIN);
+                                          LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                                          LV_OBJ_FLAG_SCROLL_CHAIN);
     lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
-    
+
     // Value container 1
     ui_ContainerForValue_1 = lv_obj_create(ui_SensorWidget);
     lv_obj_remove_style_all(ui_ContainerForValue_1);
@@ -166,7 +172,7 @@ void SensorVisualizationGui::constructVisualization() {
     lv_label_set_text(ui_LabelTypeValue_1, "Value");
     lv_obj_set_style_text_color(ui_LabelTypeValue_1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_LabelTypeValue_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    
+
     // Value container 2 (for sensors with multiple values like DHT11)
     ui_ContainerForValue_2 = lv_obj_create(ui_SensorWidget);
     lv_obj_remove_style_all(ui_ContainerForValue_2);
@@ -240,10 +246,10 @@ void SensorVisualizationGui::constructVisualization() {
     lv_label_set_text(ui_LabelTypeValue_2, "Value2");
     lv_obj_set_style_text_color(ui_LabelTypeValue_2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_LabelTypeValue_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    
+
     // Initially hide second value container
     lv_obj_add_flag(ui_ContainerForValue_2, LV_OBJ_FLAG_HIDDEN);
-    
+
     // Create chart for sensor history
     ui_Chart = lv_chart_create(ui_SensorWidget);
     lv_obj_set_width(ui_Chart, 410);
@@ -254,16 +260,16 @@ void SensorVisualizationGui::constructVisualization() {
     lv_obj_clear_flag(ui_Chart, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
                                     LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE);
     lv_chart_set_type(ui_Chart, LV_CHART_TYPE_LINE);
-    lv_chart_set_div_line_count(ui_Chart, HISTORY_CAP-1, HISTORY_CAP);
-    lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_X, HISTORY_CAP/2, 0, HISTORY_CAP, 1, true, 50);
+    lv_chart_set_div_line_count(ui_Chart, HISTORY_CAP - 1, HISTORY_CAP);
+    lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_X, HISTORY_CAP / 2, 0, HISTORY_CAP, 1, true, 50);
     lv_chart_set_axis_tick(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, HISTORY_CAP, 5, 5, 2, true, 50);
 
     // Chart series for value 1
     ui_Chart_series_V1 = lv_chart_add_series(ui_Chart, lv_color_hex(0x009BFF), LV_CHART_AXIS_PRIMARY_Y);
-    
+
     // Chart series for value 2 (different color)
     ui_Chart_series_V2 = lv_chart_add_series(ui_Chart, lv_color_hex(0xFF6B35), LV_CHART_AXIS_PRIMARY_Y);
-    
+
     // Chart styling
     lv_obj_set_style_bg_color(ui_Chart, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Chart, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -274,18 +280,19 @@ void SensorVisualizationGui::constructVisualization() {
     lv_obj_set_style_line_opa(ui_Chart, 255, LV_PART_TICKS | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_Chart, lv_color_hex(0x000000), LV_PART_TICKS | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Chart, 255, LV_PART_TICKS | LV_STATE_DEFAULT);
-    
+
     // Add navigation and control buttons
     addNavButtonsToWidget(ui_SensorWidget);
     addControlButtonsToWidget(ui_SensorWidget);
-    
+
     // // logMessage("\t>sensor visualization constructed!\n");
 }
 
+void SensorVisualizationGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
+{
+    if (!parentWidget)
+        return;
 
-void SensorVisualizationGui::addNavButtonsToWidget(lv_obj_t *parentWidget) {
-    if (!parentWidget) return;
-    
     // Previous button
     ui_btnPrev = lv_btn_create(parentWidget);
     lv_obj_set_width(ui_btnPrev, 80);
@@ -293,51 +300,53 @@ void SensorVisualizationGui::addNavButtonsToWidget(lv_obj_t *parentWidget) {
     lv_obj_set_x(ui_btnPrev, 35);
     lv_obj_set_y(ui_btnPrev, -40);
     lv_obj_set_align(ui_btnPrev, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_add_event_cb(ui_btnPrev, [](lv_event_t *e) {
+    lv_obj_add_event_cb(ui_btnPrev, [](lv_event_t *e)
+                        {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->goToPreviousSensor();
-    }, LV_EVENT_CLICKED, this);
-    
+        self->goToPreviousSensor(); }, LV_EVENT_CLICKED, this);
+
     ui_btnPrevLabel = lv_label_create(ui_btnPrev);
     lv_label_set_text(ui_btnPrevLabel, "Prev");
     lv_obj_center(ui_btnPrevLabel);
     lv_obj_set_style_text_font(ui_btnPrevLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    
-    // Next button  
+
+    // Next button
     ui_btnNext = lv_btn_create(parentWidget);
     lv_obj_set_width(ui_btnNext, 80);
     lv_obj_set_height(ui_btnNext, 40);
     lv_obj_set_x(ui_btnNext, 183);
     lv_obj_set_y(ui_btnNext, -40);
     lv_obj_set_align(ui_btnNext, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_add_event_cb(ui_btnNext, [](lv_event_t *e) {
+    lv_obj_add_event_cb(ui_btnNext, [](lv_event_t *e)
+                        {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->goToNextSensor();
-    }, LV_EVENT_CLICKED, this);
-    
+        self->goToNextSensor(); }, LV_EVENT_CLICKED, this);
+
     ui_btnNextLabel = lv_label_create(ui_btnNext);
     lv_label_set_text(ui_btnNextLabel, "Next");
     lv_obj_center(ui_btnNextLabel);
     lv_obj_set_style_text_font(ui_btnNextLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    
+
     // // logMessage("Navigation buttons added to widget\n");
 }
 
-void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget) {
-    if (!parentWidget) return;
-    
+void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
+{
+    if (!parentWidget)
+        return;
+
     ui_btnSyncGroup = lv_obj_create(parentWidget);
     lv_obj_remove_style_all(ui_btnSyncGroup);
     lv_obj_set_width(ui_btnSyncGroup, 100);
     lv_obj_set_height(ui_btnSyncGroup, 40);
     lv_obj_set_align(ui_btnSyncGroup, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_btnSyncGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_btnSyncGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
 
     ui_btnSyncCornerTopLeft = lv_obj_create(ui_btnSyncGroup);
     lv_obj_remove_style_all(ui_btnSyncCornerTopLeft);
     lv_obj_set_width(ui_btnSyncCornerTopLeft, 20);
     lv_obj_set_height(ui_btnSyncCornerTopLeft, 20);
-    lv_obj_clear_flag(ui_btnSyncCornerTopLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_btnSyncCornerTopLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_obj_set_style_bg_color(ui_btnSyncCornerTopLeft, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_btnSyncCornerTopLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_clip_corner(ui_btnSyncCornerTopLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -347,7 +356,7 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget) {
     lv_obj_set_width(ui_btnSyncCornerBottomRight, 20);
     lv_obj_set_height(ui_btnSyncCornerBottomRight, 20);
     lv_obj_set_align(ui_btnSyncCornerBottomRight, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_clear_flag(ui_btnSyncCornerBottomRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_btnSyncCornerBottomRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_obj_set_style_bg_color(ui_btnSyncCornerBottomRight, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_btnSyncCornerBottomRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_clip_corner(ui_btnSyncCornerBottomRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -357,28 +366,28 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget) {
     lv_obj_set_width(ui_btnSync, 100);
     lv_obj_set_height(ui_btnSync, 40);
     lv_obj_set_align(ui_btnSync, LV_ALIGN_CENTER);
-    lv_obj_add_event_cb(ui_btnSync, [](lv_event_t *e) {
+    lv_obj_add_event_cb(ui_btnSync, [](lv_event_t *e)
+                        {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->syncCurrentSensor();
-    }, LV_EVENT_CLICKED, this);
-    
+        self->syncCurrentSensor(); }, LV_EVENT_CLICKED, this);
+
     ui_btnSyncLabel = lv_label_create(ui_btnSync);
     lv_label_set_text(ui_btnSyncLabel, "Sync");
     lv_obj_center(ui_btnSyncLabel);
     lv_obj_set_style_text_font(ui_btnSyncLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    
+
     ui_btnBackGroup = lv_obj_create(parentWidget);
     lv_obj_remove_style_all(ui_btnBackGroup);
     lv_obj_set_width(ui_btnBackGroup, 100);
     lv_obj_set_height(ui_btnBackGroup, 40);
-    lv_obj_clear_flag(ui_btnBackGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_btnBackGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
 
     ui_btnBackCornerBottomLeft = lv_obj_create(ui_btnBackGroup);
     lv_obj_remove_style_all(ui_btnBackCornerBottomLeft);
     lv_obj_set_width(ui_btnBackCornerBottomLeft, 20);
     lv_obj_set_height(ui_btnBackCornerBottomLeft, 20);
     lv_obj_set_align(ui_btnBackCornerBottomLeft, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_clear_flag(ui_btnBackCornerBottomLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_btnBackCornerBottomLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_obj_set_style_bg_color(ui_btnBackCornerBottomLeft, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_btnBackCornerBottomLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_clip_corner(ui_btnBackCornerBottomLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -388,7 +397,7 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget) {
     lv_obj_set_width(ui_btnBackCornerTopRight, 20);
     lv_obj_set_height(ui_btnBackCornerTopRight, 20);
     lv_obj_set_align(ui_btnBackCornerTopRight, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_btnBackCornerTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_btnBackCornerTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_obj_set_style_bg_color(ui_btnBackCornerTopRight, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_btnBackCornerTopRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_clip_corner(ui_btnBackCornerTopRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -398,26 +407,28 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget) {
     lv_obj_set_width(ui_btnBack, 100);
     lv_obj_set_height(ui_btnBack, 40);
     lv_obj_set_align(ui_btnBack, LV_ALIGN_CENTER);
-    lv_obj_add_event_cb(ui_btnBack, [](lv_event_t *e) {
+    lv_obj_add_event_cb(ui_btnBack, [](lv_event_t *e)
+                        {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
         // // logMessage("Back button pressed - returning to menu\n");
-        switchToMenu();
-    }, LV_EVENT_CLICKED, this);
-    
+        switchToWiki(); }, LV_EVENT_CLICKED, this);
+
     ui_btnBackLabel = lv_label_create(ui_btnBack);
     lv_label_set_text(ui_btnBackLabel, "Back");
     lv_obj_center(ui_btnBackLabel);
     lv_obj_set_style_text_font(ui_btnBackLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    
+
     // // logMessage("Control buttons added to widget\n");
 }
 
-void SensorVisualizationGui::drawCurrentSensor() {
-    if (!currentSensor) {
+void SensorVisualizationGui::drawCurrentSensor()
+{
+    if (!currentSensor)
+    {
         // // logMessage("No current sensor to draw\n");
         return;
     }
-    
+
     // // logMessage("Drawing sensor: %s\n", currentSensor->UID.c_str());
     if (!currentSensor->getRedrawPending())
     {
@@ -428,217 +439,322 @@ void SensorVisualizationGui::drawCurrentSensor() {
     updateChart();
 }
 
-void SensorVisualizationGui::updateSensorDataDisplay() {
-    if (!currentSensor) return;
-    
+void SensorVisualizationGui::updateSensorDataDisplay()
+{
+    if (!currentSensor)
+        return;
+
     // Update sensor name
-    if (ui_SensorLabel) {
+    if (ui_SensorLabel)
+    {
         lv_label_set_text(ui_SensorLabel, currentSensor->getName().c_str());
     }
-    
+
     // Get all sensor values
     auto values = currentSensor->getValues();
     auto valueKeys = currentSensor->getValuesKeys();
-    
-    if (valueKeys.empty()) {
+
+    if (valueKeys.empty())
+    {
         // logMessage("No values available for sensor: %s\n", currentSensor->UID.c_str());
         return;
     }
-    
+
     // Update Value 1 (primary value)
-    if (valueKeys.size() >= 1 && ui_LabelValueValue_1 && ui_LabelDescValue_1 && ui_LabelTypeValue_1) {
-        const std::string& key1 = valueKeys[0];
-        try {
+    if (valueKeys.size() >= 1 && ui_LabelValueValue_1 && ui_LabelDescValue_1 && ui_LabelTypeValue_1)
+    {
+        const std::string &key1 = valueKeys[0];
+        try
+        {
             std::string value1 = currentSensor->getValue<std::string>(key1);
             std::string units1 = currentSensor->getValueUnits(key1);
-            
+
             lv_label_set_text(ui_LabelValueValue_1, value1.c_str());
             lv_label_set_text(ui_LabelDescValue_1, units1.empty() ? "" : ("[" + units1 + "]").c_str());
             lv_label_set_text(ui_LabelTypeValue_1, key1.c_str());
         }
-        catch (const std::exception& e) {
+        catch (const std::exception &e)
+        {
             // logMessage("Error updating value 1: %s\n", e.what());
         }
     }
-    
+
     // Update Value 2 (secondary value, if available)
-    if (valueKeys.size() >= 2 && ui_LabelValueValue_2 && ui_LabelDescValue_2 && ui_LabelTypeValue_2) {
-        const std::string& key2 = valueKeys[1];
-        try {
+    if (valueKeys.size() >= 2 && ui_LabelValueValue_2 && ui_LabelDescValue_2 && ui_LabelTypeValue_2)
+    {
+        const std::string &key2 = valueKeys[1];
+        try
+        {
             std::string value2 = currentSensor->getValue<std::string>(key2);
             std::string units2 = currentSensor->getValueUnits(key2);
-            
+
             lv_label_set_text(ui_LabelValueValue_2, value2.c_str());
             lv_label_set_text(ui_LabelDescValue_2, units2.empty() ? "" : ("[" + units2 + "]").c_str());
             lv_label_set_text(ui_LabelTypeValue_2, key2.c_str());
-            
+
             // Make second container visible
-            if (ui_ContainerForValue_2) {
+            if (ui_ContainerForValue_2)
+            {
                 lv_obj_clear_flag(ui_ContainerForValue_2, LV_OBJ_FLAG_HIDDEN);
             }
         }
-        catch (const std::exception& e) {
+        catch (const std::exception &e)
+        {
             // logMessage("Error updating value 2: %s\n", e.what());
         }
-    } else {
+    }
+    else
+    {
         // Hide second value container if not needed
-        if (ui_ContainerForValue_2) {
+        if (ui_ContainerForValue_2)
+        {
             lv_obj_add_flag(ui_ContainerForValue_2, LV_OBJ_FLAG_HIDDEN);
         }
     }
-    
+
     // logMessage("Updated sensor data display for: %s\n", currentSensor->UID.c_str());
 }
 
-void SensorVisualizationGui::updateChart() {
-    if (!currentSensor || !ui_Chart || !ui_Chart_series_V1) return;
-    
+void SensorVisualizationGui::updateChart()
+{
+    if (!currentSensor || !ui_Chart || !ui_Chart_series_V1)
+        return;
+
     // Get sensor value keys
     auto valueKeys = currentSensor->getValuesKeys();
-    if (valueKeys.empty()) {
-        // logMessage("No values available for chart update: %s\n", currentSensor->UID.c_str());
+    if (valueKeys.empty())
         return;
-    }
-    
-    // Use the first value for chart display
-    const std::string& primaryKey = valueKeys[0];
-    
-    try {
-        // Build sensor history for the primary value
+
+    const std::string &primaryKey = valueKeys[0];
+
+    try
+    {
         lv_coord_t history[HISTORY_CAP];
-        
-        // Try different data types based on sensor parameter type
+
         auto values = currentSensor->getValues();
         auto it = values.find(primaryKey);
-        if (it == values.end()) {
-            // logMessage("Primary key not found in values: %s\n", primaryKey.c_str());
+        if (it == values.end())
+            return;
+
+        SensorDataType dataType = it->second.DType;
+
+        switch (dataType)
+        {
+        case SensorDataType::INT:
+            buildSensorHistory<int>(currentSensor, primaryKey, history);
+            break;
+        case SensorDataType::FLOAT:
+            buildSensorHistory<float>(currentSensor, primaryKey, history);
+            break;
+        case SensorDataType::DOUBLE:
+            buildSensorHistory<double>(currentSensor, primaryKey, history);
+            break;
+        case SensorDataType::STRING:
+            try
+            {
+                buildSensorHistory<int>(currentSensor, primaryKey, history);
+            }
+            catch (...)
+            {
+                try
+                {
+                    buildSensorHistory<float>(currentSensor, primaryKey, history);
+                }
+                catch (...)
+                {
+                    return;
+                }
+            }
+            break;
+        default:
             return;
         }
-        
-        // Determine data type and build history accordingly
-        SensorDataType dataType = it->second.DType;
-        
-        switch (dataType) {
-            case SensorDataType::INT:
-                buildSensorHistory<int>(currentSensor, primaryKey, history);
-                break;
-            case SensorDataType::FLOAT:
-                buildSensorHistory<float>(currentSensor, primaryKey, history);
-                break;
-            case SensorDataType::DOUBLE:
-                buildSensorHistory<double>(currentSensor, primaryKey, history);
-                break;
-            case SensorDataType::STRING:
-                // For string values, try to convert to int first
-                try {
-                    buildSensorHistory<int>(currentSensor, primaryKey, history);
-                } catch (...) {
-                    // If int conversion fails, try float
-                    try {
-                        buildSensorHistory<float>(currentSensor, primaryKey, history);
-                    } catch (...) {
-                        // logMessage("Cannot convert string values to numeric for chart: %s\n", primaryKey.c_str());
-                        return;
-                    }
-                }
-                break;
-            default:
-                // logMessage("Unsupported data type for chart: %s\n", primaryKey.c_str());
-                return;
+
+        // Dynamic Y range for Chart based on history data
+        if (HISTORY_CAP <= 0)
+            return;
+        lv_coord_t min1 = history[0];
+        lv_coord_t max1 = history[0];
+        for (int i = 1; i < HISTORY_CAP; ++i)
+        {
+            if (history[i] < min1)
+                min1 = history[i];
+            if (history[i] > max1)
+                max1 = history[i];
         }
-        
-        // Clear existing chart data for both series
-        lv_chart_set_all_value(ui_Chart, ui_Chart_series_V1, LV_CHART_POINT_NONE);
-        lv_chart_set_all_value(ui_Chart, ui_Chart_series_V2, LV_CHART_POINT_NONE);
-        
-        // Add new data points to first series
-        for (int i = 0; i < HISTORY_CAP; i++) {
-            lv_chart_set_next_value(ui_Chart, ui_Chart_series_V1, history[i]);
+
+        if (min1 == max1)
+        {
+            min1 = min1 - 1;
+            max1 = max1 + 1;
         }
-        
-        // Handle second value if available
-        if (valueKeys.size() >= 2 && ui_Chart_series_V2) {
-            const std::string& secondaryKey = valueKeys[1];
+
+        lv_coord_t span1 = max1 - min1;
+        lv_coord_t pad1 = (span1 / 10) > 1 ? (span1 / 10) : 1;
+        lv_coord_t range_min1 = min1 - pad1;
+        lv_coord_t range_max1 = max1 + pad1;
+
+        bool haveSecond = (valueKeys.size() >= 2 && ui_Chart_series_V2);
+        lv_coord_t range_min2 = range_min1;
+        lv_coord_t range_max2 = range_max1;
+        if (haveSecond)
+        {
+            const std::string &secondaryKey = valueKeys[1];
             lv_coord_t history2[HISTORY_CAP];
-            
-            try {
-                auto it2 = values.find(secondaryKey);
-                if (it2 != values.end()) {
-                    SensorDataType dataType2 = it2->second.DType;
-                    
-                    switch (dataType2) {
-                        case SensorDataType::INT:
+            auto it2 = values.find(secondaryKey);
+            if (it2 != values.end())
+            {
+                SensorDataType dataType2 = it2->second.DType;
+                try
+                {
+                    switch (dataType2)
+                    {
+                    case SensorDataType::INT:
+                        buildSensorHistory<int>(currentSensor, secondaryKey, history2);
+                        break;
+                    case SensorDataType::FLOAT:
+                        buildSensorHistory<float>(currentSensor, secondaryKey, history2);
+                        break;
+                    case SensorDataType::DOUBLE:
+                        buildSensorHistory<double>(currentSensor, secondaryKey, history2);
+                        break;
+                    case SensorDataType::STRING:
+                        try
+                        {
                             buildSensorHistory<int>(currentSensor, secondaryKey, history2);
-                            break;
-                        case SensorDataType::FLOAT:
+                        }
+                        catch (...)
+                        {
                             buildSensorHistory<float>(currentSensor, secondaryKey, history2);
-                            break;
-                        case SensorDataType::DOUBLE:
-                            buildSensorHistory<double>(currentSensor, secondaryKey, history2);
-                            break;
-                        case SensorDataType::STRING:
-                            try {
-                                buildSensorHistory<int>(currentSensor, secondaryKey, history2);
-                            } catch (...) {
-                                try {
-                                    buildSensorHistory<float>(currentSensor, secondaryKey, history2);
-                                } catch (...) {
-                                    // logMessage("Cannot convert secondary string values to numeric: %s\n", secondaryKey.c_str());
-                                    return;
-                                }
-                            }
-                            break;
-                        default:
-                            return;
+                        }
+                        break;
+                    default:
+                        haveSecond = false;
+                        break;
                     }
-                    
-                    // Add second series data
-                    for (int i = 0; i < HISTORY_CAP; i++) {
-                        lv_chart_set_next_value(ui_Chart, ui_Chart_series_V2, history2[i]);
-                    }
-                    
-                    // logMessage("Updated chart with two series: %s, %s\n", primaryKey.c_str(), secondaryKey.c_str());
                 }
-                
-            } catch (const std::exception& e) {
-                // logMessage("Error updating second chart series: %s\n", e.what());
+                catch (...)
+                {
+                    haveSecond = false;
+                }
+
+                if (haveSecond)
+                {
+                    lv_coord_t min2 = history2[0];
+                    lv_coord_t max2 = history2[0];
+                    for (int i = 1; i < HISTORY_CAP; ++i)
+                    {
+                        if (history2[i] < min2)
+                            min2 = history2[i];
+                        if (history2[i] > max2)
+                            max2 = history2[i];
+                    }
+                    if (min2 == max2)
+                    {
+                        min2 = min2 - 1;
+                        max2 = max2 + 1;
+                    }
+                    lv_coord_t span2 = max2 - min2;
+                    lv_coord_t pad2 = (span2 / 10) > 1 ? (span2 / 10) : 1;
+                    range_min2 = min2 - pad2;
+                    range_max2 = max2 + pad2;
+                }
+            }
+            else
+            {
+                haveSecond = false;
             }
         }
-        
+        lv_coord_t global_min = (range_min1 < range_min2) ? range_min1 : range_min2;
+        lv_coord_t global_max = (range_max1 > range_max2) ? range_max1 : range_max2;
+        lv_chart_set_range(ui_Chart, LV_CHART_AXIS_PRIMARY_Y, global_min, global_max);
+        lv_chart_set_range(ui_Chart, LV_CHART_AXIS_SECONDARY_Y, global_min, global_max);
+
+        lv_chart_set_all_value(ui_Chart, ui_Chart_series_V1, LV_CHART_POINT_NONE);
+        lv_chart_set_all_value(ui_Chart, ui_Chart_series_V2, LV_CHART_POINT_NONE);
+
+        for (int i = 0; i < HISTORY_CAP; i++)
+        {
+            lv_chart_set_next_value(ui_Chart, ui_Chart_series_V1, history[i]);
+        }
+
+        if (haveSecond)
+        {
+            const std::string &secondaryKey = valueKeys[1];
+            lv_coord_t history2[HISTORY_CAP];
+            auto it2 = values.find(secondaryKey);
+            if (it2 != values.end())
+            {
+                SensorDataType dataType2 = it2->second.DType;
+                switch (dataType2)
+                {
+                case SensorDataType::INT:
+                    buildSensorHistory<int>(currentSensor, secondaryKey, history2);
+                    break;
+                case SensorDataType::FLOAT:
+                    buildSensorHistory<float>(currentSensor, secondaryKey, history2);
+                    break;
+                case SensorDataType::DOUBLE:
+                    buildSensorHistory<double>(currentSensor, secondaryKey, history2);
+                    break;
+                case SensorDataType::STRING:
+                    try
+                    {
+                        buildSensorHistory<int>(currentSensor, secondaryKey, history2);
+                    }
+                    catch (...)
+                    {
+                        buildSensorHistory<float>(currentSensor, secondaryKey, history2);
+                    }
+                    break;
+                default:
+                    break;
+                }
+                for (int i = 0; i < HISTORY_CAP; i++)
+                {
+                    lv_chart_set_next_value(ui_Chart, ui_Chart_series_V2, history2[i]);
+                }
+            }
+        }
+
         // Refresh chart display
         lv_chart_refresh(ui_Chart);
-        
-        // logMessage("Updated chart for sensor: %s (primary key: %s)\n", currentSensor->UID.c_str(), primaryKey.c_str());
-        
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception &e)
+    {
         // logMessage("Error updating chart: %s\n", e.what());
     }
 }
 
-void SensorVisualizationGui::goToPreviousSensor() {
+void SensorVisualizationGui::goToPreviousSensor()
+{
     sensorManager.setRunning(false); // Pause any ongoing sensor updates
     currentSensor = sensorManager.previousSensor();
-    delay_ms(10); // Small delay to ensure UI responsiveness
+    delay_ms(10);                   // Small delay to ensure UI responsiveness
     sensorManager.setRunning(true); // Resume sensor updates
 }
 
-void SensorVisualizationGui::goToNextSensor() {
+void SensorVisualizationGui::goToNextSensor()
+{
     sensorManager.setRunning(false); // Pause any ongoing sensor updates
     currentSensor = sensorManager.nextSensor();
-    delay_ms(10); // Small delay to ensure UI responsiveness
+    delay_ms(10);                   // Small delay to ensure UI responsiveness
     sensorManager.setRunning(true); // Resume sensor updates
 }
 
-void SensorVisualizationGui::goToFirstSensor() {
+void SensorVisualizationGui::goToFirstSensor()
+{
     sensorManager.setRunning(false); // Pause any ongoing sensor updates
     sensorManager.resetCurrentIndex();
     currentSensor = sensorManager.getCurrentSensor();
-    delay_ms(10); // Small delay to ensure UI responsiveness
+    delay_ms(10);                   // Small delay to ensure UI responsiveness
     sensorManager.setRunning(true); // Resume sensor updates
 }
 
-bool SensorVisualizationGui::syncCurrentSensor() {
-    if (!currentSensor) {
+bool SensorVisualizationGui::syncCurrentSensor()
+{
+    if (!currentSensor)
+    {
         // logMessage("No current sensor to sync\n");
         return false;
     }
@@ -646,20 +762,24 @@ bool SensorVisualizationGui::syncCurrentSensor() {
     return success;
 }
 
-void SensorVisualizationGui::showVisualization() {
-    if (!initialized || !ui_SensorWidget) return;
-    
+void SensorVisualizationGui::showVisualization()
+{
+    if (!initialized || !ui_SensorWidget)
+        return;
+
     lv_obj_clear_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
-    
+
     // Refresh the display with current sensor data
     goToFirstSensor();
-    drawCurrentSensor();  
+    drawCurrentSensor();
     // logMessage("Showing sensor visualization\n");
 }
 
-void SensorVisualizationGui::hideVisualization() {
-    if (!initialized || !ui_SensorWidget) return;
-    
+void SensorVisualizationGui::hideVisualization()
+{
+    if (!initialized || !ui_SensorWidget)
+        return;
+
     lv_obj_add_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
     // logMessage("Hiding sensor visualization\n");
 }
