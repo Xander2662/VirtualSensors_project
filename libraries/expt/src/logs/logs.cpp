@@ -43,30 +43,6 @@ void logMessage(const char *format, ...) {
     va_end(args);
 }
 
-void splashMessage(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    char buffer[256];
-    vsnprintf(buffer, sizeof(buffer), format, args);
-
-    #ifdef SPLASHER_H
-     show_splash_popup("Message", buffer, SPLASHER_TIMEOUT_MS); // Show splash for 5 seconds
-    #endif   
-
-    va_end(args);
-}
-
-void delay_ms(uint32_t ms) {
-    #ifdef ARDUINO_H
-        delay(ms); // Arduino delay
-    #elif defined(_WIN32) || defined(_WIN64)
-        Sleep(ms); // Windows sleep
-    #else
-        usleep(ms * 1000); // POSIX sleep
-    #endif
-}
-
 void initLogger() {
     #ifdef ARDUINO_H
         Serial.begin(UART0_BAUDRATE); // Initialize Serial for Arduino

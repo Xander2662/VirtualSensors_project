@@ -37,4 +37,4 @@ class MicrophoneSensor(Sensor):
         peak = float(np.max(np.abs(audio)))
         dbfs = self._rms_dbfs(audio)
         zcr = float(((audio[:-1] * audio[1:]) < 0).mean())
-        return {"dBFS": round(dbfs, 2), "peak": round(peak, 3), "zcr": round(zcr, 3)}
+        return {"dBFS": round(abs(dbfs), 2), "peak": round(peak, 3), "zcr": round(zcr, 3)}

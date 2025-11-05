@@ -17,10 +17,10 @@
 /// Uncomment to enable Arduino-based environments
 #define ARDUINO_H 
 #ifdef ARDUINO_H
-#define UART1_PORT 0
+#define UART1_PORT 1
 #define UART1_BAUDRATE 115200
-#define UART1_RX -1
-#define UART1_TX -1
+#define UART1_RX 18
+#define UART1_TX 17
 #define UART_TIMEOUT 100
 #define UART_INIT_TIMEOUT 1000
 #endif

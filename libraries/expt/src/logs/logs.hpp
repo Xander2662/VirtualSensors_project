@@ -18,7 +18,6 @@
  #include <cstdarg>
  #include <cstdio>
  #include "../config.hpp"  ///< Configuration file inclusion
- #include "splasher.hpp"   ///< Include splash screen header
 
 
  /**
@@ -39,16 +38,6 @@
     * @param ... Additional arguments for formatting.
   */
  void logMessage(const char *format, ...);
-
-/**
-* @brief Displays a splash message on GUI.
-* 
-* This function prints a predefined splash message to the log output.
-*
-  * @param format The format string (like in printf).
-  * @param ... Additional arguments for formatting.
-*/
- void splashMessage(const char *format, ...);
 
 
   /**

@@ -10,7 +10,14 @@
  * @author Ing. Jiri Konecny
  */
 
- #include "splasher.hpp"
+#include "splasher.hpp"
+#include "logs.hpp"
+
+#ifdef ARDUINO_H
+    #include <Arduino.h>  ///< Include Arduino Serial functions
+#elif defined(STDIO_H)
+    #include <stdio.h>    ///< Include standard I/O functions
+#endif
 
 #ifdef USE_LVGL
 
@@ -76,7 +83,7 @@ void show_splash_popup(const char* title, const char* text, uint32_t autoclose_m
 
 #else
 // LVGL not enabled, provide empty implementations, with logMessage instead
-static void on_splash_msgbox_event(lv_event_t* e) 
+static void on_splash_msgbox_event(void* e) 
 {
   // No operation
 }
@@ -86,4 +93,28 @@ void show_splash_popup(const char* title, const char* text, uint32_t autoclose_m
 }
 
 #endif // USE_LVGL
+
+void delay_ms(uint32_t ms) {
+    #ifdef ARDUINO_H
+        delay(ms); // Arduino delay
+    #elif defined(_WIN32) || defined(_WIN64)
+        Sleep(ms); // Windows sleep
+    #else
+        usleep(ms * 1000); // POSIX sleep
+    #endif
+}
+
+void splashMessage(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    char buffer[256];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+
+    #ifdef SPLASHER_H
+     show_splash_popup("Message", buffer, SPLASHER_TIMEOUT_MS); // Show splash for 5 seconds
+    #endif   
+
+    va_end(args);
+}
 

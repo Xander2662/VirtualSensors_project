@@ -16,6 +16,20 @@
 #include <string>
 #include "../config.hpp"     ///< Configuration.
 
+#ifdef ARDUINO_H
+    #include <Arduino.h>  ///< Include Arduino Serial functions
+#elif defined(STDIO_H)
+    #include <stdio.h>    ///< Include standard I/O functions
+#endif
+
+/**
+ * @brief Sends a message using the global messenger.
+ * 
+ * @param message The message to send.
+ * @throws Exception if sending fails.
+ */
+void sendMessage(const char* message);
+
 /**
  * @brief Sends a message using the global messenger.
  * 
@@ -23,6 +37,26 @@
  * @throws Exception if sending fails.
  */
 void sendMessage(const std::string &message);
+
+#ifdef ARDUINO_H
+/**
+ * @brief Sends a message using the global messenger.
+ * 
+ * @param message The message to send.
+ * @throws Exception if sending fails.
+ */
+void sendMessage(const String &message);
+#endif
+
+/**
+ * @brief Receives a message using the global messenger.
+ * 
+ * @param timeout The timeout in milliseconds to wait for a message.
+ * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @return A C-string containing the received message.
+ * @throws Exception if receiving fails.
+ */
+const char* receiveMessageAsChars(int verbose = 0, int timeout = UART_TIMEOUT);
 
 /**
  * @brief Receives a message using the global messenger.
@@ -33,6 +67,18 @@ void sendMessage(const std::string &message);
  * @throws Exception if receiving fails.
  */
 std::string receiveMessage(int verbose = 0, int timeout = UART_TIMEOUT);
+
+#ifdef ARDUINO_H
+/**
+ * @brief Receives a message using the global messenger.
+ * 
+ * @param timeout The timeout in milliseconds to wait for a message.
+ * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @return An Arduino String containing the received message.
+ * @throws Exception if receiving fails.
+ */
+String receiveMessageAsString(int verbose = 0, int timeout = UART_TIMEOUT);
+#endif
 
 /**
 * @brief Initializes the global messenger.

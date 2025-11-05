@@ -63,7 +63,10 @@ class VSCPEmulator:
                 "acm_x": -2.1, "acm_y": 0.8, "acm_z": 9.8,
                 "gyr_x": 0.05, "gyr_y": -0.02, "gyr_z": 0.01,
                 "type": "IMU"
-            }
+            },
+            "mic_001": {"dBFS": 89.3, "peak": 10.0, "type": "Microphone"},
+            "cam_001": {"lux_est": 10.4, "type": "Lux meter"},
+            "cpu_temp": {"temp": 55.0, "type": "CPU Temperature"},
         }
         
     def connect_serial(self) -> bool:

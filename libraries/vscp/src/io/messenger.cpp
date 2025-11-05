@@ -18,28 +18,44 @@
     HardwareSerial UART1_VIRTUAL(UART1_PORT);
     static bool uart1_initialized = false;
 
-    void sendMessage(const std::string &message) {
+    void sendMessage(const char* message) {
         if(!uart1_initialized){
             initMessenger();
         }
-        
-        UART1_VIRTUAL.println(message.c_str());
+
+        UART1_VIRTUAL.println(message);
     }
-    
-    std::string receiveMessage(int verbose, int timeout) {
+
+    void sendMessage(const std::string &message) {
+        sendMessage(message.c_str());
+    }
+
+    void sendMessage(const String &message) {
+        sendMessage(message.c_str());
+    }
+
+    const char* receiveMessageAsChars(int verbose, int timeout) {
         String msg = ""; // static so it persists between calls
-        unsigned long startTime = millis();
 
         if(!uart1_initialized){
             initMessenger();
         }
 
-        UART1_VIRTUAL.setTimeout(timeout > 0 ? timeout : UART_TIMEOUT);
         msg = UART1_VIRTUAL.readStringUntil('\n');
         msg.trim();
         if (msg.length()==0 && verbose>0) msg = "Timeout";
 
-        return std::string(msg.c_str());
+        return msg.c_str();
+    }
+    
+    std::string receiveMessage(int verbose, int timeout) {
+        const char* msg = receiveMessageAsChars(verbose, timeout);
+        return std::string(msg);
+    }
+
+    String receiveMessageAsString(int verbose, int timeout) {
+        const char* msg = receiveMessageAsChars(verbose, timeout);
+        return String(msg);
     }
 
     bool initMessenger(unsigned long baudrate = UART1_BAUDRATE, unsigned int mode = SERIAL_8N1, int tx = UART1_TX, int rx = UART1_RX) {

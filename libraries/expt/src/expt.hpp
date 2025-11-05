@@ -34,5 +34,6 @@
 #include "exceptions/error_codes.hpp"
 #include "exceptions/exceptions.hpp" ///< For Exception class
 #include "logs/logs.hpp"         ///< For logMessage function
+#include "logs/splasher.hpp"     ///< For splashMessage function
 
 #endif // EXPT_HPP

@@ -13,7 +13,10 @@
 #ifndef SPLASHER_H
 #define SPLASHER_H
 
-#include "../config.hpp"  ///< Configuration file inclusion
+ #include <string>
+ #include <cstdarg>
+ #include <cstdio>
+ #include "../config.hpp"  ///< Configuration file inclusion
 
 #ifdef USE_LVGL
 extern "C"
@@ -42,5 +45,44 @@ static void on_splash_msgbox_event(lv_event_t* e);
  */
 void show_splash_popup(const char* title, const char* text, uint32_t autoclose_ms = 0);
 
+#else // USE_LVGL
+
+/**
+ * @brief Dummy event handler for non-LVGL environments.
+ *
+ * This function is a placeholder and performs no operations.
+ * @param e Pointer to event data (unused)
+ */
+static void on_splash_msgbox_event(void* e);
+
+/**
+ * @brief Dummy function for non-LVGL environments.
+ *
+ * This function is a placeholder and performs no operations.
+ *
+ * @param title Title of the popup window
+ * @param text Message text to display
+ * @param autoclose_ms Optional auto-close timeout in milliseconds (0 = no auto-close)
+ */
+void show_splash_popup(const char* title, const char* text, uint32_t autoclose_ms = 0);
+
 #endif // USE_LVGL
+
+/**
+* @brief Delays execution for a specified number of milliseconds.
+* This function provides a cross-platform way to introduce delays.
+* @param ms Number of milliseconds to delay.
+*/
+void delay_ms(uint32_t ms);
+
+/**
+* @brief Displays a splash message on GUI.
+* 
+* This function prints a predefined splash message to the log output.
+*
+  * @param format The format string (like in printf).
+  * @param ... Additional arguments for formatting.
+*/
+ void splashMessage(const char *format, ...);
+
 #endif // SPLASHER_H

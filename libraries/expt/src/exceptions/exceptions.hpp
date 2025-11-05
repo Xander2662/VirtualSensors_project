@@ -21,6 +21,7 @@
 
 #include "error_codes.hpp"  ///< For error codes
 #include "../logs/logs.hpp"   ///< For logMessage function
+#include "../logs/splasher.hpp"   ///< For splashMessage function
 
 #include <stdexcept>   ///< For std::exception
 
