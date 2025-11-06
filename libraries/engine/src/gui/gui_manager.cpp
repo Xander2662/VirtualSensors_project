@@ -95,6 +95,7 @@ void GuiManager::showMenu() {
     hideAllComponents();
     menuGui.showMenu();
     currentState = GuiState::MENU;
+    menuGui.initializePins();
     // logMessage("Switched to MENU state\n");
 }
 

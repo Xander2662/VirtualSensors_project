@@ -106,7 +106,7 @@ void ui_Screen3_screen_init(void)
     lv_obj_set_x(ui_SensorSelectionLabel, 0);
     lv_obj_set_y(ui_SensorSelectionLabel, 10);
     lv_obj_set_align(ui_SensorSelectionLabel, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_SensorSelectionLabel, "Sensor Selection");
+    lv_label_set_text(ui_SensorSelectionLabel, "DHT11");
     lv_obj_clear_flag(ui_SensorSelectionLabel,
                       LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
                       LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
@@ -157,25 +157,11 @@ void ui_Screen3_screen_init(void)
     lv_label_set_text(ui_ButtonBackLabel2, "Back");
     lv_obj_set_style_text_font(ui_ButtonBackLabel2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_SensorNameLabel = lv_label_create(ui_Widget2);
-    lv_obj_set_width(ui_SensorNameLabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_SensorNameLabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_SensorNameLabel, 20);
-    lv_obj_set_y(ui_SensorNameLabel, 60);
-    lv_label_set_text(ui_SensorNameLabel, "DHT11");
-    lv_obj_clear_flag(ui_SensorNameLabel,
-                      LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
-                      LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
-    lv_obj_set_style_text_color(ui_SensorNameLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_SensorNameLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_SensorNameLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_SensorInfoLabel = lv_label_create(ui_Widget2);
     lv_obj_set_width(ui_SensorInfoLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_SensorInfoLabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_SensorInfoLabel, 25);
-    lv_obj_set_y(ui_SensorInfoLabel, 100);
+    lv_obj_set_x(ui_SensorInfoLabel, 36);
+    lv_obj_set_y(ui_SensorInfoLabel, 75);
     lv_label_set_text(ui_SensorInfoLabel, "DHT11 je senzor snimajici teplotu a vlhkost");
     lv_obj_clear_flag(ui_SensorInfoLabel,
                       LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE |
