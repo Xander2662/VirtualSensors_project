@@ -11,6 +11,7 @@
 
 #include "sensor_visualization_gui.hpp"
 #include "../helpers.hpp"
+#include "./images/ui_images.h"
 
 SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : sensorManager(sensorManager)
 {
@@ -34,16 +35,34 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : s
     ui_btnPrevLabel = nullptr;
     ui_btnNext = nullptr;
     ui_btnNextLabel = nullptr;
-    ui_btnSync = nullptr;
-    ui_btnSyncLabel = nullptr;
-    ui_btnSyncGroup = nullptr;
-    ui_btnSyncCornerTopLeft = nullptr;
-    ui_btnSyncCornerBottomRight = nullptr;
     ui_btnBack = nullptr;
     ui_btnBackLabel = nullptr;
     ui_btnBackGroup = nullptr;
     ui_btnBackCornerBottomLeft = nullptr;
     ui_btnBackCornerTopRight = nullptr;
+    ui_RecordGroup = nullptr;
+    ui_RecordCornerTopLeft = nullptr;
+    ui_RecordCornerFillTopLeft = nullptr;
+    ui_RecordCornerTopRight = nullptr;
+    ui_RecordCornerFillTopRight = nullptr;
+    ui_RecordOutlay = nullptr;
+    ui_btnPause = nullptr;                 
+    ui_pauseImage = nullptr;               
+    ui_btnSync = nullptr;                   
+    ui_syncImage = nullptr;                
+    ui_btnRecord = nullptr;                   
+    ui_recordImage = nullptr;               
+    ui_btnClear = nullptr;                 
+    ui_clearImage = nullptr;               
+    ui_btnInfo = nullptr;                   
+    ui_infoImage = nullptr; 
+    ui_LogoGroup = nullptr;               
+    ui_LogoCornerBottomLeft = nullptr;
+    ui_LogoCornerFillBottomLeft = nullptr;
+    ui_LogoCornerBottomRight = nullptr;
+    ui_LogoCornerFillBottomRight = nullptr;
+    ui_LogoOutlay = nullptr;
+    ui_LogoImage = nullptr;               
 }
 
 void SensorVisualizationGui::init()
@@ -87,14 +106,15 @@ void SensorVisualizationGui::constructVisualization()
 
     // Sensor title label
     ui_SensorLabel = lv_label_create(ui_SensorWidget);
-    lv_obj_set_width(ui_SensorLabel, LV_SIZE_CONTENT);
-    lv_obj_set_height(ui_SensorLabel, LV_SIZE_CONTENT);
+    lv_obj_set_width(ui_SensorLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SensorLabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_SensorLabel, 0);
-    lv_obj_set_y(ui_SensorLabel, -185);
-    lv_obj_set_align(ui_SensorLabel, LV_ALIGN_CENTER);
+    lv_obj_set_y(ui_SensorLabel, 10);
+    lv_obj_set_align(ui_SensorLabel, LV_ALIGN_TOP_MID);
+    lv_label_set_text(ui_SensorLabel, "DHT11");
     lv_obj_clear_flag(ui_SensorLabel, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                                          LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                                          LV_OBJ_FLAG_SCROLL_CHAIN);
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
     lv_obj_set_style_text_color(ui_SensorLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SensorLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_SensorLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -284,6 +304,8 @@ void SensorVisualizationGui::constructVisualization()
     // Add navigation and control buttons
     addNavButtonsToWidget(ui_SensorWidget);
     addControlButtonsToWidget(ui_SensorWidget);
+    addRecordPanelToWidget(ui_SensorWidget);
+    addLogoPanelToWidget(ui_SensorWidget);
 
     // // logMessage("\t>sensor visualization constructed!\n");
 }
@@ -335,47 +357,6 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
     if (!parentWidget)
         return;
 
-    ui_btnSyncGroup = lv_obj_create(parentWidget);
-    lv_obj_remove_style_all(ui_btnSyncGroup);
-    lv_obj_set_width(ui_btnSyncGroup, 100);
-    lv_obj_set_height(ui_btnSyncGroup, 40);
-    lv_obj_set_align(ui_btnSyncGroup, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_btnSyncGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
-
-    ui_btnSyncCornerTopLeft = lv_obj_create(ui_btnSyncGroup);
-    lv_obj_remove_style_all(ui_btnSyncCornerTopLeft);
-    lv_obj_set_width(ui_btnSyncCornerTopLeft, 20);
-    lv_obj_set_height(ui_btnSyncCornerTopLeft, 20);
-    lv_obj_clear_flag(ui_btnSyncCornerTopLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
-    lv_obj_set_style_bg_color(ui_btnSyncCornerTopLeft, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_btnSyncCornerTopLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_clip_corner(ui_btnSyncCornerTopLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_btnSyncCornerBottomRight = lv_obj_create(ui_btnSyncGroup);
-    lv_obj_remove_style_all(ui_btnSyncCornerBottomRight);
-    lv_obj_set_width(ui_btnSyncCornerBottomRight, 20);
-    lv_obj_set_height(ui_btnSyncCornerBottomRight, 20);
-    lv_obj_set_align(ui_btnSyncCornerBottomRight, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_clear_flag(ui_btnSyncCornerBottomRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
-    lv_obj_set_style_bg_color(ui_btnSyncCornerBottomRight, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_btnSyncCornerBottomRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_clip_corner(ui_btnSyncCornerBottomRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    // Sync button for refreshing sensor data
-    ui_btnSync = lv_btn_create(ui_btnSyncGroup);
-    lv_obj_set_width(ui_btnSync, 100);
-    lv_obj_set_height(ui_btnSync, 40);
-    lv_obj_set_align(ui_btnSync, LV_ALIGN_CENTER);
-    lv_obj_add_event_cb(ui_btnSync, [](lv_event_t *e)
-                        {
-        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->syncCurrentSensor(); }, LV_EVENT_CLICKED, this);
-
-    ui_btnSyncLabel = lv_label_create(ui_btnSync);
-    lv_label_set_text(ui_btnSyncLabel, "Sync");
-    lv_obj_center(ui_btnSyncLabel);
-    lv_obj_set_style_text_font(ui_btnSyncLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_btnBackGroup = lv_obj_create(parentWidget);
     lv_obj_remove_style_all(ui_btnBackGroup);
     lv_obj_set_width(ui_btnBackGroup, 100);
@@ -421,6 +402,248 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
     // // logMessage("Control buttons added to widget\n");
 }
 
+void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
+{
+    ui_RecordGroup = lv_obj_create(parentWidget);
+    lv_obj_remove_style_all(ui_RecordGroup);
+    lv_obj_set_width(ui_RecordGroup, 195);
+    lv_obj_set_height(ui_RecordGroup, 45);
+    lv_obj_set_x(ui_RecordGroup, -40);
+    lv_obj_set_y(ui_RecordGroup, 0);
+    lv_obj_set_align(ui_RecordGroup, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_RecordGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_RecordCornerTopLeft = lv_obj_create(ui_RecordGroup);
+    lv_obj_remove_style_all(ui_RecordCornerTopLeft);
+    lv_obj_set_width(ui_RecordCornerTopLeft, 40);
+    lv_obj_set_height(ui_RecordCornerTopLeft, 20);
+    lv_obj_clear_flag(ui_RecordCornerTopLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_RecordCornerTopLeft, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordCornerTopLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_RecordCornerTopLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RecordCornerFillTopLeft = lv_obj_create(ui_RecordGroup);
+    lv_obj_remove_style_all(ui_RecordCornerFillTopLeft);
+    lv_obj_set_width(ui_RecordCornerFillTopLeft, 30);
+    lv_obj_set_height(ui_RecordCornerFillTopLeft, 40);
+    lv_obj_set_x(ui_RecordCornerFillTopLeft, -20);
+    lv_obj_set_y(ui_RecordCornerFillTopLeft, 0);
+    lv_obj_clear_flag(ui_RecordCornerFillTopLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RecordCornerFillTopLeft, 1000, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RecordCornerFillTopLeft, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordCornerFillTopLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_RecordCornerFillTopLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RecordCornerTopRight = lv_obj_create(ui_RecordGroup);
+    lv_obj_remove_style_all(ui_RecordCornerTopRight);
+    lv_obj_set_width(ui_RecordCornerTopRight, 40);
+    lv_obj_set_height(ui_RecordCornerTopRight, 20);
+    lv_obj_set_align(ui_RecordCornerTopRight, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_RecordCornerTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_RecordCornerTopRight, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordCornerTopRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_RecordCornerTopRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RecordCornerFillTopRight = lv_obj_create(ui_RecordGroup);
+    lv_obj_remove_style_all(ui_RecordCornerFillTopRight);
+    lv_obj_set_width(ui_RecordCornerFillTopRight, 30);
+    lv_obj_set_height(ui_RecordCornerFillTopRight, 40);
+    lv_obj_set_x(ui_RecordCornerFillTopRight, 20);
+    lv_obj_set_y(ui_RecordCornerFillTopRight, 0);
+    lv_obj_set_align(ui_RecordCornerFillTopRight, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_RecordCornerFillTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RecordCornerFillTopRight, 1000, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RecordCornerFillTopRight, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordCornerFillTopRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_RecordCornerFillTopRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RecordOutlay = lv_obj_create(ui_RecordGroup);
+    lv_obj_remove_style_all(ui_RecordOutlay);
+    lv_obj_set_width(ui_RecordOutlay, 175);
+    lv_obj_set_height(ui_RecordOutlay, 45);
+    lv_obj_set_align(ui_RecordOutlay, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_RecordOutlay, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RecordOutlay, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RecordOutlay, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordOutlay, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_RecordOutlay, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_btnPause = lv_btn_create(ui_RecordGroup);
+    lv_obj_set_width(ui_btnPause, 37);
+    lv_obj_set_height(ui_btnPause, 35);
+    lv_obj_set_x(ui_btnPause, 15);
+    lv_obj_set_y(ui_btnPause, -1);
+    lv_obj_set_align(ui_btnPause, LV_ALIGN_LEFT_MID);
+    lv_obj_add_flag(ui_btnPause, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_clear_flag(ui_btnPause, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+    lv_obj_set_style_radius(ui_btnPause, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_pauseImage = lv_img_create(ui_btnPause);
+    lv_img_set_src(ui_pauseImage, &ui_img_playpauseicon_png);
+    lv_obj_set_width(ui_pauseImage, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_pauseImage, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_pauseImage, -1);
+    lv_obj_set_y(ui_pauseImage, 0);
+    lv_obj_set_align(ui_pauseImage, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_pauseImage, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+    lv_img_set_zoom(ui_pauseImage, 119);
+
+    ui_btnSync = lv_btn_create(ui_RecordGroup);
+    lv_obj_set_width(ui_btnSync, 37);
+    lv_obj_set_height(ui_btnSync, 35);
+    lv_obj_set_x(ui_btnSync, 57);
+    lv_obj_set_y(ui_btnSync, -1);
+    lv_obj_set_align(ui_btnSync, LV_ALIGN_LEFT_MID);
+    lv_obj_add_flag(ui_btnSync, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_clear_flag(ui_btnSync, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+    lv_obj_set_style_radius(ui_btnSync, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_syncImage = lv_img_create(ui_btnSync);
+    lv_img_set_src(ui_syncImage, &ui_img_clockicon_png);
+    lv_obj_set_width(ui_syncImage, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_syncImage, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_syncImage, -1);
+    lv_obj_set_y(ui_syncImage, 0);
+    lv_obj_set_align(ui_syncImage, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_syncImage, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+    lv_img_set_zoom(ui_syncImage, 119);
+
+    ui_btnRecord = lv_btn_create(ui_RecordGroup);
+    lv_obj_set_width(ui_btnRecord, 37);
+    lv_obj_set_height(ui_btnRecord, 35);
+    lv_obj_set_x(ui_btnRecord, 99);
+    lv_obj_set_y(ui_btnRecord, -1);
+    lv_obj_set_align(ui_btnRecord, LV_ALIGN_LEFT_MID);
+    lv_obj_add_flag(ui_btnRecord, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_clear_flag(ui_btnRecord, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+    lv_obj_set_style_radius(ui_btnRecord, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_recordImage = lv_img_create(ui_btnRecord);
+    lv_img_set_src(ui_recordImage, &ui_img_recordicon_png);
+    lv_obj_set_width(ui_recordImage, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_recordImage, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_recordImage, -1);
+    lv_obj_set_y(ui_recordImage, 0);
+    lv_obj_set_align(ui_recordImage, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_recordImage, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+    lv_img_set_zoom(ui_recordImage, 119);
+
+    ui_btnClear = lv_btn_create(ui_RecordGroup);
+    lv_obj_set_width(ui_btnClear, 37);
+    lv_obj_set_height(ui_btnClear, 35);
+    lv_obj_set_x(ui_btnClear, 141);
+    lv_obj_set_y(ui_btnClear, -1);
+    lv_obj_set_align(ui_btnClear, LV_ALIGN_LEFT_MID);
+    lv_obj_add_flag(ui_btnClear, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_clear_flag(ui_btnClear, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+    lv_obj_set_style_radius(ui_btnClear, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_btnClear, [](lv_event_t *e)
+                        {
+        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        self->handleClearButtonClick(); }, LV_EVENT_CLICKED, this);
+
+    ui_clearImage = lv_img_create(ui_btnClear);
+    lv_img_set_src(ui_clearImage, &ui_img_trashicon_png);
+    lv_obj_set_width(ui_clearImage, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_clearImage, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_clearImage, -1);
+    lv_obj_set_y(ui_clearImage, 0);
+    lv_obj_set_align(ui_clearImage, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_clearImage, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+    lv_img_set_zoom(ui_clearImage, 119);
+
+    ui_btnInfo = lv_btn_create(parentWidget);
+    lv_obj_set_width(ui_btnInfo, 37);
+    lv_obj_set_height(ui_btnInfo, 36);
+    lv_obj_set_x(ui_btnInfo, -7);
+    lv_obj_set_y(ui_btnInfo, 4);
+    lv_obj_set_align(ui_btnInfo, LV_ALIGN_TOP_RIGHT);
+    lv_obj_add_flag(ui_btnInfo, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_clear_flag(ui_btnInfo, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+    lv_obj_set_style_radius(ui_btnInfo, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_infoImage = lv_img_create(ui_btnInfo);
+    lv_img_set_src(ui_infoImage, &ui_img_info_png);
+    lv_obj_set_width(ui_infoImage, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_infoImage, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_infoImage, -1);
+    lv_obj_set_y(ui_infoImage, 0);
+    lv_obj_set_align(ui_infoImage, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_infoImage, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+    lv_img_set_zoom(ui_infoImage, 119);
+}
+
+void SensorVisualizationGui::addLogoPanelToWidget(lv_obj_t *parentWidget)
+{
+    ui_LogoGroup = lv_obj_create(parentWidget);
+    lv_obj_remove_style_all(ui_LogoGroup);
+    lv_obj_set_width(ui_LogoGroup, 100);
+    lv_obj_set_height(ui_LogoGroup, 20);
+    lv_obj_set_x(ui_LogoGroup, 10);
+    lv_obj_set_y(ui_LogoGroup, 0);
+    lv_obj_set_align(ui_LogoGroup, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_LogoGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_LogoCornerBottomLeft = lv_obj_create(ui_LogoGroup);
+    lv_obj_remove_style_all(ui_LogoCornerBottomLeft);
+    lv_obj_set_width(ui_LogoCornerBottomLeft, 10);
+    lv_obj_set_height(ui_LogoCornerBottomLeft, 10);
+    lv_obj_set_x(ui_LogoCornerBottomLeft, 10);
+    lv_obj_set_y(ui_LogoCornerBottomLeft, 0);
+    lv_obj_set_align(ui_LogoCornerBottomLeft, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_clear_flag(ui_LogoCornerBottomLeft, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_LogoCornerBottomLeft, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LogoCornerBottomLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_LogoCornerBottomLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_LogoCornerBottomRight = lv_obj_create(ui_LogoGroup);
+    lv_obj_remove_style_all(ui_LogoCornerBottomRight);
+    lv_obj_set_width(ui_LogoCornerBottomRight, 10);
+    lv_obj_set_height(ui_LogoCornerBottomRight, 10);
+    lv_obj_set_x(ui_LogoCornerBottomRight, -10);
+    lv_obj_set_y(ui_LogoCornerBottomRight, 0);
+    lv_obj_set_align(ui_LogoCornerBottomRight, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_LogoCornerBottomRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_LogoCornerBottomRight, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LogoCornerBottomRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_LogoCornerBottomRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_LogoOutlay = lv_obj_create(ui_LogoGroup);
+    lv_obj_remove_style_all(ui_LogoOutlay);
+    lv_obj_set_width(ui_LogoOutlay, 80);
+    lv_obj_set_height(ui_LogoOutlay, 20);
+    lv_obj_set_align(ui_LogoOutlay, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_LogoOutlay, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_LogoOutlay, 1000, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_LogoOutlay, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LogoOutlay, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_LogoOutlay, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_LogoImage = lv_img_create(ui_LogoGroup);
+    lv_img_set_src(ui_LogoImage, &ui_img_mtalogo_png);
+    lv_obj_set_width(ui_LogoImage, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LogoImage, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_LogoImage, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_LogoImage, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_LogoImage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ui_LogoImage, 70);
+}
+
 void SensorVisualizationGui::drawCurrentSensor()
 {
     if (!currentSensor)
@@ -447,6 +670,7 @@ void SensorVisualizationGui::updateSensorDataDisplay()
     // Update sensor name
     if (ui_SensorLabel)
     {
+        lv_obj_set_x(ui_SensorLabel, -(lv_obj_get_width(ui_SensorLabel) / 6)); // Center the label
         lv_label_set_text(ui_SensorLabel, currentSensor->getName().c_str());
     }
 
@@ -723,6 +947,42 @@ void SensorVisualizationGui::updateChart()
     catch (const std::exception &e)
     {
         // logMessage("Error updating chart: %s\n", e.what());
+    }
+}
+
+void SensorVisualizationGui::handleClearButtonClick()
+{
+    // Add buttons
+    static const char *btns[] = {"Yes", ""};
+    // Show confirmation dialog before clearing history
+    lv_obj_t *confirmDialog = lv_msgbox_create(ui_SensorWidget, "Confirm Clear", "Are you sure you want to clear the sensor history?", btns, true);
+    lv_obj_set_width(confirmDialog, 250);
+    lv_obj_add_event_cb(confirmDialog,
+        [](lv_event_t *e)
+        {
+            auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+            lv_event_code_t code = lv_event_get_code(e);
+            if (code == LV_EVENT_VALUE_CHANGED)
+            {
+                // The msgbox object is the current target of the event.
+                lv_obj_t *msgbox = lv_event_get_current_target(e);
+                const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
+                if (btnText && strcmp(btnText, "Yes") == 0)
+                {
+                    self->handleClearConfirmButtonClick();
+                }
+                lv_obj_del(msgbox); // close the dialog
+            }
+        },
+        LV_EVENT_VALUE_CHANGED, this);
+}
+
+void SensorVisualizationGui::handleClearConfirmButtonClick()
+{
+    if (currentSensor)
+    {
+        currentSensor->clearHistory();
+        lv_chart_refresh(ui_Chart);
     }
 }
 

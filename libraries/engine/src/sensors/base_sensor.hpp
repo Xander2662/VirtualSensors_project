@@ -684,6 +684,21 @@ public:
     }
 
     /**
+     * @brief Clear history of all sensor value parameters.
+     */
+    void clearHistory()
+    {
+        for (auto &pair : Values)
+        {
+            for (size_t i = 0; i < HISTORY_CAP; i++)
+            {
+                pair.second.History[i] = "";
+            }
+            pair.second.lastHistoryIndex = 0;
+        }
+    }
+
+    /**
      * @brief Synchronize with the real sensor.
      *
      * @throws Exception if synchronization fails.
