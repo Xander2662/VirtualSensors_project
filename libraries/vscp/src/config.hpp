@@ -1,5 +1,5 @@
 /**
- * @file config.h
+ * @file config.hpp
  * @brief Configuration file for platform-specific settings.
  * 
  * This file defines macros to select the execution environment (Arduino or standard console).
@@ -19,10 +19,9 @@
 #ifdef ARDUINO_H
 #define UART1_PORT 1
 #define UART1_BAUDRATE 115200
-#define UART1_RX 18
+#define UART1_RX 16
 #define UART1_TX 17
-#define UART_TIMEOUT 100
-#define UART_INIT_TIMEOUT 1000
+#define UART1_TIMEOUT 100
 #endif
 /// Set protocol verbosity level (0 = silent, 1 = errors, 2 = all)
 #define PROTOCOL_VERBOSE 1

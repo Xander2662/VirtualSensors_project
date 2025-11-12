@@ -46,11 +46,7 @@ void logMessage(const char *format, ...) {
 void initLogger() {
     #ifdef ARDUINO_H
         Serial.begin(UART0_BAUDRATE); // Initialize Serial for Arduino
-        unsigned long startTime = millis();
-
-        while ((millis() - startTime) < UART0_INIT_TIMEOUT && !Serial) {
-            // Wait for Serial to initialize or timeout
-        }
+        Serial.setTimeout(UART0_TIMEOUT);
     #endif
 }
 

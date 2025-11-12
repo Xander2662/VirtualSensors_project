@@ -23,6 +23,25 @@
 #endif
 
 /**
+* @brief Initializes the global messenger.
+* 
+* @param baudrate The baudrate for the messenger.
+* @param mode The mode for the messenger.
+* @param tx The transmit pin for the messenger.
+* @param rx The receive pin for the messenger.
+* @param port The UART port for the messenger.
+* @throws Exception if initialization fails.
+*/
+bool initMessenger(unsigned long baudrate, unsigned int mode, int rx, int tx, unsigned int port);
+
+/**
+ * @brief Initializes the global messenger - automatic configuration.
+ * 
+ * @throws Exception if initialization fails.
+ */
+bool initMessenger();
+
+/**
  * @brief Sends a message using the global messenger.
  * 
  * @param message The message to send.
@@ -56,7 +75,7 @@ void sendMessage(const String &message);
  * @return A C-string containing the received message.
  * @throws Exception if receiving fails.
  */
-const char* receiveMessageAsChars(int verbose = 0, int timeout = UART_TIMEOUT);
+const char* receiveMessageAsChars(int verbose = 0, int timeout = UART1_TIMEOUT);
 
 /**
  * @brief Receives a message using the global messenger.
@@ -66,7 +85,7 @@ const char* receiveMessageAsChars(int verbose = 0, int timeout = UART_TIMEOUT);
  * @return A string containing the received message.
  * @throws Exception if receiving fails.
  */
-std::string receiveMessage(int verbose = 0, int timeout = UART_TIMEOUT);
+std::string receiveMessage(int verbose = 0, int timeout = UART1_TIMEOUT);
 
 #ifdef ARDUINO_H
 /**
@@ -77,25 +96,7 @@ std::string receiveMessage(int verbose = 0, int timeout = UART_TIMEOUT);
  * @return An Arduino String containing the received message.
  * @throws Exception if receiving fails.
  */
-String receiveMessageAsString(int verbose = 0, int timeout = UART_TIMEOUT);
+String receiveMessageAsString(int verbose = 0, int timeout = UART1_TIMEOUT);
 #endif
-
-/**
-* @brief Initializes the global messenger.
-* 
-* @param baudrate The baudrate for the messenger.
-* @param mode The mode for the messenger.
-* @param tx The transmit pin for the messenger.
-* @param rx The receive pin for the messenger.
-* @throws Exception if initialization fails.
-*/
-bool initMessenger(unsigned long baudrate, unsigned int mode, int tx, int rx);
-
-/**
- * @brief Initializes the global messenger - automatic configuration.
- * 
- * @throws Exception if initialization fails.
- */
-bool initMessenger();
 
 #endif // MESSENGER_HPP

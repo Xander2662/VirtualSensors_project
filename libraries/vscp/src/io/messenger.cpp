@@ -34,7 +34,7 @@
         sendMessage(message.c_str());
     }
 
-    const char* receiveMessageAsChars(int verbose, int timeout) {
+    String receiveMessageAsString(int verbose, int timeout) {
         String msg = ""; // static so it persists between calls
 
         if(!uart1_initialized){
@@ -45,27 +45,29 @@
         msg.trim();
         if (msg.length()==0 && verbose>0) msg = "Timeout";
 
+        return msg;
+    }
+
+    const char* receiveMessageAsChars(int verbose, int timeout) {
+        String msg = receiveMessageAsString(verbose, timeout);
         return msg.c_str();
     }
     
     std::string receiveMessage(int verbose, int timeout) {
-        const char* msg = receiveMessageAsChars(verbose, timeout);
-        return std::string(msg);
+        String msg = receiveMessageAsString(verbose, timeout);
+        return std::string(msg.c_str());
     }
 
-    String receiveMessageAsString(int verbose, int timeout) {
-        const char* msg = receiveMessageAsChars(verbose, timeout);
-        return String(msg);
-    }
-
-    bool initMessenger(unsigned long baudrate = UART1_BAUDRATE, unsigned int mode = SERIAL_8N1, int tx = UART1_TX, int rx = UART1_RX) {
+    bool initMessenger(unsigned long baudrate, unsigned int mode, int rx, int tx, unsigned int port) {
+        UART1_VIRTUAL.end(); // End if already initialized
+        UART1_VIRTUAL = HardwareSerial(port);
         UART1_VIRTUAL.begin(baudrate, mode, rx, tx);
-        UART1_VIRTUAL.setTimeout(UART_TIMEOUT);
+        UART1_VIRTUAL.setTimeout(UART1_TIMEOUT);
         return uart1_initialized = true;
     }
 
     bool initMessenger() {
-        return initMessenger(UART1_BAUDRATE, SERIAL_8N1, UART1_TX, UART1_RX);
+        return initMessenger(UART1_BAUDRATE, SERIAL_8N1, UART1_RX, UART1_TX, UART1_PORT);
     }
 
 #elif defined(STDIO_H)

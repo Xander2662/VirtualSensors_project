@@ -17,7 +17,6 @@
 #ifdef ARDUINO_H 
 #define UART0_BAUDRATE 115200
 #define UART0_TIMEOUT 100 // only for receive
-#define UART0_INIT_TIMEOUT 1000
 #endif
 
 /// Uncomment to enable standard console applications (PC/Linux)
