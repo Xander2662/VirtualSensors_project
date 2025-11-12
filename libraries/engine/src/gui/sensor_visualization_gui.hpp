@@ -20,7 +20,6 @@
 #include "../managers/manager.hpp"
 #include "../exceptions/data_exceptions.hpp"
 
-
 /**
  * @class SensorVisualizationGui
  * @brief Handles active sensor visualization, data display, and navigation.
@@ -78,22 +77,6 @@ private:
     lv_obj_t* ui_btnBackGroup;              ///< Group container for back button
     lv_obj_t* ui_btnBackCornerBottomLeft;   ///< Decorative corner for back button
     lv_obj_t* ui_btnBackCornerTopRight;     ///< Decorative corner for back button
-    lv_obj_t * ui_RecordGroup;              ///< Group container for record panel
-    lv_obj_t * ui_RecordCornerTopLeft;      ///< Decorative corner for record panel
-    lv_obj_t * ui_RecordCornerFillTopLeft;  ///< Decorative fill for record panel
-    lv_obj_t * ui_RecordCornerTopRight;     ///< Decorative corner for record panel
-    lv_obj_t * ui_RecordCornerFillTopRight; ///< Decorative fill for record panel
-    lv_obj_t * ui_RecordOutlay;             ///< Decorative outlay for record panel
-    lv_obj_t * ui_btnPause;                 ///< Pause recording button
-    lv_obj_t * ui_pauseImage;               ///< Image for pause button
-    lv_obj_t * ui_btnSync;                  ///< Sync button
-    lv_obj_t * ui_syncImage;                ///< Image for sync button
-    lv_obj_t * ui_btnRecord;                ///< Record button
-    lv_obj_t * ui_recordImage;              ///< Image for record button
-    lv_obj_t * ui_btnClear;                 ///< Clear data button
-    lv_obj_t * ui_clearImage;               ///< Image for clear button
-    lv_obj_t * ui_btnInfo;                  ///< Info button
-    lv_obj_t * ui_infoImage;                ///< Image for info button
 
     /**
      * @brief Add navigation buttons to a widget
@@ -106,12 +89,6 @@ private:
      * @param parentWidget The parent widget to add the buttons to
      */
     void addControlButtonsToWidget(lv_obj_t *parentWidget);
-
-    /**
-     * @brief Add record panel to a widget
-     * @param parentWidget The parent widget to add the record panel to
-     */
-    void addRecordPanelToWidget(lv_obj_t *parentWidget);
 
     /**
      * @brief Build sensor history data for chart display

@@ -262,7 +262,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_width(ui_LabelSensor2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelSensor2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_LabelSensor2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelSensor2, "Pin 2");
+    lv_label_set_text(ui_LabelSensor2, "Pin 1");
     lv_obj_clear_flag(ui_LabelSensor2, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
@@ -303,7 +303,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_width(ui_LabelSensor3, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelSensor3, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_LabelSensor3, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelSensor3, "Pin 3");
+    lv_label_set_text(ui_LabelSensor3, "Pin 1");
     lv_obj_clear_flag(ui_LabelSensor3, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
@@ -344,7 +344,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_width(ui_LabelSensor4, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelSensor4, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_LabelSensor4, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelSensor4, "Pin 4");
+    lv_label_set_text(ui_LabelSensor4, "Pin 1");
     lv_obj_clear_flag(ui_LabelSensor4, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
@@ -385,7 +385,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_width(ui_LabelSensor5, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelSensor5, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_LabelSensor5, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelSensor5, "Pin 5");
+    lv_label_set_text(ui_LabelSensor5, "Pin 1");
     lv_obj_clear_flag(ui_LabelSensor5, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags

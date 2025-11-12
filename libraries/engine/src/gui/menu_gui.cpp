@@ -219,24 +219,14 @@ void MenuGui::updatePinVisualStates()
 
         bool isActive = (i == activePinIndex);
         bool isAvailable = sensorManager.isPinAvailable(i);
-        bool isLocked = sensorManager.isPinLocked(i);
         BaseSensor *assignedSensor = sensorManager.getAssignedSensor(i);
-        BaseSensor *currentWikiSensor = sensorManager.getCurrentWikiSensor();
         int gpioNumber = sensorManager.getPinNumber(i);
 
-        // Determine colors: Green (available), Red (used), Yellow (same sensor), Blue (active)
+        // Determine colors: Green (available), Red (used), Blue (active)
         uint32_t pinStateColor;
-        if (isLocked)
-        {
-            pinStateColor = 0x808080; // Gray for locked
-        }
-        else if (isAvailable)
+        if (isAvailable)
         {
             pinStateColor = 0x00CC00; // Green for available
-        }
-        else if (assignedSensor == currentWikiSensor)
-        {
-            pinStateColor = 0xFFFF00; // Yellow for same sensor
         }
         else
         {
