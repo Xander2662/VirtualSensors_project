@@ -688,13 +688,13 @@ public:
      */
     void clearHistory()
     {
-        for (auto &pair : Values)
+        for (auto &v : Values)
         {
-            for (size_t i = 0; i < HISTORY_CAP; i++)
-            {
-                pair.second.History[i] = "";
+            for(int i=0;i<HISTORY_CAP;i++){
+                v.second.History[i] = "0";
+                logMessage("Clearing history value %s for key %s\n", v.second.History[i], v.first.c_str());
             }
-            pair.second.lastHistoryIndex = 0;
+            v.second.lastHistoryIndex = 0;
         }
     }
 

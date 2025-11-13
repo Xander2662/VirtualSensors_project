@@ -62,7 +62,8 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : s
     ui_LogoCornerBottomRight = nullptr;
     ui_LogoCornerFillBottomRight = nullptr;
     ui_LogoOutlay = nullptr;
-    ui_LogoImage = nullptr;               
+    ui_LogoImage = nullptr;      
+    ui_ShadowOverlay = nullptr;         
 }
 
 void SensorVisualizationGui::init()
@@ -588,6 +589,35 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
     lv_img_set_zoom(ui_infoImage, 119);
 }
 
+void SensorVisualizationGui::showShadowOverlay()
+{
+    if (ui_ShadowOverlay)
+    {
+        lv_obj_del(ui_ShadowOverlay);
+        ui_ShadowOverlay = NULL;
+    }
+
+    ui_ShadowOverlay = lv_obj_create(lv_scr_act());
+    lv_obj_clear_flag(ui_ShadowOverlay, LV_OBJ_FLAG_SCROLLABLE); 
+    lv_obj_add_flag(ui_ShadowOverlay, LV_OBJ_FLAG_CLICKABLE);    
+    lv_obj_set_size(ui_ShadowOverlay, lv_pct(100), lv_pct(100));
+    lv_obj_align(ui_ShadowOverlay, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(ui_ShadowOverlay, 0, 0);
+
+    lv_obj_set_style_bg_color(ui_ShadowOverlay, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(ui_ShadowOverlay, LV_OPA_50, 0); 
+    lv_obj_set_style_border_width(ui_ShadowOverlay, 0, 0);
+}
+
+void SensorVisualizationGui::hideShadowOverlay()
+{
+    if (ui_ShadowOverlay)
+    {
+        lv_obj_del(ui_ShadowOverlay);
+        ui_ShadowOverlay = NULL;
+    }
+}
+
 void SensorVisualizationGui::addLogoPanelToWidget(lv_obj_t *parentWidget)
 {
     ui_LogoGroup = lv_obj_create(parentWidget);
@@ -955,26 +985,33 @@ void SensorVisualizationGui::handleClearButtonClick()
     // Add buttons
     static const char *btns[] = {"Yes", ""};
     // Show confirmation dialog before clearing history
-    lv_obj_t *confirmDialog = lv_msgbox_create(ui_SensorWidget, "Confirm Clear", "Are you sure you want to clear the sensor history?", btns, true);
+    showShadowOverlay();
+    lv_obj_t *confirmDialog = lv_msgbox_create(lv_scr_act(), "Confirm Clear", "Are you sure you want to clear the sensor history?", btns, true);
     lv_obj_set_width(confirmDialog, 250);
-    lv_obj_add_event_cb(confirmDialog,
-        [](lv_event_t *e)
+    lv_obj_center(confirmDialog);
+    lv_obj_move_foreground(confirmDialog);
+    lv_obj_add_event_cb(confirmDialog,[](lv_event_t *e)
+    {
+        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        lv_event_code_t code = lv_event_get_code(e);
+
+        if (code == LV_EVENT_VALUE_CHANGED)
         {
-            auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-            lv_event_code_t code = lv_event_get_code(e);
-            if (code == LV_EVENT_VALUE_CHANGED)
+            lv_obj_t *msgbox = lv_event_get_current_target(e);
+            const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
+            if (btnText && strcmp(btnText, "Yes") == 0)
             {
-                // The msgbox object is the current target of the event.
-                lv_obj_t *msgbox = lv_event_get_current_target(e);
-                const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
-                if (btnText && strcmp(btnText, "Yes") == 0)
-                {
-                    self->handleClearConfirmButtonClick();
-                }
-                lv_obj_del(msgbox); // close the dialog
+                self->handleClearConfirmButtonClick();
             }
-        },
-        LV_EVENT_VALUE_CHANGED, this);
+            self->hideShadowOverlay();
+            lv_obj_del(msgbox);
+        }
+        else if (code == LV_EVENT_DELETE)
+        {
+            self->hideShadowOverlay();
+        }
+    },
+    LV_EVENT_ALL, this);
 }
 
 void SensorVisualizationGui::handleClearConfirmButtonClick()
@@ -982,7 +1019,16 @@ void SensorVisualizationGui::handleClearConfirmButtonClick()
     if (currentSensor)
     {
         currentSensor->clearHistory();
+
+        if (ui_Chart && ui_Chart_series_V1)
+            lv_chart_set_all_value(ui_Chart, ui_Chart_series_V1, LV_CHART_POINT_NONE);
+        if (ui_Chart && ui_Chart_series_V2)
+            lv_chart_set_all_value(ui_Chart, ui_Chart_series_V2, LV_CHART_POINT_NONE);
+
         lv_chart_refresh(ui_Chart);
+        
+        if(ui_LabelValueValue_1) lv_label_set_text(ui_LabelValueValue_1, "0");
+        if(ui_LabelValueValue_2) lv_label_set_text(ui_LabelValueValue_2, "0");
     }
 }
 
