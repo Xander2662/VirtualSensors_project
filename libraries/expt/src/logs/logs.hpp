@@ -39,22 +39,12 @@
   */
  void logMessage(const char *format, ...);
 
-
-  /**
-    * @brief Delays execution for a specified number of milliseconds.
-    * 
-    * This function provides a cross-platform way to introduce delays.
-    * 
-    * @param ms Number of milliseconds to delay.
-    */
- void delay_ms(uint32_t ms);
-
 /**
   * @brief Initializes the logger system.
   * 
   * This function sets up the logging environment, such as initializing Serial communication for Arduino.
   */
- void initLogger();
+ void initLogger(unsigned int baudrate = UART0_BAUDRATE, unsigned int timeout = UART0_TIMEOUT);
 
  
  #endif // LOGS_H

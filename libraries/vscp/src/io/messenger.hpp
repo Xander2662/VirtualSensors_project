@@ -45,26 +45,32 @@ bool initMessenger();
  * @brief Sends a message using the global messenger.
  * 
  * @param message The message to send.
+ * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @param strip Whether to strip the message before sending (default is true).
  * @throws Exception if sending fails.
  */
-void sendMessage(const char* message);
+void sendMessage(const char* message, int verbose = 0, bool strip = true);
 
 /**
  * @brief Sends a message using the global messenger.
  * 
  * @param message The message to send.
+ * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @param strip Whether to strip the message before sending (default is true).
  * @throws Exception if sending fails.
  */
-void sendMessage(const std::string &message);
+void sendMessage(const std::string &message, int verbose = 0, bool strip = true);
 
 #ifdef ARDUINO_H
 /**
  * @brief Sends a message using the global messenger.
  * 
  * @param message The message to send.
+ * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @param strip Whether to strip the message before sending (default is true).
  * @throws Exception if sending fails.
  */
-void sendMessage(const String &message);
+void sendMessageAsString(const String &message, int verbose = 0, bool strip = true);
 #endif
 
 /**
@@ -72,20 +78,22 @@ void sendMessage(const String &message);
  * 
  * @param timeout The timeout in milliseconds to wait for a message.
  * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @param strip Whether to strip the message after receiving (default is true).
  * @return A C-string containing the received message.
  * @throws Exception if receiving fails.
  */
-const char* receiveMessageAsChars(int verbose = 0, int timeout = UART1_TIMEOUT);
+const char* receiveMessageAsChars(int verbose = 0, int timeout = UART1_TIMEOUT, bool strip = true);
 
 /**
  * @brief Receives a message using the global messenger.
  * 
  * @param timeout The timeout in milliseconds to wait for a message.
  * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @param strip Whether to strip the message after receiving (default is true).
  * @return A string containing the received message.
  * @throws Exception if receiving fails.
  */
-std::string receiveMessage(int verbose = 0, int timeout = UART1_TIMEOUT);
+std::string receiveMessage(int verbose = 0, int timeout = UART1_TIMEOUT, bool strip = true);
 
 #ifdef ARDUINO_H
 /**
@@ -93,10 +101,11 @@ std::string receiveMessage(int verbose = 0, int timeout = UART1_TIMEOUT);
  * 
  * @param timeout The timeout in milliseconds to wait for a message.
  * @param verbose Verbosity level for logging (0 = silent, 1 = errors, 2 = all).
+ * @param strip Whether to strip the message after receiving (default is true).
  * @return An Arduino String containing the received message.
  * @throws Exception if receiving fails.
  */
-String receiveMessageAsString(int verbose = 0, int timeout = UART1_TIMEOUT);
+String receiveMessageAsString(int verbose = 0, int timeout = UART1_TIMEOUT, bool strip = true);
 #endif
 
 #endif // MESSENGER_HPP

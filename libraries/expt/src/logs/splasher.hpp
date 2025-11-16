@@ -73,7 +73,7 @@ void show_splash_popup(const char* title, const char* text, uint32_t autoclose_m
 * This function provides a cross-platform way to introduce delays.
 * @param ms Number of milliseconds to delay.
 */
-void delay_ms(uint32_t ms);
+void delay_ms(unsigned int ms);
 
 /**
 * @brief Displays a splash message on GUI.

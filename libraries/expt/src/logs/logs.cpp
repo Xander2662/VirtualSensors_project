@@ -43,10 +43,13 @@ void logMessage(const char *format, ...) {
     va_end(args);
 }
 
-void initLogger() {
+void initLogger(unsigned int baudrate, unsigned int timeout) {
     #ifdef ARDUINO_H
-        Serial.begin(UART0_BAUDRATE); // Initialize Serial for Arduino
-        Serial.setTimeout(UART0_TIMEOUT);
+        Serial.begin(baudrate); // Initialize Serial for Arduino
+        Serial.setTimeout(timeout); // Set timeout for Serial receive
+    #elif defined(STDIO_H)
+        // No initialization needed for standard console
+        printf("Logger initialized for standard console...\n");
     #endif
 }
 

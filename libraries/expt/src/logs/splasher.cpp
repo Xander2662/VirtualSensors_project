@@ -94,7 +94,7 @@ void show_splash_popup(const char* title, const char* text, uint32_t autoclose_m
 
 #endif // USE_LVGL
 
-void delay_ms(uint32_t ms) {
+void delay_ms(unsigned int ms) {
     #ifdef ARDUINO_H
         delay(ms); // Arduino delay
     #elif defined(_WIN32) || defined(_WIN64)

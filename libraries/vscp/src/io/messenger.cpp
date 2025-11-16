@@ -18,23 +18,51 @@
     HardwareSerial UART1_VIRTUAL(UART1_PORT);
     static bool uart1_initialized = false;
 
-    void sendMessage(const char* message) {
+    String stripMessage(const String &input, bool trim = true) {
+        String out = "";
+        out.reserve(input.length());
+        if (trim) {
+            out.trim(); // Remove leading/trailing whitespace
+        }
+
+        for (size_t i = 0; i < input.length(); i++) {
+            char c = input[i];
+
+            // tisknutelné ASCII = 32 až 126
+            if (c >= 32 && c <= 126) {
+                out += c;
+            }
+        }
+        return out;
+    }
+
+    void sendMessage(const char* message, int verbose, bool strip) {
+        sendMessageAsString(String(message), verbose, strip);
+    }
+
+    void sendMessage(const std::string &message, int verbose, bool strip) {
+        sendMessageAsString(String(message.c_str()), verbose, strip);
+    }
+    
+    void sendMessageAsString(const String &message, int verbose, bool strip) {
         if(!uart1_initialized){
             initMessenger();
         }
 
-        UART1_VIRTUAL.println(message);
+        //strip message before sending
+        String prepMessage = message;
+        if (strip) 
+            prepMessage = stripMessage(message, true);
+
+        if (verbose >= 2) {
+            Serial.print("[SEND] ");
+            Serial.println(prepMessage);
+        }
+
+        UART1_VIRTUAL.println(prepMessage);
     }
 
-    void sendMessage(const std::string &message) {
-        sendMessage(message.c_str());
-    }
-
-    void sendMessage(const String &message) {
-        sendMessage(message.c_str());
-    }
-
-    String receiveMessageAsString(int verbose, int timeout) {
+    String receiveMessageAsString(int verbose, int timeout, bool strip) {
         String msg = ""; // static so it persists between calls
 
         if(!uart1_initialized){
@@ -42,19 +70,28 @@
         }
 
         msg = UART1_VIRTUAL.readStringUntil('\n');
-        msg.trim();
-        if (msg.length()==0 && verbose>0) msg = "Timeout";
+        if (strip)
+            msg = stripMessage(msg, true);
+
+        if (msg.length()==0 && verbose>0) {
+            Serial.println("[RECV] No message received (timeout?)");
+        }
+
+        if (verbose >= 2) {
+            Serial.print("[RECV] ");
+            Serial.println(msg);
+        }
 
         return msg;
     }
 
-    const char* receiveMessageAsChars(int verbose, int timeout) {
-        String msg = receiveMessageAsString(verbose, timeout);
+    const char* receiveMessageAsChars(int verbose, int timeout, bool strip) {
+        String msg = receiveMessageAsString(verbose, timeout, strip);
         return msg.c_str();
     }
     
-    std::string receiveMessage(int verbose, int timeout) {
-        String msg = receiveMessageAsString(verbose, timeout);
+    std::string receiveMessage(int verbose, int timeout, bool strip) {
+        String msg = receiveMessageAsString(verbose, timeout, strip);
         return std::string(msg.c_str());
     }
 
