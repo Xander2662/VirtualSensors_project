@@ -190,6 +190,7 @@ void GuiManager::redraw() {
         return;
     }
 
+
     // Sync sensor data periodically
     if (LOOP_SYNC_COUNTER-- < 0) {
         sensorManager.resync(); // Sync sensor data, if running

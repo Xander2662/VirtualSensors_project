@@ -36,6 +36,8 @@ private:
     SensorManager &sensorManager;        ///< Reference to the sensor manager instance
     BaseSensor *currentSensor = nullptr; ///< Currently visualized sensor
     bool initialized = false;            ///< Initialization state flag
+    bool paused = false;                 ///< Pause state flag
+    bool recording = false;              ///< Recording state flag
 
     // --- SENSOR VISUALIZATION MEMBERS ---
     lv_obj_t *ui_SensorWidget; ///< Widget for sensor visualisation
@@ -256,6 +258,21 @@ public:
      * @brief Go to the first sensor in the list
      */
     void goToFirstSensor();
+
+    /**
+     * @brief Handle pause button click event
+     */
+    void handlePauseButtonClick();
+
+    /**
+     * @brief Handle sync button click event
+     */
+    void handleSyncButtonClick();
+
+    /**
+     * @brief Handle record button click event
+     */
+    void handleRecordButtonClick();
 
     /**
      * @brief opens a confirmation dialog to clear the current sensor's history data
