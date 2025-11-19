@@ -21,9 +21,6 @@
     String stripMessage(const String &input, bool trim = true) {
         String out = "";
         out.reserve(input.length());
-        if (trim) {
-            out.trim(); // Remove leading/trailing whitespace
-        }
 
         for (size_t i = 0; i < input.length(); i++) {
             char c = input[i];
@@ -33,6 +30,11 @@
                 out += c;
             }
         }
+
+        if (trim) {
+            out.trim(); // Remove leading/trailing whitespace
+        }
+        
         return out;
     }
 
