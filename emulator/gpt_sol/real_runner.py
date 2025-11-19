@@ -25,6 +25,8 @@ class RealSensorBridge:
                     if isinstance(data, dict) and data:
                         payload = {**data, "type": s.kind}
                         self.emu.sensor_data[s.uid] = payload
+                    else:
+                        print(f"[Sensor {s.uid}] no data found, using simulated values...")
                 except Exception as e:
                     print(f"[Sensor {s.uid}] error: {e}")
             time.sleep(UPDATE_PERIOD_S)

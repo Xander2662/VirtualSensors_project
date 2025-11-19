@@ -155,7 +155,10 @@ void SensorManager::selectSensorsFromPinMap() {
     SelectedSensors.clear();
     for (const auto& pin : PinMap) {
         if (pin.assignedSensor) {
-            SelectedSensors.push_back(pin.assignedSensor);
+            if (!std::count(SelectedSensors.begin(), SelectedSensors.end(), pin.assignedSensor))
+            {
+                SelectedSensors.push_back(pin.assignedSensor);
+            }     
         }
     }
     resetCurrentIndex();

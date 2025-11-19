@@ -364,6 +364,7 @@ class VSCPEmulator:
                     
                     if data and '\n' in buffer:
                         print(f"DEBUG: {data}") 
+                        #print(f"DEBUG BUFFER: {buffer}")
                     # Process complete messages (ending with newline or containing '?')
                     while '\n' in buffer or '?' in buffer:
                         if '\n' in buffer:
@@ -374,6 +375,11 @@ class VSCPEmulator:
                             buffer = ""
                         
                         line = line.strip()
+                        #print(f"DEBUG LINE: {line}, first char: {line[0] if line else 'N/A'}, ASCII: {ord(line[0])}")
+                        # Substring from ? char if exists
+                        qmark_index = line.find('?')
+                        if qmark_index != -1:
+                            line = line[qmark_index:]
                         if line and line.startswith('?'):
                             print(f"📨 Received: {line}")
                             response = self.process_request(line)
