@@ -5,6 +5,7 @@ try:
     import sounddevice as sd
     _HAVE_SD = True
 except Exception:
+    print("MicrophoneSensor: sounddevice library not available, disabling microphone sensor.")
     _HAVE_SD = False
 
 class MicrophoneSensor(Sensor):

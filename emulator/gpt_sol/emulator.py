@@ -32,7 +32,7 @@ from typing import Dict, Any, Optional
 class VSCPEmulator:
     """Virtual Sensors Communication Protocol Emulator"""
     
-    def __init__(self, port='COM3', baudrate=115200, timeout=0.1):
+    def __init__(self, sensors:dict, port='COM3', baudrate=115200, timeout=0.1):
         """Initialize the VSCP emulator"""
         self.API_VERSION = "1.2"
         self.DB_VERSION = "1.0.0"
@@ -52,22 +52,7 @@ class VSCPEmulator:
         self.running = False
         
         # Dummy sensor data
-        self.sensor_data = {
-            "0": {"temp": 25.5, "alarm": 60.2, "type": "DHT22"},
-            "1": {"temp": 25.5, "humi": 80},
-            "15": {"intensity": 85, "type": "Light"},
-            "2": {"Pressure": 1013.25, "Temperature": 22.1, "type": "BMP280"},
-            "3": {"X": 45, "Y": 78, "Button": 0, "type": "Joystick"},
-            "5": {"MagField": 12.5, "Detected": 0, "type": "Magnetic"},
-            "imu_001": {
-                "acm_x": -2.1, "acm_y": 0.8, "acm_z": 9.8,
-                "gyr_x": 0.05, "gyr_y": -0.02, "gyr_z": 0.01,
-                "type": "IMU"
-            },
-            "mic_001": {"dBFS": 89.3, "peak": 10.0, "type": "Microphone"},
-            "cam_001": {"lux_est": 10.4, "type": "Lux meter"},
-            "cpu_temp": {"temp": 55.0, "type": "CPU Temperature"},
-        }
+        self.sensor_data = sensors
         
     def connect_serial(self) -> bool:
         """Connect to serial port"""
@@ -445,7 +430,23 @@ def main():
     if not port:
         port = default_port
     
-    emulator = VSCPEmulator(port=port, baudrate=115200)
+    sensors = {
+            "0": {"temp": 25.5, "alarm": 60.2, "type": "DHT22"},
+            "1": {"temp": 25.5, "humi": 80},
+            "15": {"intensity": 85, "type": "Light"},
+            "2": {"Pressure": 1013.25, "Temperature": 22.1, "type": "BMP280"},
+            "3": {"X": 45, "Y": 78, "Button": 0, "type": "Joystick"},
+            "5": {"MagField": 12.5, "Detected": 0, "type": "Magnetic"},
+            "imu_001": {
+                "acm_x": -2.1, "acm_y": 0.8, "acm_z": 9.8,
+                "gyr_x": 0.05, "gyr_y": -0.02, "gyr_z": 0.01,
+                "type": "IMU"
+            },
+            "mic_001": {"dBFS": 89.3, "peak": 10.0, "type": "Microphone"},
+            "cam_001": {"lux_est": 10.4, "type": "Lux meter"},
+            "cpu_temp": {"temp": 55.0, "type": "CPU Temperature"},
+        }
+    emulator = VSCPEmulator(sensors, port=port, baudrate=115200)
     emulator.run()
 
 if __name__ == "__main__":

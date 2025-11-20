@@ -9,13 +9,15 @@ UPDATE_PERIOD_S = float(os.getenv("VSCP_UPDATE_PERIOD", "0.5"))
 
 class RealSensorBridge:
     """Periodically pulls real data from sensor adapters and updates the emulator."""
-    def __init__(self, emu: VSCPEmulator, sensors):
+    def __init__(self, emu: VSCPEmulator, real_sensors):
         self.emu = emu
-        self.sensors = sensors
+        self.sensors = real_sensors
         self.running = False
         # Pre-register keys so UPDATE works before first sample arrives
         for s in self.sensors:
             self.emu.sensor_data.setdefault(s.uid, {"type": s.kind})
+            
+        
 
     def loop(self):
         while self.running:
@@ -26,7 +28,8 @@ class RealSensorBridge:
                         payload = {**data, "type": s.kind}
                         self.emu.sensor_data[s.uid] = payload
                     else:
-                        print(f"[Sensor {s.uid}] no data found, using simulated values...")
+                        #print(f"[Sensor {s.uid}] no data found, using simulated values...")
+                        pass
                 except Exception as e:
                     print(f"[Sensor {s.uid}] error: {e}")
             time.sleep(UPDATE_PERIOD_S)
@@ -57,7 +60,17 @@ if __name__ == "__main__":
     port = input(f"Enter serial port (default: {default_port}): ").strip()
     if not port:
         port = default_port
-    emu = VSCPEmulator(port=port, baudrate=115200)
+        
+    # Load virtual sensors
+    virtual_sensors = {
+            "mic_001": {"dBFS": 89.3, "peak": 10.0, "type": "Microphone"},
+            "cam_001": {"lux_est": 10.4, "type": "Lux meter"},
+            "cpu_temp": {"temp": 55.0, "type": "CPU Temperature"},
+    }
+    if not virtual_sensors:
+        print("No virtual sensors found. Exiting.")
+        raise SystemExit(1)
+    emu = VSCPEmulator(virtual_sensors, port=port, baudrate=115200)
 
     if not emu.connect_serial():
         raise SystemExit(1)
@@ -66,14 +79,14 @@ if __name__ == "__main__":
     threading.Thread(target=emu.listen_loop, daemon=True).start()
 
     # Initialize protocol so UPDATE works immediately
-    print(emu.process_request("?type=INIT&app=RealRunner&db=1.0.0&api=1.2"))
+    #print(emu.process_request("?type=INIT&app=RealRunner&db=1.0.0&api=1.2"))
 
-    # Load and start real sensors
-    sensors = load_sensors()
-    bridge = RealSensorBridge(emu, sensors)
+    # Start real sensor bridge
+    real_sensors = load_sensors()
+    bridge = RealSensorBridge(emu, real_sensors)
     bridge.start()
 
-    print("Real sensors active:", [f"{s.uid}({s.kind})" for s in sensors])
+    print("Real sensors active:", [f"{s.uid}({s.kind})" for s in real_sensors])
     print("Send UPDATE, e.g.: ?type=UPDATE&id=mic_001  |  ?type=UPDATE&id=cam_001  |  ?type=UPDATE&id=cpu_temp")
 
     try:

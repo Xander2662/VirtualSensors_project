@@ -131,6 +131,7 @@ protected:
     std::unordered_map<std::string, SensorParam> Values;            ///< Sensor values.
     std::unordered_map<std::string, SensorParam> Configs;          ///< Sensor configurations.
     std::vector<std::string> Pins;                                 ///< Sensor pins.
+    std::string AllowedPins;                                       ///< Allowed sensor pins, enter as list of values separated by ",".
 
     /**
      * @brief Set sensor status.

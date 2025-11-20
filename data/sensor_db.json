@@ -11,7 +11,7 @@
             },
             "configs":
             {
-                "resolution": {"value": 0, "unit": "b", "dtype": "int", "restrictions": {"min": 8, "max": 12, "step": 2, "options": "8, 10, 12"} }
+                "resolution": {"value": 0, "unit": "b", "dtype": "int", "restrictions": {"options": "8, 10, 12"} }
             },
             "default": 
             {
@@ -24,7 +24,7 @@
                 {
                     "resolution": 10
                 },
-                "pin": ""
+                "pins": ""
             }
         }
     },
