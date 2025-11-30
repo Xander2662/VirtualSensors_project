@@ -35,9 +35,14 @@ class SensorVisualizationGui
 private:
     SensorManager &sensorManager;        ///< Reference to the sensor manager instance
     BaseSensor *currentSensor = nullptr; ///< Currently visualized sensor
-    bool initialized = false;            ///< Initialization state flag
-    bool paused = false;                 ///< Pause state flag
-    bool recording = false;              ///< Recording state flag
+
+    /// Static buffers for chart data
+    std::map<std::string, std::array<lv_coord_t, HISTORY_CAP>> bufMap;
+    std::map<std::string, bool> initedMap;
+
+    bool initialized = false; ///< Initialization state flag
+    bool paused = false;      ///< Pause state flag
+    bool recording = false;   ///< Recording state flag
 
     // --- SENSOR VISUALIZATION MEMBERS ---
     lv_obj_t *ui_SensorWidget; ///< Widget for sensor visualisation
@@ -126,7 +131,7 @@ private:
      * @param popup The popup dialog which is meant to be highlighted
      */
     void showShadowOverlay();
- 
+
     /**
      * @brief Hide shadow overlay
      */
@@ -149,9 +154,6 @@ private:
             return;
 
         // Static storage between calls
-        static std::map<std::string, std::array<lv_coord_t, HISTORY_CAP>> bufMap;
-        static std::map<std::string, bool> initedMap;
-
         auto &buf = bufMap[key];
         bool &inited = initedMap[key];
 
@@ -199,6 +201,15 @@ private:
                 throw InvalidDataTypeException("SensorVisualizationGui::buildSensorHistory", e.what());
             }
         }
+    }
+
+    void clearSensorHistoryBuffer(const std::string &key)
+    {
+        std::array<lv_coord_t, HISTORY_CAP> zeroBuf;
+        zeroBuf.fill(0);
+
+        bufMap[key] = zeroBuf;
+        initedMap[key] = true;
     }
 
     /**

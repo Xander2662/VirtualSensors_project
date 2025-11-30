@@ -9,5 +9,6 @@ LV_IMG_DECLARE(ui_img_info_png);
 LV_IMG_DECLARE(ui_img_mtalogo_png);
 LV_IMG_DECLARE(ui_img_recordicon_png);
 LV_IMG_DECLARE(ui_img_trashicon_png);
+LV_IMG_DECLARE(ui_img_export_png);
 
 #endif // UI_IMAGES_H

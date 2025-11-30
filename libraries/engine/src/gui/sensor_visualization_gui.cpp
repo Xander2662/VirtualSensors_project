@@ -483,7 +483,7 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
     lv_obj_add_event_cb(ui_btnPause, [](lv_event_t *e)
                         {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->handle(); }, LV_EVENT_CLICKED, this);
+        self->handlePauseButtonClick(); }, LV_EVENT_CLICKED, this);
 
     ui_pauseImage = lv_img_create(ui_btnPause);
     lv_img_set_src(ui_pauseImage, &ui_img_playpauseicon_png);
@@ -507,7 +507,7 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
                                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                                       LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
     lv_obj_set_style_radius(ui_btnSync, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
-    //Sync is disabled on start
+    // Sync is disabled on start
     lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_clear_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
 
@@ -533,6 +533,10 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
                                         LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                                         LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
     lv_obj_set_style_radius(ui_btnRecord, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_btnRecord, [](lv_event_t *e)
+                        {
+        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        self->handleRecordButtonClick(); }, LV_EVENT_CLICKED, this);
 
     ui_recordImage = lv_img_create(ui_btnRecord);
     lv_img_set_src(ui_recordImage, &ui_img_recordicon_png);
@@ -786,6 +790,9 @@ void SensorVisualizationGui::updateChart()
     if (!currentSensor || !ui_Chart || !ui_Chart_series_V1)
         return;
 
+    if(sensorManager.isRedrawPending() == false)
+        return;
+
     // Get sensor value keys
     auto valueKeys = currentSensor->getValuesKeys();
     if (valueKeys.empty())
@@ -999,13 +1006,13 @@ void SensorVisualizationGui::handlePauseButtonClick()
     {
         sensorManager.setRunning(false);
         lv_obj_set_style_bg_color(ui_btnPause, lv_color_hex(0xE55858), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_add_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
     }
     else
     {
         sensorManager.setRunning(true);
-        lv_obj_set_style_bg_color(ui_btnPause, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_btnPause, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_clear_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
     }
@@ -1013,10 +1020,11 @@ void SensorVisualizationGui::handlePauseButtonClick()
 
 void SensorVisualizationGui::handleSyncButtonClick()
 {
-    if(!currentSensor)
+    if (!currentSensor)
         return;
 
-    if(paused) syncCurrentSensor();
+    if (paused)
+        syncCurrentSensor();
 }
 
 void SensorVisualizationGui::handleRecordButtonClick()
@@ -1028,13 +1036,21 @@ void SensorVisualizationGui::handleRecordButtonClick()
 
     if (recording)
     {
-        currentSensor->stopRecording();
-        lv_obj_set_style_bg_color(ui_btnRecord, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+        //currentSensor->stopRecording();
+        lv_obj_set_style_bg_color(ui_btnRecord, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_btnPrev, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_btnNext, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_add_flag(ui_btnPrev, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_add_flag(ui_btnNext, LV_OBJ_FLAG_CLICKABLE);
     }
     else
     {
-        currentSensor->startRecording();
+        //currentSensor->startRecording();
         lv_obj_set_style_bg_color(ui_btnRecord, lv_color_hex(0xE55858), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_btnPrev, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(ui_btnNext, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_clear_flag(ui_btnPrev, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_clear_flag(ui_btnNext, LV_OBJ_FLAG_CLICKABLE);
     }
 }
 
@@ -1074,12 +1090,19 @@ void SensorVisualizationGui::handleClearConfirmButtonClick()
 {
     if (currentSensor)
     {
+        // Clear sensor internal history
         currentSensor->clearHistory();
 
+        // Clear per-key buffers and set them to zero
+        for (auto &v : currentSensor->getValuesKeys())
+        {
+            clearSensorHistoryBuffer(v);
+        }
+
         if (ui_Chart && ui_Chart_series_V1)
-            lv_chart_set_all_value(ui_Chart, ui_Chart_series_V1, LV_CHART_POINT_NONE);
+            lv_chart_set_all_value(ui_Chart, ui_Chart_series_V1, 0);
         if (ui_Chart && ui_Chart_series_V2)
-            lv_chart_set_all_value(ui_Chart, ui_Chart_series_V2, LV_CHART_POINT_NONE);
+            lv_chart_set_all_value(ui_Chart, ui_Chart_series_V2, 0);
 
         lv_chart_refresh(ui_Chart);
 
@@ -1090,8 +1113,12 @@ void SensorVisualizationGui::handleClearConfirmButtonClick()
     }
 }
 
+
 void SensorVisualizationGui::goToPreviousSensor()
 {
+    if (!recording)
+        return;
+
     sensorManager.setRunning(false); // Pause any ongoing sensor updates
     currentSensor = sensorManager.previousSensor();
     delay_ms(10);                   // Small delay to ensure UI responsiveness
@@ -1100,6 +1127,9 @@ void SensorVisualizationGui::goToPreviousSensor()
 
 void SensorVisualizationGui::goToNextSensor()
 {
+    if (!recording)
+        return;
+
     sensorManager.setRunning(false); // Pause any ongoing sensor updates
     currentSensor = sensorManager.nextSensor();
     delay_ms(10);                   // Small delay to ensure UI responsiveness
