@@ -68,39 +68,51 @@ private:
     lv_chart_series_t *ui_Chart_series_V2; ///< Chart series for value 2
 
     // --- NAVIGATION AND CONTROL MEMBERS ---
-    lv_obj_t *ui_btnPrev;                   ///< Previous sensor button
-    lv_obj_t *ui_btnPrevLabel;              ///< Label for previous button
-    lv_obj_t *ui_btnNext;                   ///< Next sensor button
-    lv_obj_t *ui_btnNextLabel;              ///< Label for next button
-    lv_obj_t *ui_btnBack;                   ///< Back to menu button
-    lv_obj_t *ui_btnBackLabel;              ///< Label for back button
-    lv_obj_t *ui_btnBackGroup;              ///< Group container for back button
-    lv_obj_t *ui_btnBackCornerBottomLeft;   ///< Decorative corner for back button
-    lv_obj_t *ui_btnBackCornerTopRight;     ///< Decorative corner for back button
-    lv_obj_t *ui_RecordGroup;               ///< Group container for record panel
-    lv_obj_t *ui_RecordCornerTopLeft;       ///< Decorative corner for record panel
-    lv_obj_t *ui_RecordCornerFillTopLeft;   ///< Decorative fill for record panel
-    lv_obj_t *ui_RecordCornerTopRight;      ///< Decorative corner for record panel
-    lv_obj_t *ui_RecordCornerFillTopRight;  ///< Decorative fill for record panel
-    lv_obj_t *ui_RecordOutlay;              ///< Decorative outlay for record panel
-    lv_obj_t *ui_btnPause;                  ///< Pause recording button
-    lv_obj_t *ui_pauseImage;                ///< Image for pause button
-    lv_obj_t *ui_btnSync;                   ///< Sync button
-    lv_obj_t *ui_syncImage;                 ///< Image for sync button
-    lv_obj_t *ui_btnRecord;                 ///< Record button
-    lv_obj_t *ui_recordImage;               ///< Image for record button
-    lv_obj_t *ui_btnClear;                  ///< Clear data button
-    lv_obj_t *ui_clearImage;                ///< Image for clear button
-    lv_obj_t *ui_btnInfo;                   ///< Info button
-    lv_obj_t *ui_infoImage;                 ///< Image for info button
-    lv_obj_t *ui_LogoGroup;                 ///< Logo panel widget
-    lv_obj_t *ui_LogoCornerBottomLeft;      ///< Decorative corner for logo panel
-    lv_obj_t *ui_LogoCornerFillBottomLeft;  ///< Decorative fill for logo
-    lv_obj_t *ui_LogoCornerBottomRight;     ///< Decorative corner for logo panel
-    lv_obj_t *ui_LogoCornerFillBottomRight; ///< Decorative fill for logo
-    lv_obj_t *ui_LogoOutlay;                ///< Decorative outlay for logo panel
-    lv_obj_t *ui_LogoImage;                 ///< Logo image widget
-    lv_obj_t *ui_ShadowOverlay;             ///< Shadow overlay for dialog
+    lv_obj_t *ui_btnPrev;                                ///< Previous sensor button
+    lv_obj_t *ui_btnPrevLabel;                           ///< Label for previous button
+    lv_obj_t *ui_btnNext;                                ///< Next sensor button
+    lv_obj_t *ui_btnNextLabel;                           ///< Label for next button
+    lv_obj_t *ui_btnBack;                                ///< Back to menu button
+    lv_obj_t *ui_btnBackLabel;                           ///< Label for back button
+    lv_obj_t *ui_btnBackGroup;                           ///< Group container for back button
+    lv_obj_t *ui_btnBackCornerBottomLeft;                ///< Decorative corner for back button
+    lv_obj_t *ui_btnBackCornerTopRight;                  ///< Decorative corner for back button
+    lv_obj_t *ui_RecordGroup;                            ///< Group container for record panel
+    lv_obj_t *ui_RecordCornerTopLeft;                    ///< Decorative corner for record panel
+    lv_obj_t *ui_RecordCornerFillTopLeft;                ///< Decorative fill for record panel
+    lv_obj_t *ui_RecordCornerTopRight;                   ///< Decorative corner for record panel
+    lv_obj_t *ui_RecordCornerFillTopRight;               ///< Decorative fill for record panel
+    lv_obj_t *ui_RecordOutlay;                           ///< Decorative outlay for record panel
+    lv_obj_t *ui_btnPause;                               ///< Pause recording button
+    lv_obj_t *ui_pauseImage;                             ///< Image for pause button
+    lv_obj_t *ui_btnSync;                                ///< Sync button
+    lv_obj_t *ui_syncImage;                              ///< Image for sync button
+    lv_obj_t *ui_btnRecord;                              ///< Record button
+    lv_obj_t *ui_recordImage;                            ///< Image for record button
+    lv_obj_t *ui_btnClear;                               ///< Clear data button
+    lv_obj_t *ui_clearImage;                             ///< Image for clear button
+    lv_obj_t *ui_btnSettings;                            ///< Settings button
+    lv_obj_t *ui_settingsImage;                          ///< Image for settings button
+    lv_obj_t *ui_SettingsOverlay;                        ///< Overlay for settings dialog
+    lv_obj_t *ui_SettingsGroup;                          ///< Settings panel widget
+    lv_obj_t *ui_SettingsBridge;                         ///< Settings bridge decorative element
+    lv_obj_t *ui_SettingsOutlay;                         ///< Settings outlay
+    lv_obj_t *ui_SettingsBridgeFill;                     ///< Settings bridge fill
+    lv_obj_t *ui_SettingsHeaderLine;                     ///< Settings header line
+    lv_obj_t *ui_SettingsHeaderLabel;                    ///< Settings header label
+    lv_obj_t *ui_SettingsDataBundleLabel;                ///< Settings data bundle label
+    lv_obj_t *ui_SettingsDataBundleShowButton;           ///< Settings data bundle show button
+    lv_obj_t *ui_SettingsDataBundleShowButtonLabel;      ///< Settings data bundle show button label
+    lv_obj_t *ui_SettingsDataBundleDeleteAllButton;      ///< Settings data bundle delete all button
+    lv_obj_t *ui_SettingsDataBundleDeleteAllButtonLabel; ///< Settings data bundle delete all button label
+    lv_obj_t *ui_LogoGroup;                              ///< Logo panel widget
+    lv_obj_t *ui_LogoCornerBottomLeft;                   ///< Decorative corner for logo panel
+    lv_obj_t *ui_LogoCornerFillBottomLeft;               ///< Decorative fill for logo
+    lv_obj_t *ui_LogoCornerBottomRight;                  ///< Decorative corner for logo panel
+    lv_obj_t *ui_LogoCornerFillBottomRight;              ///< Decorative fill for logo
+    lv_obj_t *ui_LogoOutlay;                             ///< Decorative outlay for logo panel
+    lv_obj_t *ui_LogoImage;                              ///< Logo image widget
+    lv_obj_t *ui_ShadowOverlay;                          ///< Shadow overlay for dialog
 
     /**
      * @brief Add navigation buttons to a widget
@@ -125,17 +137,6 @@ private:
      * @param parentWidget The parent widget to add the logo panel to
      */
     void addLogoPanelToWidget(lv_obj_t *parentWidget);
-
-    /**
-     * @brief Show shadow overlay
-     * @param popup The popup dialog which is meant to be highlighted
-     */
-    void showShadowOverlay();
-
-    /**
-     * @brief Hide shadow overlay
-     */
-    void hideShadowOverlay();
 
     /**
      * @brief Build sensor history data for chart display
@@ -296,10 +297,36 @@ public:
     void handleClearConfirmButtonClick();
 
     /**
+     * @brief Handle settings button click event
+     */
+    void handleSettingsButtonClick();
+
+    /**
      * @brief Synchronize the current sensor data
      * @return True if synchronization was successful, false otherwise
      */
     bool syncCurrentSensor();
+
+    /**
+     * @brief Show shadow overlay
+     * @param popup The popup dialog which is meant to be highlighted
+     */
+    void showShadowOverlay();
+
+    /**
+     * @brief Hide shadow overlay
+     */
+    void hideShadowOverlay();
+
+    /**
+     * @brief Show settings panel
+     */
+    void showSettingsPanel();
+
+    /**
+     * @brief Hide settings panel
+     */
+    void hideSettingsPanel();
 
     /**
      * @brief Show the sensor visualization screen

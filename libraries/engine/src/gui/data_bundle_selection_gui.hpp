@@ -1,16 +1,16 @@
 /**
- * @file data_bundles_gui.hpp
- * @brief Header file for the DataBundlesGui class
+ * @file data_bundle_selection_gui.hpp
+ * @brief Header file for the DataBundleSelectionGui class
  *
- * This header file declares the DataBundlesGui class responsible for
+ * This header file declares the DataBundleSelectionGui class responsible for
  * data bundles made from record on visualisation
  *
  * @copyright 2025 MTA
  * @author Ondřej Wrubel
  */
 
-#ifndef SENSOR_VISUALIZATION_GUI_HPP
-#define SENSOR_VISUALIZATION_GUI_HPP
+#ifndef DATA_BUNDLE_SELECTION_GUI_HPP
+#define DATA_BUNDLE_SELECTION_GUI_HPP
 
 #include "lvgl.h"
 #include <array>
@@ -21,16 +21,15 @@
 #include "../exceptions/data_exceptions.hpp"
 
 /**
- * @class SensorVisualizationGui
- * @brief Handles active sensor visualization, data display, and navigation.
+ * @class DataBundleSelectionGui
+ * @brief Handles data bundle selection, display, and navigation.
  *
  * This class is responsible for:
- * - Displaying current sensor data and values
- * - Handling sensor navigation (prev/next)
- * - Managing sensor synchronization operations
- * - Handling sensor-specific events and interactions
+ * - Displaying data bundles with charts and information
+ * - Handling navigation between data bundles
+ * - Managing data bundle-specific events and interactions
  */
-class DataBundlesGui
+class DataBundleSelectionGui
 {
 private:
     bool initialized = false; ///< Initialization state flag
@@ -105,22 +104,22 @@ public:
     /**
      * @brief Constructor
      */
-    DataBundlesGui();
+    DataBundleSelectionGui();
 
     /**
      * @brief Destructor
      */
-    ~DataBundlesGui() = default;
+    ~DataBundleSelectionGui() = default;
 
     /**
-     * @brief Initialize the sensor visualization GUI
+     * @brief Initialize the data bundle selection GUI
      */
     void init();
 
     /**
-     * @brief Construct the sensor visualization widget
+     * @brief construct the data bundle selection GUI
      */
-    void constructDataBundles();
+    void constructDataBundleSelection();
 
     /**
      * @brief Create a single data bundle container
@@ -129,32 +128,32 @@ public:
     void createDataBundle(int index);
 
     /**
-     * @brief Go to the previous sensor in the list
+     * @brief Go to the previous page in the list
      */
     void goToPreviousPage();
 
     /**
-     * @brief Go to the next sensor in the list
+     * @brief Go to the next page in the list
      */
     void goToNextPage();
 
     /**
-     * @brief opens a confirmation dialog to clear the current sensor's history data
+     * @brief opens a confirmation dialog to clear the current data bundle
      */
     void handleClearButtonClick();
 
     /**
-     * @brief clears the current sensor's history data upon confirmation
+     * @brief clears the current data bundle upon confirmation
      */
     void handleClearConfirmButtonClick();
 
     /**
-     * @brief Show the sensor visualization screen
+     * @brief Show the data bundle selection screen
      */
     void showDataBundles();
 
     /**
-     * @brief Hide the sensor visualization screen
+     * @brief Hide the data bundle selection screen
      */
     void hideDataBundles();
 };

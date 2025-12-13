@@ -165,6 +165,10 @@ void switchToVisualization() {
     guiManager.switchContent(GuiState::VISUALIZATION);
 }
 
+void switchToDataBundleSelection() {
+    guiManager.switchContent(GuiState::DATA_BUNDLE_SELECTION);
+}
+
 void switchToCrashScreen(const std::string &reason) {
     guiManager.showCrashScreen(reason);
 }

@@ -48,6 +48,7 @@ bool GuiManager::init(std::string configFile) {
         // Initialize all GUI components
         menuGui.init();
         vizGui.init();
+        dataBundleGui.init();
         wikiGui.init();  
     }
     catch (const Exception &e) {
@@ -81,6 +82,7 @@ void GuiManager::hideAllComponents() {
 
     menuGui.hideMenu();
     vizGui.hideVisualization();
+    dataBundleGui.hideDataBundles();
     wikiGui.hideWiki();
     crashGui.hideCrash();
 }
@@ -112,6 +114,19 @@ void GuiManager::showVisualization() {
     vizGui.drawCurrentSensor(); // Refresh display
     currentState = GuiState::VISUALIZATION;
     // logMessage("Switched to VISUALIZATION state\n");
+}
+
+void GuiManager::showDataBundleSelection() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    dataBundleSelectionGui.showDataBundles();
+    currentState = GuiState::DATA_BUNDLE_SELECTION;
+    // logMessage("Switched to DATA_BUNDLE_SELECTION state\n");
 }
 
 void GuiManager::showWiki() {
@@ -158,6 +173,11 @@ void GuiManager::switchContent(GuiState targetState) {
             // logMessage("Switched content to VISUALIZATION\n");
             break;
             
+        case GuiState::DATA_BUNDLE_SELECTION:
+            showDataBundleSelection();
+            // logMessage("DATA_BUNDLE_SELECTION not implemented, switched content to MENU\n");
+            break;
+
         case GuiState::WIKI:
             showWiki();
             // Don't change sensor running state for wiki
@@ -206,6 +226,11 @@ void GuiManager::redraw() {
             }
             break;
             
+        case GuiState::DATA_BUNDLE_SELECTION:
+            // Data bundle selection doesn't need periodic redraw - it's event-driven
+            // Each bundle is added after the end of visualsiation recording
+            break;
+
         case GuiState::MENU:
             // Menu doesn't need periodic redraw - it's event-driven
             break;

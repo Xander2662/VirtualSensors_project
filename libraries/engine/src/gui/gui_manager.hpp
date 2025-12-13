@@ -14,8 +14,10 @@
 #define GUI_MANAGER_HPP
 
 #include "../managers/manager.hpp"
+#include "../managers/data_bundles.hpp"
 #include "menu_gui.hpp"
 #include "sensor_visualization_gui.hpp"
+#include "data_bundle_selection_gui.hpp"
 #include "sensor_wiki_gui.hpp"
 #include "crash_gui.hpp"
 
@@ -25,6 +27,7 @@
 enum class GuiState {
     MENU,           ///< Main menu with pin assignment
     VISUALIZATION,  ///< Sensor data visualization
+    DATA_BUNDLE_SELECTION,   ///< Data bundles visualization
     WIKI,           ///< Sensor documentation/wiki
     READY,          ///< No active GUI
     CRASH,          ///< Crash screen
@@ -42,6 +45,7 @@ private:
     SensorManager &sensorManager;           ///< Reference to sensor manager
     MenuGui menuGui;                        ///< Menu and pin assignment component
     SensorVisualizationGui vizGui;          ///< Sensor visualization component
+    DataBundleSelectionGui dataBundleGui;   ///< Data bundle selection component
     SensorWikiGui wikiGui;                  ///< Sensor wiki component
     CrashGui crashGui;                      ///< Crash screen component
     
@@ -96,6 +100,11 @@ public:
      * @brief Switch to sensor visualization screen
      */
     void showVisualization();
+
+    /**
+     * @brief Switch to data bundle selection screen
+     */
+    void showDataBundleSelection();
     
     /**
      * @brief Switch to sensor wiki screen

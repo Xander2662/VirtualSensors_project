@@ -1,19 +1,19 @@
 /**
- * @file sensor_visualization_gui.cpp
- * @brief Implementation of the DataBundlesGui class
+ * @file data_bundle_selection_gui.cpp
+ * @brief Implementation of the DataBundleSelectionGui class
  *
- * This source file implements the DataBundlesGui functionality for
- * active sensor visualization, data display, and navigation.
+ * This source file implements the DataBundleSelectionGui functionality for
+ * data bundles made from record on visualisation
  *
  * @copyright 2025 MTA
- * @author Ing. Jiri Konecny, Ondřej Wrubel
+ * @author Ondřej Wrubel
  */
 
-#include "data_bundles_gui.hpp"
+#include "data_bundle_selection_gui.hpp"
 #include "../helpers.hpp"
 #include "./images/ui_images.h"
 
-DataBundlesGui::DataBundlesGui()
+DataBundleSelectionGui::DataBundleSelectionGui()
 {
 ui_DataBundlesWidget = nullptr;
 ui_DataBundlePageWatcher = nullptr;
@@ -55,26 +55,26 @@ ui_LogoOutlay = nullptr;
 ui_LogoImage = nullptr;
 }
 
-void DataBundlesGui::init()
+void DataBundleSelectionGui::init()
 {
     if (initialized)
         return;
 
     try
     {
-        // // logMessage("Initializing DataBundlesGui...\n");
-        constructDataBundles();
+        // // logMessage("Initializing DataBundleSelectionGui...\n");
+        constructDataBundleSelection();
         initialized = true;
-        // // logMessage("DataBundlesGui initialization completed!\n");
+        // // logMessage("DataBundleSelectionGui initialization completed!\n");
     }
     catch (const std::exception &e)
     {
-        // // logMessage("DataBundlesGui initialization failed: %s\n", e.what());
+        // // logMessage("DataBundleSelectionGui initialization failed: %s\n", e.what());
         initialized = false;
     }
 }
 
-void DataBundlesGui::constructDataBundles()
+void DataBundleSelectionGui::constructDataBundleSelection()
 {
     // 1. Initialize pointers to NULL for safety
     for(int i = 0; i < 6; i++) {
@@ -122,7 +122,7 @@ void DataBundlesGui::constructDataBundles()
     }   
 }   
 
-void DataBundlesGui::createDataBundle(int i)
+void DataBundleSelectionGui::createDataBundle(int i)
 {
     // 1. Safety Checks
     if (i < 0 || i >= 6) return;          // Out of bounds
@@ -300,7 +300,7 @@ void DataBundlesGui::createDataBundle(int i)
     lv_img_set_zoom(ui_DataBundleFooterButtonClearImage[i], 81);
 }
 
-void DataBundlesGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
+void DataBundleSelectionGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
 {
     if (!parentWidget)
         return;
@@ -314,7 +314,7 @@ void DataBundlesGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
     lv_obj_set_align(ui_btnPrev, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_add_event_cb(ui_btnPrev, [](lv_event_t *e)
                         {
-        auto self = static_cast<DataBundlesGui*>(lv_event_get_user_data(e));
+        auto self = static_cast<DataBundleSelectionGui*>(lv_event_get_user_data(e));
         self->goToPreviousSensor(); }, LV_EVENT_CLICKED, this);
 
     lv_obj_t ui_btnPrevLabel = lv_label_create(ui_btnPrev);
@@ -331,7 +331,7 @@ void DataBundlesGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
     lv_obj_set_align(ui_btnNext, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_add_event_cb(ui_btnNext, [](lv_event_t *e)
                         {
-        auto self = static_cast<DataBundlesGui*>(lv_event_get_user_data(e));
+        auto self = static_cast<DataBundleSelectionGui*>(lv_event_get_user_data(e));
         self->goToNextSensor(); }, LV_EVENT_CLICKED, this);
 
     lv_obj_t ui_btnNextLabel = lv_label_create(ui_btnNext);
@@ -342,7 +342,7 @@ void DataBundlesGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
     // // logMessage("Navigation buttons added to widget\n");
 }
 
-void DataBundlesGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
+void DataBundleSelectionGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
 {
     if (!parentWidget)
         return;
@@ -380,7 +380,7 @@ void DataBundlesGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
     lv_obj_set_align(ui_btnBack, LV_ALIGN_CENTER);
     lv_obj_add_event_cb(ui_btnBack, [](lv_event_t *e)
                         {
-        auto self = static_cast<DataBundlesGui*>(lv_event_get_user_data(e));
+        auto self = static_cast<DataBundleSelectionGui*>(lv_event_get_user_data(e));
         // // logMessage("Back button pressed - returning to menu\n");
         switchToWiki(); }, LV_EVENT_CLICKED, this);
 
@@ -392,7 +392,7 @@ void DataBundlesGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
     // // logMessage("Control buttons added to widget\n");
 }
 
-void DataBundlesGui::showShadowOverlay()
+void DataBundleSelectionGui::showShadowOverlay()
 {
     if (ui_ShadowOverlay)
     {
@@ -412,7 +412,7 @@ void DataBundlesGui::showShadowOverlay()
     lv_obj_set_style_border_width(ui_ShadowOverlay, 0, 0);
 }
 
-void DataBundlesGui::hideShadowOverlay()
+void DataBundleSelectionGui::hideShadowOverlay()
 {
     if (ui_ShadowOverlay)
     {
@@ -421,7 +421,7 @@ void DataBundlesGui::hideShadowOverlay()
     }
 }
 
-void DataBundlesGui::handleClearButtonClick()
+void DataBundleSelectionGui::handleClearButtonClick()
 {
     // Add buttons
     static const char *btns[] = {"Yes", ""};
@@ -433,7 +433,7 @@ void DataBundlesGui::handleClearButtonClick()
     lv_obj_move_foreground(confirmDialog);
     lv_obj_add_event_cb(confirmDialog, [](lv_event_t *e)
                         {
-        auto self = static_cast<DataBundlesGui*>(lv_event_get_user_data(e));
+        auto self = static_cast<DataBundleSelectionGui*>(lv_event_get_user_data(e));
         lv_event_code_t code = lv_event_get_code(e);
 
         if (code == LV_EVENT_VALUE_CHANGED)
@@ -453,12 +453,12 @@ void DataBundlesGui::handleClearButtonClick()
         } }, LV_EVENT_ALL, this);
 }
 
-void DataBundlesGui::handleClearConfirmButtonClick()
+void DataBundleSelectionGui::handleClearConfirmButtonClick()
 {
 // TODO: Implement the logic to clear the data bundle
 }
 
-void DataBundlesGui::addLogoPanelToWidget(lv_obj_t *parentWidget)
+void DataBundleSelectionGui::addLogoPanelToWidget(lv_obj_t *parentWidget)
 {
     ui_LogoGroup = lv_obj_create(parentWidget);
     lv_obj_remove_style_all(ui_LogoGroup);
@@ -514,7 +514,7 @@ void DataBundlesGui::addLogoPanelToWidget(lv_obj_t *parentWidget)
     lv_img_set_zoom(ui_LogoImage, 70);
 }
 
-void DataBundlesGui::showDataBundles()
+void DataBundleSelectionGui::showDataBundles()
 {
     if (!initialized || !ui_DataBundlesWidget)
         return;
@@ -522,7 +522,7 @@ void DataBundlesGui::showDataBundles()
     lv_obj_clear_flag(ui_DataBundlesWidget, LV_OBJ_FLAG_HIDDEN);
 }
 
-void DataBundlesGui::hideDataBundles()
+void DataBundleSelectionGui::hideDataBundles()
 {
     if (!initialized || !ui_DataBundlesWidget)
         return;
