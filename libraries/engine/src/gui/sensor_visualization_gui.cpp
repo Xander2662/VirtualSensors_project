@@ -1131,30 +1131,6 @@ void SensorVisualizationGui::handleClearConfirmButtonClick()
 
 void SensorVisualizationGui::handleSettingsButtonClick()
 {
-    // Show confirmation dialog before clearing history
-    lv_obj_t *confirmDialog = lv_msgbox_create(lv_scr_act(), "Settings", , , true);
-    lv_obj_set_width(confirmDialog, 250);
-    lv_obj_center(confirmDialog);
-    lv_obj_move_foreground(confirmDialog);
-    lv_obj_add_event_cb(confirmDialog, [](lv_event_t *e)
-                        {
-        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        lv_event_code_t code = lv_event_get_code(e);
-
-        if (code == LV_EVENT_VALUE_CHANGED)
-        {
-            lv_obj_t *msgbox = lv_event_get_current_target(e);
-            const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
-            if (btnText && strcmp(btnText, "Yes") == 0)
-            {
-                self->handleClearConfirmButtonClick();
-            }
-            lv_obj_del(msgbox);
-        } }, LV_EVENT_ALL, this);
-}
-
-void SensorVisualizationGui::showSettingsPanel()
-{
     if (ui_SettingsOverlay != nullptr)
         return;
 
@@ -1165,7 +1141,7 @@ void SensorVisualizationGui::showSettingsPanel()
     lv_obj_add_event_cb(ui_SettingsOverlay, [](lv_event_t *e)
                         {
         auto * self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->HideSettings(); }, LV_EVENT_CLICKED, this);
+        self->hideSettingsPanel(); }, LV_EVENT_CLICKED, this);
 
     lv_obj_t *ui_SettingsGroup = lv_obj_create(ui_SettingsOverlay);
     lv_obj_remove_style_all(ui_SettingsGroup);

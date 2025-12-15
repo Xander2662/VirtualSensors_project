@@ -1,203 +1,155 @@
-#include "data_bundle_manager.h"
-#include <sys/unistd.h>
+#include "data_bundle_manager.hpp"
+
+// We include these ONLY for the hardware init
+// They are BUILT-IN to the ESP32 Board package (no download needed)
+#include <SD.h>
+#include <FS.h>
+
+// Standard C Headers
 #include <sys/stat.h>
-#include <sys/statvfs.h>
-#include <cstring>
-#include <cerrno>
 
-// ESP-IDF Headers for SD Card and Logging
-#include "esp_vfs_fat.h"
-#include "sdmmc_cmd.h"
-#include "esp_log.h"
-#include "esp_timer.h" // For getting time for unique filenames
+// On Arduino ESP32, the SD card is mapped to "/sd" by default
+#define MOUNT_POINT "/sd"
 
-static const char* TAG = "BundleMgr";
-
-DataBundleManager::DataBundleManager() : isRecording(false) {}
-
-DataBundleManager::~DataBundleManager() {
-    // Optional: Unmount if object destroyed
-    // esp_vfs_fat_sdmmc_unmount();
+DataBundleManager::DataBundleManager() {
+    isMounted = false;
+    isRecording = false;
 }
 
 // ==========================================
-// 1. HARDWARE INIT (ESP-IDF Native)
+// 1. HARDWARE INIT (The only "Arduino" part)
 // ==========================================
 bool DataBundleManager::initStorage() {
-    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = false,
-        .max_files = 5,
-        .allocation_unit_size = 16 * 1024
-    };
+    if (isMounted) return true;
 
-    sdmmc_card_t *card;
-    sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+    // CrowPanel 7.0 Hardware Config:
+    // Usually uses default VSPI pins.
+    // If it fails, try SD.begin(10) or SD.begin(SD_CS_PIN)
     
-    // CrowPanel usually uses SDMMC Slot 1 (4-bit mode)
-    // If your board uses SPI, we would swap this for 'sdspi_host_t'
-    sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
-    slot_config.width = 1; // Try 1-bit mode first if 4-bit is unstable
-    // slot_config.width = 4; // Use 4-bit for speed if pins allow
-
-    esp_err_t ret = esp_vfs_fat_sdmmc_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
-
-    if (ret != ESP_OK) {
-        if (ret == ESP_FAIL) {
-            ESP_LOGE(TAG, "Failed to mount filesystem.");
-        } else {
-            ESP_LOGE(TAG, "Failed to initialize the card (%s).", esp_err_to_name(ret));
-        }
+    if (!SD.begin()) {
         return false;
     }
 
-    ESP_LOGI(TAG, "SD Card mounted at %s", MOUNT_POINT);
-    
-    // Create bundles directory
-    struct stat st = {0};
-    if (stat(MOUNT_POINT "/bundles", &st) == -1) {
-        mkdir(MOUNT_POINT "/bundles", 0777);
+    // Now that SD.begin() worked, the file system is live.
+    // We can switch to pure C++ now.
+    isMounted = true;
+
+    // Create bundles directory using standard C
+    // Note: Arduino SD wrapper maps "/sd" as root, so we just ask for "/bundles"
+    if (!SD.exists("/bundles")) {
+        SD.mkdir("/bundles");
     }
 
     loadManifest();
     return true;
 }
 
+// ==========================================
+// 2. STORAGE STATUS
+// ==========================================
 StorageStatus DataBundleManager::getStorageStatus() {
     StorageStatus status = {0, 0, 0, false};
-    
-    struct statvfs vfs;
-    
-    // statvfs returns 0 on success
-    if (statvfs(MOUNT_POINT, &vfs) == 0) {
+
+    // We use the driver wrapper because statvfs is unreliable in Arduino
+    if (isMounted) {
         status.isDetected = true;
+        uint64_t total = SD.totalBytes();
+        uint64_t used = SD.usedBytes();
         
-        // f_bsize = block size, f_blocks = total blocks, f_bfree = free blocks
-        // We calculate in KB to avoid 32-bit integer overflow on bytes
-        uint64_t blockSize = vfs.f_bsize;
-        
-        status.totalKBytes = (vfs.f_blocks * blockSize) / 1024;
-        status.freeKBytes = (vfs.f_bfree * blockSize) / 1024;
-        status.usedKBytes = status.totalKBytes - status.freeKBytes;
-    } else {
-        ESP_LOGW(TAG, "Failed to get storage stats. Card might be missing.");
+        status.totalKBytes = total / 1024;
+        status.usedKBytes = used / 1024;
+        status.freeKBytes = (total - used) / 1024;
     }
-    
     return status;
 }
 
 // ==========================================
-// 2. RECORDING LOGIC
+// 3. PURE C++ LOGIC (No Arduino libraries used here)
 // ==========================================
 
 bool DataBundleManager::startRecording(const std::string& sensorName, const std::string& date) {
-    if (isRecording) return false;
+    if (!isMounted || isRecording) return false;
 
     currentSensorName = sensorName;
     currentStartDate = date;
     
-    // Create a temp file path: /sdcard/bundles/temp_123456.csv
-    int64_t timestamp = esp_timer_get_time();
-    char buf[64];
-    snprintf(buf, sizeof(buf), "%s/bundles/temp_%lld.csv", MOUNT_POINT, timestamp);
+    // We use a static counter for filenames to avoid dependencies
+    static unsigned long fileCounter = 0;
+    fileCounter++;
+
+    // IMPORTANT: The path must start with "/sd/" because that is where we mounted it
+    char buf[128];
+    snprintf(buf, sizeof(buf), "/sd/bundles/temp_%lu.csv", fileCounter);
     tempFilePath = std::string(buf);
 
+    // Standard C Open
     FILE* f = fopen(tempFilePath.c_str(), "w");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open temp file for writing");
-        return false;
-    }
+    if (f == NULL) return false;
 
-    // Write Header
     fprintf(f, "Time,Part,Value\n");
     fclose(f);
 
     isRecording = true;
-    ESP_LOGI(TAG, "Recording started: %s", tempFilePath.c_str());
     return true;
 }
 
 bool DataBundleManager::logData(const std::string& time, const std::string& partName, const std::string& value) {
     if (!isRecording) return false;
 
-    FILE* f = fopen(tempFilePath.c_str(), "a"); // 'a' for append
+    FILE* f = fopen(tempFilePath.c_str(), "a");
     if (f == NULL) return false;
 
-    // CSV Format: Time,Part,Value
     fprintf(f, "%s,%s,%s\n", time.c_str(), partName.c_str(), value.c_str());
     fclose(f);
-    
     return true;
-}
-
-void DataBundleManager::discardCurrentRecording() {
-    if (!isRecording) return;
-
-    // Delete the temporary file
-    if (remove(tempFilePath.c_str()) != 0) {
-        ESP_LOGE(TAG, "Failed to delete temp file");
-    } else {
-        ESP_LOGI(TAG, "Recording discarded");
-    }
-
-    isRecording = false;
-    tempFilePath = "";
 }
 
 void DataBundleManager::stopAndSaveRecording() {
     if (!isRecording) return;
 
-    // 1. Rename temp file to final file
-    int64_t timestamp = esp_timer_get_time();
-    char finalPathBuf[64];
-    snprintf(finalPathBuf, sizeof(finalPathBuf), "%s/bundles/data_%lld.csv", MOUNT_POINT, timestamp);
-    std::string finalPath(finalPathBuf);
+    // Create final filename
+    static unsigned long saveCounter = 0;
+    saveCounter++;
+    
+    char buf[128];
+    snprintf(buf, sizeof(buf), "/sd/bundles/data_%lu.csv", saveCounter);
+    std::string finalPath = std::string(buf);
 
-    if (rename(tempFilePath.c_str(), finalPath.c_str()) != 0) {
-        ESP_LOGE(TAG, "Rename failed");
-        return;
-    }
+    // Standard C Rename
+    rename(tempFilePath.c_str(), finalPath.c_str());
 
-    // 2. Create Metadata
+    // Update RAM list
     BundleMetadata meta;
     meta.startDate = currentStartDate;
     meta.sensorName = currentSensorName;
     meta.filePath = finalPath;
 
-    // 3. FIFO Logic: Ensure max 30
-    if (bundles.size() >= MAX_TOTAL_BUNDLES) {
-        // Remove the oldest (index 0)
+    // FIFO Logic (Max 30)
+    if (bundles.size() >= 30) {
         deleteBundle(0);
     }
-
-    // 4. Add new to end
     bundles.push_back(meta);
-
-    // 5. Persist
     saveManifest();
 
     isRecording = false;
-    tempFilePath = "";
-    ESP_LOGI(TAG, "Recording saved: %s", finalPath.c_str());
+}
+
+void DataBundleManager::discardCurrentRecording() {
+    if (!isRecording) return;
+    remove(tempFilePath.c_str());
+    isRecording = false;
 }
 
 // ==========================================
-// 3. MANAGEMENT LOGIC
+// 4. MANAGEMENT (Standard C++)
 // ==========================================
 
 void DataBundleManager::deleteBundle(int index) {
     if (index < 0 || index >= (int)bundles.size()) return;
 
-    // 1. Delete actual file
-    const char* path = bundles[index].filePath.c_str();
-    struct stat st;
-    if (stat(path, &st) == 0) {
-        remove(path);
-    }
-
-    // 2. Remove from vector
+    // Standard C Remove
+    remove(bundles[index].filePath.c_str());
     bundles.erase(bundles.begin() + index);
-
-    // 3. Update manifest
     saveManifest();
 }
 
@@ -206,68 +158,31 @@ void DataBundleManager::deleteAllBundles() {
         remove(b.filePath.c_str());
     }
     bundles.clear();
-    saveManifest(); // will write an empty file
+    saveManifest();
 }
 
-int DataBundleManager::getBundleCount() const {
+int DataBundleManager::getBundleCount() {
     return (int)bundles.size();
 }
 
 std::vector<BundleMetadata> DataBundleManager::getBundlesForPage(int pageIndex) {
-    std::vector<BundleMetadata> pageItems;
-    int start = pageIndex * MAX_BUNDLES_PER_PAGE;
+    std::vector<BundleMetadata> res;
+    int start = pageIndex * 6; // 6 is MAX_BUNDLES_PER_PAGE
+    
+    if (start >= (int)bundles.size()) return res;
 
-    if (start >= (int)bundles.size()) return pageItems;
-
-    for (int i = 0; i < MAX_BUNDLES_PER_PAGE; ++i) {
-        int idx = start + i;
-        if (idx < (int)bundles.size()) {
-            pageItems.push_back(bundles[idx]);
-        } else {
-            break;
+    for (int i = 0; i < 6; i++) {
+        if (start + i < (int)bundles.size()) {
+            res.push_back(bundles[start + i]);
         }
     }
-    return pageItems;
+    return res;
 }
-
-std::vector<DataPoint> DataBundleManager::loadDataFromBundle(int index) {
-    std::vector<DataPoint> data;
-    if (index < 0 || index >= (int)bundles.size()) return data;
-
-    FILE* f = fopen(bundles[index].filePath.c_str(), "r");
-    if (f == NULL) return data;
-
-    char line[128];
-    // Skip header
-    fgets(line, sizeof(line), f);
-
-    while (fgets(line, sizeof(line), f)) {
-        // Strip newline
-        line[strcspn(line, "\r\n")] = 0;
-        
-        std::vector<std::string> parts = splitString(line, ',');
-        if (parts.size() >= 3) {
-            DataPoint dp;
-            dp.time = parts[0];
-            dp.partName = parts[1];
-            dp.value = parts[2];
-            data.push_back(dp);
-        }
-    }
-    fclose(f);
-    return data;
-}
-
-// ==========================================
-// 4. PERSISTENCE HELPERS
-// ==========================================
 
 void DataBundleManager::saveManifest() {
-    std::string manPath = std::string(MOUNT_POINT) + "/bundles/manifest.txt";
-    FILE* f = fopen(manPath.c_str(), "w");
+    FILE* f = fopen("/sd/bundles/manifest.txt", "w");
     if (f == NULL) return;
 
-    // Format: Date|SensorName|FilePath
     for (const auto& b : bundles) {
         fprintf(f, "%s|%s|%s\n", b.startDate.c_str(), b.sensorName.c_str(), b.filePath.c_str());
     }
@@ -276,35 +191,35 @@ void DataBundleManager::saveManifest() {
 
 void DataBundleManager::loadManifest() {
     bundles.clear();
-    std::string manPath = std::string(MOUNT_POINT) + "/bundles/manifest.txt";
-    FILE* f = fopen(manPath.c_str(), "r");
+    FILE* f = fopen("/sd/bundles/manifest.txt", "r");
     if (f == NULL) return;
 
     char line[256];
     while (fgets(line, sizeof(line), f)) {
-        line[strcspn(line, "\r\n")] = 0; // trim newline
-        if (strlen(line) == 0) continue;
+        // Trim newlines manually
+        size_t len = strlen(line);
+        while(len > 0 && (line[len-1] == '\n' || line[len-1] == '\r')) {
+            line[len-1] = '\0';
+            len--;
+        }
+        if (len == 0) continue;
 
         std::vector<std::string> parts = splitString(line, '|');
         if (parts.size() == 3) {
-            BundleMetadata meta;
-            meta.startDate = parts[0];
-            meta.sensorName = parts[1];
-            meta.filePath = parts[2];
-            bundles.push_back(meta);
+            BundleMetadata m;
+            m.startDate = parts[0];
+            m.sensorName = parts[1];
+            m.filePath = parts[2];
+            bundles.push_back(m);
         }
     }
     fclose(f);
-    ESP_LOGI(TAG, "Loaded %d bundles", (int)bundles.size());
 }
 
-// Simple C++ split string helper without generic algorithms
 std::vector<std::string> DataBundleManager::splitString(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
-    std::string token;
     size_t start = 0;
     size_t end = str.find(delimiter);
-
     while (end != std::string::npos) {
         tokens.push_back(str.substr(start, end - start));
         start = end + 1;

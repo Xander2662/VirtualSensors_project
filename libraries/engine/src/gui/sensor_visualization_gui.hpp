@@ -297,7 +297,7 @@ public:
     void handleClearConfirmButtonClick();
 
     /**
-     * @brief Handle settings button click event
+     * @brief Show settings panel
      */
     void handleSettingsButtonClick();
 
@@ -317,11 +317,6 @@ public:
      * @brief Hide shadow overlay
      */
     void hideShadowOverlay();
-
-    /**
-     * @brief Show settings panel
-     */
-    void showSettingsPanel();
 
     /**
      * @brief Hide settings panel

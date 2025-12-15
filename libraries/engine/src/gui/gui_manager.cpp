@@ -23,6 +23,7 @@ GuiManager::GuiManager(SensorManager &manager)
     : sensorManager(manager), 
       menuGui(manager), 
       vizGui(manager),
+      dataBundleSelectionGui(),
       wikiGui(manager),
       crashGui(),
       currentState(GuiState::NONE),
@@ -48,7 +49,7 @@ bool GuiManager::init(std::string configFile) {
         // Initialize all GUI components
         menuGui.init();
         vizGui.init();
-        dataBundleGui.init();
+        dataBundleSelectionGui.init();
         wikiGui.init();  
     }
     catch (const Exception &e) {
@@ -82,7 +83,7 @@ void GuiManager::hideAllComponents() {
 
     menuGui.hideMenu();
     vizGui.hideVisualization();
-    dataBundleGui.hideDataBundles();
+    dataBundleSelectionGui.hideDataBundles();
     wikiGui.hideWiki();
     crashGui.hideCrash();
 }

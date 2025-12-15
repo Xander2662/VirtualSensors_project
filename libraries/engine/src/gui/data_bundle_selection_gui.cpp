@@ -306,7 +306,7 @@ void DataBundleSelectionGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
         return;
 
     // Previous button
-    lv_obj_t ui_btnPrev = lv_btn_create(parentWidget);
+    lv_obj_t * ui_btnPrev = lv_btn_create(parentWidget);
     lv_obj_set_width(ui_btnPrev, 80);
     lv_obj_set_height(ui_btnPrev, 40);
     lv_obj_set_x(ui_btnPrev, 35);
@@ -315,15 +315,15 @@ void DataBundleSelectionGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
     lv_obj_add_event_cb(ui_btnPrev, [](lv_event_t *e)
                         {
         auto self = static_cast<DataBundleSelectionGui*>(lv_event_get_user_data(e));
-        self->goToPreviousSensor(); }, LV_EVENT_CLICKED, this);
+        self->goToPreviousPage(); }, LV_EVENT_CLICKED, this);
 
-    lv_obj_t ui_btnPrevLabel = lv_label_create(ui_btnPrev);
+    lv_obj_t * ui_btnPrevLabel = lv_label_create(ui_btnPrev);
     lv_label_set_text(ui_btnPrevLabel, "Prev");
     lv_obj_center(ui_btnPrevLabel);
     lv_obj_set_style_text_font(ui_btnPrevLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // Next button
-    lv_obj_t ui_btnNext = lv_btn_create(parentWidget);
+    lv_obj_t * ui_btnNext = lv_btn_create(parentWidget);
     lv_obj_set_width(ui_btnNext, 80);
     lv_obj_set_height(ui_btnNext, 40);
     lv_obj_set_x(ui_btnNext, 183);
@@ -332,9 +332,9 @@ void DataBundleSelectionGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
     lv_obj_add_event_cb(ui_btnNext, [](lv_event_t *e)
                         {
         auto self = static_cast<DataBundleSelectionGui*>(lv_event_get_user_data(e));
-        self->goToNextSensor(); }, LV_EVENT_CLICKED, this);
+        self->goToNextPage(); }, LV_EVENT_CLICKED, this);
 
-    lv_obj_t ui_btnNextLabel = lv_label_create(ui_btnNext);
+    lv_obj_t * ui_btnNextLabel = lv_label_create(ui_btnNext);
     lv_label_set_text(ui_btnNextLabel, "Next");
     lv_obj_center(ui_btnNextLabel);
     lv_obj_set_style_text_font(ui_btnNextLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -347,13 +347,13 @@ void DataBundleSelectionGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
     if (!parentWidget)
         return;
 
-    lv_obj_t ui_btnBackGroup = lv_obj_create(parentWidget);
+    lv_obj_t * ui_btnBackGroup = lv_obj_create(parentWidget);
     lv_obj_remove_style_all(ui_btnBackGroup);
     lv_obj_set_width(ui_btnBackGroup, 100);
     lv_obj_set_height(ui_btnBackGroup, 40);
     lv_obj_clear_flag(ui_btnBackGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
 
-    lv_obj_t ui_btnBackCornerBottomLeft = lv_obj_create(ui_btnBackGroup);
+    lv_obj_t * ui_btnBackCornerBottomLeft = lv_obj_create(ui_btnBackGroup);
     lv_obj_remove_style_all(ui_btnBackCornerBottomLeft);
     lv_obj_set_width(ui_btnBackCornerBottomLeft, 20);
     lv_obj_set_height(ui_btnBackCornerBottomLeft, 20);
@@ -363,7 +363,7 @@ void DataBundleSelectionGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
     lv_obj_set_style_bg_opa(ui_btnBackCornerBottomLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_clip_corner(ui_btnBackCornerBottomLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t ui_btnBackCornerTopRight = lv_obj_create(ui_btnBackGroup);
+    lv_obj_t * ui_btnBackCornerTopRight = lv_obj_create(ui_btnBackGroup);
     lv_obj_remove_style_all(ui_btnBackCornerTopRight);
     lv_obj_set_width(ui_btnBackCornerTopRight, 20);
     lv_obj_set_height(ui_btnBackCornerTopRight, 20);
@@ -374,7 +374,7 @@ void DataBundleSelectionGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
     lv_obj_set_style_clip_corner(ui_btnBackCornerTopRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // Back button for returning to menu
-    lv_obj_t ui_btnBack = lv_btn_create(ui_btnBackGroup);
+    lv_obj_t * ui_btnBack = lv_btn_create(ui_btnBackGroup);
     lv_obj_set_width(ui_btnBack, 100);
     lv_obj_set_height(ui_btnBack, 40);
     lv_obj_set_align(ui_btnBack, LV_ALIGN_CENTER);
@@ -382,9 +382,9 @@ void DataBundleSelectionGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
                         {
         auto self = static_cast<DataBundleSelectionGui*>(lv_event_get_user_data(e));
         // // logMessage("Back button pressed - returning to menu\n");
-        switchToWiki(); }, LV_EVENT_CLICKED, this);
+        switchToVisualization(); }, LV_EVENT_CLICKED, this);
 
-    lv_obj_t ui_btnBackLabel = lv_label_create(ui_btnBack);
+    lv_obj_t * ui_btnBackLabel = lv_label_create(ui_btnBack);
     lv_label_set_text(ui_btnBackLabel, "Back");
     lv_obj_center(ui_btnBackLabel);
     lv_obj_set_style_text_font(ui_btnBackLabel, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
