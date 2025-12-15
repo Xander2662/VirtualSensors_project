@@ -93,22 +93,23 @@ private:
     lv_obj_t *ui_clearImage;                             ///< Image for clear button
     lv_obj_t *ui_btnSettings;                            ///< Settings button
     lv_obj_t *ui_settingsImage;                          ///< Image for settings button
-    lv_obj_t *ui_SettingsOverlay;                        ///< Overlay for settings dialog
-    lv_obj_t *ui_SettingsGroup;                          ///< Settings panel widget
-    lv_obj_t *ui_SettingsBridge;                         ///< Settings bridge decorative element
-    lv_obj_t *ui_SettingsOutlay;                         ///< Settings outlay
-    lv_obj_t *ui_SettingsBridgeFill;                     ///< Settings bridge fill
-    lv_obj_t *ui_SettingsHeaderLine;                     ///< Settings header line
-    lv_obj_t *ui_SettingsHeaderLabel;                    ///< Settings header label
-    lv_obj_t *ui_SettingsDataBundleLabel;                ///< Settings data bundle label
-    lv_obj_t *ui_SettingsDataBundleShowButton;           ///< Settings data bundle show button
-    lv_obj_t *ui_SettingsDataBundleShowButtonLabel;      ///< Settings data bundle show button label
-    lv_obj_t *ui_SettingsDataBundleDeleteAllButton;      ///< Settings data bundle delete all button
-    lv_obj_t *ui_SettingsDataBundleDeleteAllButtonLabel; ///< Settings data bundle delete all button label
+    lv_obj_t *ui_SettingsOverlay;                        ///< Click blocking overlay
+    lv_obj_t *ui_SettingsBridgeGroup;                    ///< Bridge group container that will remain under record and settings button
+    lv_obj_t *ui_SettingsBridge;                         ///< Decorative bridge element
+    lv_obj_t *ui_SettingsBridgeFill;                     ///< Decorative bridge fill
+    lv_obj_t *ui_SettingsGroup;                          ///< Main container for the settings panel
+    lv_obj_t *ui_SettingsOutlay;                         ///< Main background panel
+    lv_obj_t *ui_SettingsHeaderLine;                     ///< Header separator line
+    lv_obj_t *ui_SettingsHeaderLabel;                    ///< Header text
+    lv_obj_t *ui_SettingsDataBundleLabel;                ///< Data bundle label
+    lv_obj_t *ui_SettingsDataBundleShowButton;           ///< Show bundle button
+    lv_obj_t *ui_SettingsDataBundleShowButtonLabel;      ///< Show bundle button text
+    lv_obj_t *ui_SettingsDataBundleDeleteAllButton;      ///< Delete button
+    lv_obj_t *ui_SettingsDataBundleDeleteAllButtonLabel; ///< Delete button text
     lv_obj_t *ui_LogoGroup;                              ///< Logo panel widget
     lv_obj_t *ui_LogoCornerBottomLeft;                   ///< Decorative corner for logo panel
     lv_obj_t *ui_LogoCornerFillBottomLeft;               ///< Decorative fill for logo
-    lv_obj_t *ui_LogoCornerBottomRight;                  ///< Decorative corner for logo panel
+    lv_obj_t *ui_LogoCornerTopRight;                     ///< Decorative corner for logo panel
     lv_obj_t *ui_LogoCornerFillBottomRight;              ///< Decorative fill for logo
     lv_obj_t *ui_LogoOutlay;                             ///< Decorative outlay for logo panel
     lv_obj_t *ui_LogoImage;                              ///< Logo image widget
@@ -128,7 +129,6 @@ private:
 
     /**
      * @brief Add record panel to a widget
-     * @param parentWidget The parent widget to add the record panel to
      */
     void addRecordPanelToWidget(lv_obj_t *parentWidget);
 
@@ -252,6 +252,11 @@ public:
     void constructVisualization();
 
     /**
+     * @brief Get parent widget
+     */
+    lv_obj_t *getParentWidget() const { return ui_SensorWidget; }
+
+    /**
      * @brief Draw/update the currently selected sensor's visualization
      */
     void drawCurrentSensor();
@@ -298,8 +303,25 @@ public:
 
     /**
      * @brief Show settings panel
+     * @param recordGroup The record panel group to keep above the overlay
+     * @param btnSettings The settings button to keep above the overlay
      */
-    void handleSettingsButtonClick();
+    void handleSettingsButtonClick(lv_obj_t *recordGroup, lv_obj_t *btnSettings, lv_obj_t *parentWidget);
+
+    /**
+     * @brief Handle data bundle show button click event
+     */
+    void handleDataBundleShowButtonClick();
+
+    /**
+     * @brief Handle data bundle delete all button click event
+     */
+    void handleDataBundleDeleteAllButtonClick();
+
+    /**
+     * @brief User should be stopped when recording is still ongoing and they want to click on any bundle related buttons
+     */
+    void handleStillRecording();
 
     /**
      * @brief Synchronize the current sensor data

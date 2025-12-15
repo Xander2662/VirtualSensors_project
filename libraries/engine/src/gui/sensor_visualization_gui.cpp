@@ -56,11 +56,12 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : s
     ui_clearImage = nullptr;
     ui_btnSettings = nullptr;
     ui_settingsImage = nullptr;
-    ui_settingsImage = nullptr;
-    ui_SettingsGroup = nullptr;
+    ui_SettingsOverlay = nullptr;
+    ui_SettingsBridgeGroup = nullptr;
     ui_SettingsBridge = nullptr;
-    ui_SettingsOutlay = nullptr;
     ui_SettingsBridgeFill = nullptr;
+    ui_SettingsGroup = nullptr;
+    ui_SettingsOutlay = nullptr;
     ui_SettingsHeaderLine = nullptr;
     ui_SettingsHeaderLabel = nullptr;
     ui_SettingsDataBundleLabel = nullptr;
@@ -71,7 +72,7 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : s
     ui_LogoGroup = nullptr;
     ui_LogoCornerBottomLeft = nullptr;
     ui_LogoCornerFillBottomLeft = nullptr;
-    ui_LogoCornerBottomRight = nullptr;
+    ui_LogoCornerTopRight = nullptr;
     ui_LogoCornerFillBottomRight = nullptr;
     ui_LogoOutlay = nullptr;
     ui_LogoImage = nullptr;
@@ -417,6 +418,9 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
 
 void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
 {
+    if (!parentWidget)
+        return;
+
     ui_RecordGroup = lv_obj_create(parentWidget);
     lv_obj_remove_style_all(ui_RecordGroup);
     lv_obj_set_width(ui_RecordGroup, 195);
@@ -599,10 +603,10 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
                                           LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                                           LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
     lv_obj_set_style_radius(ui_btnSettings, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_btnClear, [](lv_event_t *e)
+    lv_obj_add_event_cb(ui_btnSettings, [](lv_event_t *e)
                         {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->handleSettingsButtonClick(); }, LV_EVENT_CLICKED, this);
+        self->handleSettingsButtonClick(self->ui_RecordGroup,self->ui_btnSettings,self->getParentWidget()); }, LV_EVENT_CLICKED, this);
 
     ui_settingsImage = lv_img_create(ui_btnSettings);
     lv_img_set_src(ui_settingsImage, &ui_img_settings_png);
@@ -621,7 +625,7 @@ void SensorVisualizationGui::showShadowOverlay()
     if (ui_ShadowOverlay)
     {
         lv_obj_del(ui_ShadowOverlay);
-        ui_ShadowOverlay = NULL;
+        ui_ShadowOverlay = nullptr;
     }
 
     ui_ShadowOverlay = lv_obj_create(lv_scr_act());
@@ -641,7 +645,7 @@ void SensorVisualizationGui::hideShadowOverlay()
     if (ui_ShadowOverlay)
     {
         lv_obj_del(ui_ShadowOverlay);
-        ui_ShadowOverlay = NULL;
+        ui_ShadowOverlay = nullptr;
     }
 }
 
@@ -651,7 +655,7 @@ void SensorVisualizationGui::addLogoPanelToWidget(lv_obj_t *parentWidget)
     lv_obj_remove_style_all(ui_LogoGroup);
     lv_obj_set_width(ui_LogoGroup, 100);
     lv_obj_set_height(ui_LogoGroup, 20);
-    lv_obj_set_x(ui_LogoGroup, 10);
+    lv_obj_set_x(ui_LogoGroup, 9);
     lv_obj_set_y(ui_LogoGroup, 0);
     lv_obj_set_align(ui_LogoGroup, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_clear_flag(ui_LogoGroup, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
@@ -668,17 +672,17 @@ void SensorVisualizationGui::addLogoPanelToWidget(lv_obj_t *parentWidget)
     lv_obj_set_style_bg_opa(ui_LogoCornerBottomLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_clip_corner(ui_LogoCornerBottomLeft, false, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_LogoCornerBottomRight = lv_obj_create(ui_LogoGroup);
-    lv_obj_remove_style_all(ui_LogoCornerBottomRight);
-    lv_obj_set_width(ui_LogoCornerBottomRight, 10);
-    lv_obj_set_height(ui_LogoCornerBottomRight, 10);
-    lv_obj_set_x(ui_LogoCornerBottomRight, -10);
-    lv_obj_set_y(ui_LogoCornerBottomRight, 0);
-    lv_obj_set_align(ui_LogoCornerBottomRight, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_LogoCornerBottomRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
-    lv_obj_set_style_bg_color(ui_LogoCornerBottomRight, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_LogoCornerBottomRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_clip_corner(ui_LogoCornerBottomRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_LogoCornerTopRight = lv_obj_create(ui_LogoGroup);
+    lv_obj_remove_style_all(ui_LogoCornerTopRight);
+    lv_obj_set_width(ui_LogoCornerTopRight, 10);
+    lv_obj_set_height(ui_LogoCornerTopRight, 10);
+    lv_obj_set_x(ui_LogoCornerTopRight, -9);
+    lv_obj_set_y(ui_LogoCornerTopRight, 0);
+    lv_obj_set_align(ui_LogoCornerTopRight, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_LogoCornerTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
+    lv_obj_set_style_bg_color(ui_LogoCornerTopRight, lv_color_hex(0x055DA9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LogoCornerTopRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_LogoCornerTopRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LogoOutlay = lv_obj_create(ui_LogoGroup);
     lv_obj_remove_style_all(ui_LogoOutlay);
@@ -1048,11 +1052,14 @@ void SensorVisualizationGui::handleRecordButtonClick()
     if (!currentSensor)
         return;
 
+
     recording = !recording;
 
-    if (recording)
+    //logMessage("Record button clicked. Current recording state: %s\n", recording ? "ON" : "OFF");
+
+    if (!recording)
     {
-        // currentSensor->stopRecording();
+        // currentSensor->startRecording();
         lv_obj_set_style_bg_color(ui_btnRecord, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnPrev, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnNext, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1061,7 +1068,7 @@ void SensorVisualizationGui::handleRecordButtonClick()
     }
     else
     {
-        // currentSensor->startRecording();
+        // currentSensor->stopRecording();
         lv_obj_set_style_bg_color(ui_btnRecord, lv_color_hex(0xE55858), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnPrev, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnNext, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1072,11 +1079,19 @@ void SensorVisualizationGui::handleRecordButtonClick()
 
 void SensorVisualizationGui::handleClearButtonClick()
 {
-    // Add buttons
     static const char *btns[] = {"Yes", ""};
-    // Show confirmation dialog before clearing history
     showShadowOverlay();
-    lv_obj_t *confirmDialog = lv_msgbox_create(lv_scr_act(), "Confirm Clear", "Are you sure you want to clear the sensor history?", btns, true);
+    // Clear button has different behavior based on recording state
+    char const* message;
+    if(recording){
+        message = "Are you sure you want to scrape this recording?";
+    }
+    else{
+        message = "Are you sure you want to clear the sensor history?";
+    }
+    
+    // Show confirmation dialog before clearing history
+    lv_obj_t *confirmDialog = lv_msgbox_create(lv_scr_act(), "Confirm Clear", message, btns, true);
     lv_obj_set_width(confirmDialog, 250);
     lv_obj_center(confirmDialog);
     lv_obj_move_foreground(confirmDialog);
@@ -1091,7 +1106,18 @@ void SensorVisualizationGui::handleClearButtonClick()
             const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
             if (btnText && strcmp(btnText, "Yes") == 0)
             {
-                self->handleClearConfirmButtonClick();
+                if(self->recording){
+                    // Scrape current recording
+                    // still not implemented
+                    //self->scrapeCurrentRecording();
+
+                    // instead just tester for now
+                    self->handleRecordButtonClick();
+                }
+                else{
+                    // Clear sensor history
+                    self->handleClearConfirmButtonClick();
+                }
             }
             self->hideShadowOverlay();
             lv_obj_del(msgbox);
@@ -1129,7 +1155,7 @@ void SensorVisualizationGui::handleClearConfirmButtonClick()
     }
 }
 
-void SensorVisualizationGui::handleSettingsButtonClick()
+void SensorVisualizationGui::handleSettingsButtonClick(lv_obj_t *recordGroup, lv_obj_t *btnSettings,lv_obj_t *parentWidget)
 {
     if (ui_SettingsOverlay != nullptr)
         return;
@@ -1137,13 +1163,48 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     ui_SettingsOverlay = lv_obj_create(lv_scr_act());
     lv_obj_set_size(ui_SettingsOverlay, LV_PCT(100), LV_PCT(100));
     lv_obj_clear_flag(ui_SettingsOverlay, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(ui_SettingsOverlay, LV_OPA_0, 0);
     lv_obj_add_flag(ui_SettingsOverlay, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(ui_SettingsOverlay, [](lv_event_t *e)
                         {
         auto * self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
         self->hideSettingsPanel(); }, LV_EVENT_CLICKED, this);
 
-    lv_obj_t *ui_SettingsGroup = lv_obj_create(ui_SettingsOverlay);
+    ui_SettingsBridgeGroup = lv_obj_create(parentWidget);
+    lv_obj_remove_style_all(ui_SettingsBridgeGroup);
+    lv_obj_set_width(ui_SettingsBridgeGroup, 250);
+    lv_obj_set_height(ui_SettingsBridgeGroup, 225);
+    lv_obj_set_x(ui_SettingsBridgeGroup, -7);
+    lv_obj_set_y(ui_SettingsBridgeGroup, 25);
+    lv_obj_set_align(ui_SettingsBridgeGroup, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_SettingsBridgeGroup, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
+
+    ui_SettingsBridge = lv_obj_create(ui_SettingsBridgeGroup);
+    lv_obj_remove_style_all(ui_SettingsBridge);
+    lv_obj_set_width(ui_SettingsBridge, 50);
+    lv_obj_set_height(ui_SettingsBridge, 50);
+    lv_obj_set_align(ui_SettingsBridge, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_SettingsBridge, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_color(ui_SettingsBridge, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SettingsBridge, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SettingsBridgeFill = lv_obj_create(ui_SettingsBridgeGroup);
+    lv_obj_remove_style_all(ui_SettingsBridgeFill);
+    lv_obj_set_width(ui_SettingsBridgeFill, 50);
+    lv_obj_set_height(ui_SettingsBridgeFill, 50);
+    lv_obj_set_x(ui_SettingsBridgeFill, -37);
+    lv_obj_set_y(ui_SettingsBridgeFill, -25);
+    lv_obj_set_align(ui_SettingsBridgeFill, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_SettingsBridgeFill, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_radius(ui_SettingsBridgeFill, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SettingsBridgeFill, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SettingsBridgeFill, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // move record group and btn settings to front
+    lv_obj_move_foreground(recordGroup);
+    lv_obj_move_foreground(btnSettings);
+
+    ui_SettingsGroup = lv_obj_create(ui_SettingsOverlay);
     lv_obj_remove_style_all(ui_SettingsGroup);
     lv_obj_set_width(ui_SettingsGroup, 250);
     lv_obj_set_height(ui_SettingsGroup, 225);
@@ -1154,16 +1215,7 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     lv_obj_add_flag(ui_SettingsGroup, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(ui_SettingsGroup, LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_obj_t *ui_SettingsBridge = lv_obj_create(ui_SettingsGroup);
-    lv_obj_remove_style_all(ui_SettingsBridge);
-    lv_obj_set_width(ui_SettingsBridge, 50);
-    lv_obj_set_height(ui_SettingsBridge, 50);
-    lv_obj_set_align(ui_SettingsBridge, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_SettingsBridge, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_bg_color(ui_SettingsBridge, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SettingsBridge, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_t *ui_SettingsOutlay = lv_obj_create(ui_SettingsGroup);
+    ui_SettingsOutlay = lv_obj_create(ui_SettingsGroup);
     lv_obj_remove_style_all(ui_SettingsOutlay);
     lv_obj_set_width(ui_SettingsOutlay, 250);
     lv_obj_set_height(ui_SettingsOutlay, 200);
@@ -1176,19 +1228,7 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     lv_obj_set_style_border_opa(ui_SettingsOutlay, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_SettingsOutlay, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t *ui_SettingsBridgeFill = lv_obj_create(ui_SettingsGroup);
-    lv_obj_remove_style_all(ui_SettingsBridgeFill);
-    lv_obj_set_width(ui_SettingsBridgeFill, 50);
-    lv_obj_set_height(ui_SettingsBridgeFill, 50);
-    lv_obj_set_x(ui_SettingsBridgeFill, -37);
-    lv_obj_set_y(ui_SettingsBridgeFill, -25);
-    lv_obj_set_align(ui_SettingsBridgeFill, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_SettingsBridgeFill, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_radius(ui_SettingsBridgeFill, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_SettingsBridgeFill, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SettingsBridgeFill, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_t *ui_SettingsHeaderLine = lv_obj_create(ui_SettingsGroup);
+    ui_SettingsHeaderLine = lv_obj_create(ui_SettingsGroup);
     lv_obj_remove_style_all(ui_SettingsHeaderLine);
     lv_obj_set_width(ui_SettingsHeaderLine, 230);
     lv_obj_set_height(ui_SettingsHeaderLine, 1);
@@ -1199,7 +1239,7 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     lv_obj_set_style_bg_color(ui_SettingsHeaderLine, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_SettingsHeaderLine, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t *ui_SettingsHeaderLabel = lv_label_create(ui_SettingsGroup);
+    ui_SettingsHeaderLabel = lv_label_create(ui_SettingsGroup);
     lv_obj_set_width(ui_SettingsHeaderLabel, LV_SIZE_CONTENT);
     lv_obj_set_height(ui_SettingsHeaderLabel, LV_SIZE_CONTENT);
     lv_obj_set_x(ui_SettingsHeaderLabel, 10);
@@ -1208,7 +1248,7 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     lv_obj_set_style_text_color(ui_SettingsHeaderLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SettingsHeaderLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t *ui_SettingsDataBundleLabel = lv_label_create(ui_SettingsGroup);
+    ui_SettingsDataBundleLabel = lv_label_create(ui_SettingsGroup);
     lv_obj_set_width(ui_SettingsDataBundleLabel, LV_SIZE_CONTENT);
     lv_obj_set_height(ui_SettingsDataBundleLabel, LV_SIZE_CONTENT);
     lv_obj_set_x(ui_SettingsDataBundleLabel, 10);
@@ -1217,7 +1257,7 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     lv_label_set_text(ui_SettingsDataBundleLabel, "Data bundle:");
     lv_obj_set_style_text_color(ui_SettingsDataBundleLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t *ui_SettingsDataBundleShowButton = lv_btn_create(ui_SettingsGroup);
+    ui_SettingsDataBundleShowButton = lv_btn_create(ui_SettingsGroup);
     lv_obj_set_width(ui_SettingsDataBundleShowButton, 200);
     lv_obj_set_height(ui_SettingsDataBundleShowButton, 20);
     lv_obj_set_x(ui_SettingsDataBundleShowButton, 17);
@@ -1226,14 +1266,18 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     lv_obj_add_flag(ui_SettingsDataBundleShowButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ui_SettingsDataBundleShowButton, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_radius(ui_SettingsDataBundleShowButton, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_SettingsDataBundleShowButton, [](lv_event_t *e)
+                        {
+        auto * self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        self->handleDataBundleShowButtonClick(); }, LV_EVENT_CLICKED, this);
 
-    lv_obj_t *ui_SettingsDataBundleShowButtonLabel = lv_label_create(ui_SettingsDataBundleShowButton);
+    ui_SettingsDataBundleShowButtonLabel = lv_label_create(ui_SettingsDataBundleShowButton);
     lv_obj_set_width(ui_SettingsDataBundleShowButtonLabel, LV_SIZE_CONTENT);
     lv_obj_set_height(ui_SettingsDataBundleShowButtonLabel, LV_SIZE_CONTENT);
     lv_obj_set_align(ui_SettingsDataBundleShowButtonLabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_SettingsDataBundleShowButtonLabel, "Show Data Bundles");
 
-    lv_obj_t *ui_SettingsDataBundleDeleteAllButton = lv_btn_create(ui_SettingsGroup);
+    ui_SettingsDataBundleDeleteAllButton = lv_btn_create(ui_SettingsGroup);
     lv_obj_set_width(ui_SettingsDataBundleDeleteAllButton, 200);
     lv_obj_set_height(ui_SettingsDataBundleDeleteAllButton, 20);
     lv_obj_set_x(ui_SettingsDataBundleDeleteAllButton, 17);
@@ -1244,13 +1288,69 @@ void SensorVisualizationGui::handleSettingsButtonClick()
     lv_obj_set_style_radius(ui_SettingsDataBundleDeleteAllButton, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_SettingsDataBundleDeleteAllButton, lv_color_hex(0xE55858), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_SettingsDataBundleDeleteAllButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_SettingsDataBundleDeleteAllButton, [](lv_event_t *e)
+                        {
+        auto * self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        self->handleDataBundleDeleteAllButtonClick(); }, LV_EVENT_CLICKED, this);
 
-    lv_obj_t *ui_SettingsDataBundleDeleteAllButtonLabel = lv_label_create(ui_SettingsDataBundleDeleteAllButton);
+    ui_SettingsDataBundleDeleteAllButtonLabel = lv_label_create(ui_SettingsDataBundleDeleteAllButton);
     lv_obj_set_width(ui_SettingsDataBundleDeleteAllButtonLabel, LV_SIZE_CONTENT);
     lv_obj_set_height(ui_SettingsDataBundleDeleteAllButtonLabel, LV_SIZE_CONTENT);
     lv_obj_set_align(ui_SettingsDataBundleDeleteAllButtonLabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_SettingsDataBundleDeleteAllButtonLabel, "Delete All Data Bundles!!");
+}
 
+void SensorVisualizationGui::handleDataBundleShowButtonClick(){
+    if(recording){
+
+    }
+}
+
+void SensorVisualizationGui::handleDataBundleDeleteAllButtonClick(){
+
+}
+
+void SensorVisualizationGui::handleStillRecording(){
+    if(!recording) return;
+
+        static const char *btns[] = {"Save", "Discard", ""};
+    showShadowOverlay();
+    // Clear button has different behavior based on recording state
+    char const* message = "You are currently recording. Do you want to stop recording?";
+    
+    // Show confirmation dialog before clearing history
+    lv_obj_t *confirmDialog = lv_msgbox_create(lv_scr_act(), "Confirm Clear", message, btns, true);
+    lv_obj_set_width(confirmDialog, 250);
+    lv_obj_center(confirmDialog);
+    lv_obj_move_foreground(confirmDialog);
+    lv_obj_add_event_cb(confirmDialog, [](lv_event_t *e)
+                        {
+        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        lv_event_code_t code = lv_event_get_code(e);
+
+        if (code == LV_EVENT_VALUE_CHANGED)
+        {
+            lv_obj_t *msgbox = lv_event_get_current_target(e);
+            const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
+            if (btnText && strcmp(btnText, "Save") == 0)
+            {
+                self->handleRecordButtonClick();
+                // still not implemented
+                //self->saveCurrentRecording();
+            }
+            else if (btnText && strcmp(btnText, "Discard") == 0)
+            {
+                self->handleRecordButtonClick();
+                // still not implemented
+                //self->scrapeCurrentRecording();
+            }
+            self->hideShadowOverlay();
+            lv_obj_del(msgbox);
+        }
+        else if (code == LV_EVENT_DELETE)
+        {
+            self->hideShadowOverlay();
+        } }, LV_EVENT_ALL, this);
 }
 
 void SensorVisualizationGui::hideSettingsPanel()
@@ -1258,9 +1358,14 @@ void SensorVisualizationGui::hideSettingsPanel()
     if (ui_SettingsOverlay != nullptr)
     {
         // Deleting the parent (Overlay) automatically deletes all children
-        // (SettingsGroup, buttons, labels, etc.)
         lv_obj_del(ui_SettingsOverlay);
         ui_SettingsOverlay = nullptr;
+    }
+
+    if(ui_SettingsBridgeGroup != nullptr)
+    {
+        lv_obj_del(ui_SettingsBridgeGroup);
+        ui_SettingsBridgeGroup = nullptr;
     }
 }
 
