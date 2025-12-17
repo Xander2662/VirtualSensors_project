@@ -82,6 +82,7 @@ private:
     lv_obj_t *ui_RecordCornerFillTopLeft;                ///< Decorative fill for record panel
     lv_obj_t *ui_RecordCornerTopRight;                   ///< Decorative corner for record panel
     lv_obj_t *ui_RecordCornerFillTopRight;               ///< Decorative fill for record panel
+    lv_obj_t *ui_RecordCornerFillTopRight2;              ///< Additional decorative fill for record panel
     lv_obj_t *ui_RecordOutlay;                           ///< Decorative outlay for record panel
     lv_obj_t *ui_btnPause;                               ///< Pause recording button
     lv_obj_t *ui_pauseImage;                             ///< Image for pause button

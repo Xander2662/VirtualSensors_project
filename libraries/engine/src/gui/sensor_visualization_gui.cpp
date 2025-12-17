@@ -45,6 +45,7 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : s
     ui_RecordCornerFillTopLeft = nullptr;
     ui_RecordCornerTopRight = nullptr;
     ui_RecordCornerFillTopRight = nullptr;
+    ui_RecordCornerFillTopRight2 = nullptr;
     ui_RecordOutlay = nullptr;
     ui_btnPause = nullptr;
     ui_pauseImage = nullptr;
@@ -463,16 +464,29 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
 
     ui_RecordCornerFillTopRight = lv_obj_create(ui_RecordGroup);
     lv_obj_remove_style_all(ui_RecordCornerFillTopRight);
-    lv_obj_set_width(ui_RecordCornerFillTopRight, 30);
-    lv_obj_set_height(ui_RecordCornerFillTopRight, 40);
-    lv_obj_set_x(ui_RecordCornerFillTopRight, 20);
+    lv_obj_set_width(ui_RecordCornerFillTopRight, 26);
+    lv_obj_set_height(ui_RecordCornerFillTopRight, 26);
+    lv_obj_set_x(ui_RecordCornerFillTopRight, 16);
     lv_obj_set_y(ui_RecordCornerFillTopRight, 0);
     lv_obj_set_align(ui_RecordCornerFillTopRight, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_RecordCornerFillTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE); /// Flags
+    lv_obj_clear_flag(ui_RecordCornerFillTopRight, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_RecordCornerFillTopRight, 1000, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_RecordCornerFillTopRight, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_RecordCornerFillTopRight, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_clip_corner(ui_RecordCornerFillTopRight, false, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RecordCornerFillTopRight2 = lv_obj_create(ui_RecordGroup);
+    lv_obj_remove_style_all(ui_RecordCornerFillTopRight2);
+    lv_obj_set_width(ui_RecordCornerFillTopRight2, 10);
+    lv_obj_set_height(ui_RecordCornerFillTopRight2, 10);
+    lv_obj_set_x(ui_RecordCornerFillTopRight2, 0);
+    lv_obj_set_y(ui_RecordCornerFillTopRight2, 13);
+    lv_obj_set_align(ui_RecordCornerFillTopRight2, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_RecordCornerFillTopRight2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RecordCornerFillTopRight2, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RecordCornerFillTopRight2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordCornerFillTopRight2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui_RecordCornerFillTopRight2, false, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RecordOutlay = lv_obj_create(ui_RecordGroup);
     lv_obj_remove_style_all(ui_RecordOutlay);
@@ -526,6 +540,10 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
     // Sync is disabled on start
     lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_clear_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(ui_btnSync, [](lv_event_t *e)
+                        {
+        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        self->handleSyncButtonClick(); }, LV_EVENT_CLICKED, this);
 
     ui_syncImage = lv_img_create(ui_btnSync);
     lv_img_set_src(ui_syncImage, &ui_img_clockicon_png);
@@ -1024,14 +1042,15 @@ void SensorVisualizationGui::handlePauseButtonClick()
     paused = !paused;
     if (paused)
     {
-        sensorManager.setRunning(false);
+        // we cannot stop entirely since sync wouldnt work
+        //sensorManager.setRunning(false);
         lv_obj_set_style_bg_color(ui_btnPause, lv_color_hex(0xE55858), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_add_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
     }
     else
     {
-        sensorManager.setRunning(true);
+        //sensorManager.setRunning(true);
         lv_obj_set_style_bg_color(ui_btnPause, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_clear_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
@@ -1043,8 +1062,11 @@ void SensorVisualizationGui::handleSyncButtonClick()
     if (!currentSensor)
         return;
 
-    if (paused)
-        syncCurrentSensor();
+    if (!paused)
+        return;
+
+    bool success = syncCurrentSensor();
+    logMessage("Sync button clicked. Sync %s\n", success ? "succeeded" : "failed");
 }
 
 void SensorVisualizationGui::handleRecordButtonClick()
@@ -1164,6 +1186,7 @@ void SensorVisualizationGui::handleSettingsButtonClick(lv_obj_t *recordGroup, lv
     lv_obj_set_size(ui_SettingsOverlay, LV_PCT(100), LV_PCT(100));
     lv_obj_clear_flag(ui_SettingsOverlay, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_bg_opa(ui_SettingsOverlay, LV_OPA_0, 0);
+    lv_obj_set_style_border_opa(ui_SettingsOverlay, 0, 0);
     lv_obj_add_flag(ui_SettingsOverlay, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(ui_SettingsOverlay, [](lv_event_t *e)
                         {
@@ -1302,12 +1325,20 @@ void SensorVisualizationGui::handleSettingsButtonClick(lv_obj_t *recordGroup, lv
 
 void SensorVisualizationGui::handleDataBundleShowButtonClick(){
     if(recording){
-
+        handleStillRecording();
+        //Still not implemented
+        //self->showDataBundlesList();
+        return;
     }
 }
 
 void SensorVisualizationGui::handleDataBundleDeleteAllButtonClick(){
-
+    if(recording){
+        handleStillRecording();
+        //Still not implemented
+        //self->deleteAllDataBundles();
+        return;
+    }
 }
 
 void SensorVisualizationGui::handleStillRecording(){
@@ -1371,7 +1402,7 @@ void SensorVisualizationGui::hideSettingsPanel()
 
 void SensorVisualizationGui::goToPreviousSensor()
 {
-    if (!recording)
+    if (recording)
         return;
 
     sensorManager.setRunning(false); // Pause any ongoing sensor updates
@@ -1382,7 +1413,7 @@ void SensorVisualizationGui::goToPreviousSensor()
 
 void SensorVisualizationGui::goToNextSensor()
 {
-    if (!recording)
+    if (recording)
         return;
 
     sensorManager.setRunning(false); // Pause any ongoing sensor updates
@@ -1407,8 +1438,16 @@ bool SensorVisualizationGui::syncCurrentSensor()
         // logMessage("No current sensor to sync\n");
         return false;
     }
-    bool success = sensorManager.sync(currentSensor->UID);
-    return success;
+
+    // // logMessage("Drawing sensor: %s\n", currentSensor->UID.c_str());
+    if (!currentSensor->getRedrawPending())
+    {
+        return false;
+    }
+
+    updateSensorDataDisplay();
+    updateChart();
+    return true;
 }
 
 void SensorVisualizationGui::showVisualization()
