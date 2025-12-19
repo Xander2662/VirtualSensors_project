@@ -26,6 +26,7 @@ GuiManager::GuiManager(SensorManager &manager)
       dataBundleSelectionGui(),
       wikiGui(manager),
       crashGui(),
+      creditsGui(),
       currentState(GuiState::NONE),
       initialized(false) {
 }
@@ -50,7 +51,8 @@ bool GuiManager::init(std::string configFile) {
         menuGui.init();
         vizGui.init();
         dataBundleSelectionGui.init();
-        wikiGui.init();  
+        wikiGui.init();
+        creditsGui.init();
     }
     catch (const Exception &e) {
         showCrashScreen(e.flush());
@@ -86,6 +88,7 @@ void GuiManager::hideAllComponents() {
     dataBundleSelectionGui.hideDataBundles();
     wikiGui.hideWiki();
     crashGui.hideCrash();
+    creditsGui.hideCredits();
 }
 
 void GuiManager::showMenu() {
@@ -151,6 +154,19 @@ void GuiManager::showCrashScreen(const std::string &reason) {
     crashGui.showCrash(reason);   
 }
 
+void GuiManager::showCreditsScreen() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    creditsGui.showCredits();
+    currentState = GuiState::CREDITS;
+    //logMessage("Switched to CREDITS state\n");
+}
+
 void GuiManager::switchContent(GuiState targetState) {
     if (!initialized) {
         // logMessage("GuiManager not initialized\n");
@@ -195,6 +211,10 @@ void GuiManager::switchContent(GuiState targetState) {
             showCrashScreen("Unexpected error");
             break;
 
+        case GuiState::CREDITS:
+            showCreditsScreen();
+            break;
+
         default:
             // logMessage("Unknown target GUI state %d, switching to MENU\n", static_cast<int>(targetState));
             splashMessage("Unknown target GUI state %d, nothing to display...\n", static_cast<int>(targetState));
@@ -210,7 +230,6 @@ void GuiManager::redraw() {
     if (!initialized) {
         return;
     }
-
 
     // Sync sensor data periodically
     if (LOOP_SYNC_COUNTER-- < 0) {
@@ -240,6 +259,10 @@ void GuiManager::redraw() {
             // Wiki doesn't need periodic redraw - it's event-driven
             break;
             
+        case GuiState::CREDITS:
+            // Credits doesn't need periodic redraw - it's static
+            break;
+
         default:
             break;
     }

@@ -20,6 +20,7 @@
 #include "data_bundle_selection_gui.hpp"
 #include "sensor_wiki_gui.hpp"
 #include "crash_gui.hpp"
+#include "credits_gui.hpp"
 
 /**
  * @brief Enumeration for different GUI states
@@ -32,6 +33,7 @@ enum class GuiState
     WIKI,                  ///< Sensor documentation/wiki
     READY,                 ///< No active GUI
     CRASH,                 ///< Crash screen
+    CREDITS,               ///< Credits screen
     NONE                   ///< Not ready / No active GUI
 };
 
@@ -50,7 +52,8 @@ private:
     DataBundleSelectionGui dataBundleSelectionGui; ///< Data bundle selection component
     SensorWikiGui wikiGui;                         ///< Sensor wiki component
     CrashGui crashGui;                             ///< Crash screen component
-    
+    CreditsGui creditsGui;                         ///< Credits screen component
+
     GuiState currentState;                         ///< Current GUI state
     bool initialized;                              ///< Initialization flag
 
@@ -119,6 +122,11 @@ public:
     void showCrashScreen(const std::string &reason = "Unexpected error");
 
     /**
+     * @brief Switch to credits screen
+     */
+    void showCreditsScreen();
+
+    /**
      * @brief Switch content to specified GUI state
      *
      * This method switches to the specified GuiState and manages
@@ -155,10 +163,22 @@ public:
     SensorVisualizationGui &getVisualizationGui() { return vizGui; }
 
     /**
+     * @brief Get reference to data bundle selection GUI component
+     * @return Reference to DataBundleSelectionGui
+     */
+    DataBundleSelectionGui &getDataBundleSelectionGui() { return dataBundleSelectionGui; }
+
+    /**
      * @brief Get reference to sensor wiki GUI component
      * @return Reference to SensorWikiGui
      */
     SensorWikiGui &getWikiGui() { return wikiGui; }
+
+    /**
+     * @brief Get reference to credits GUI component
+     * @return Reference to CreditsGui
+     */
+    CreditsGui &getCreditsGui() { return creditsGui; }
 
     /**
      * @brief Get reference to sensor manager

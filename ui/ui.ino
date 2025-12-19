@@ -173,6 +173,10 @@ void switchToCrashScreen(const std::string &reason) {
     guiManager.showCrashScreen(reason);
 }
 
+void switchToCreditsScreen() {
+    guiManager.switchContent(GuiState::CREDITS);
+}
+
 void setup ()
 {
     //Serial.begin( 115200 ); /* prepare for possible serial debug */

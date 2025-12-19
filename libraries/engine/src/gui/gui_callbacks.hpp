@@ -50,4 +50,19 @@ extern void switchToWiki();
  */
 extern void switchToCrashScreen(const std::string &reason);
 
+/**
+ * @brief Switch to data bundle selection screen
+ * 
+ * This function switches the GUI to the data bundle selection mode.
+ */
+extern void switchToDataBundleSelection();
+
+/**
+ * @brief Switch to credits screen
+ * 
+ * This function switches the GUI to the third-party credits screen.
+ * Called from the settings section in visualization.
+ */
+extern void switchToCreditsScreen();
+
 #endif // GUI_CALLBACKS_HPP

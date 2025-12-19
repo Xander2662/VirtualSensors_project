@@ -72,9 +72,9 @@ private:
     lv_obj_t *ui_btnPrevLabel;                           ///< Label for previous button
     lv_obj_t *ui_btnNext;                                ///< Next sensor button
     lv_obj_t *ui_btnNextLabel;                           ///< Label for next button
+    lv_obj_t *ui_btnBackGroup;                           ///< Group container for back button
     lv_obj_t *ui_btnBack;                                ///< Back to menu button
     lv_obj_t *ui_btnBackLabel;                           ///< Label for back button
-    lv_obj_t *ui_btnBackGroup;                           ///< Group container for back button
     lv_obj_t *ui_btnBackCornerBottomLeft;                ///< Decorative corner for back button
     lv_obj_t *ui_btnBackCornerTopRight;                  ///< Decorative corner for back button
     lv_obj_t *ui_RecordGroup;                            ///< Group container for record panel
@@ -107,6 +107,9 @@ private:
     lv_obj_t *ui_SettingsDataBundleShowButtonLabel;      ///< Show bundle button text
     lv_obj_t *ui_SettingsDataBundleDeleteAllButton;      ///< Delete button
     lv_obj_t *ui_SettingsDataBundleDeleteAllButtonLabel; ///< Delete button text
+    lv_obj_t *ui_SettingsCreditsLabel;                   ///< Credits label
+    lv_obj_t *ui_SettingsCreditsButton;                  ///< Credits button
+    lv_obj_t *ui_SettingsCreditsButtonLabel;             ///< Credits button label
     lv_obj_t *ui_LogoGroup;                              ///< Logo panel widget
     lv_obj_t *ui_LogoCornerBottomLeft;                   ///< Decorative corner for logo panel
     lv_obj_t *ui_LogoCornerFillBottomLeft;               ///< Decorative fill for logo
@@ -278,6 +281,11 @@ public:
     void goToFirstSensor();
 
     /**
+     * @brief Handle back button click event
+     */
+    void handleBackButtonClick();
+
+    /**
      * @brief Handle pause button click event
      */
     void handlePauseButtonClick();
@@ -318,6 +326,11 @@ public:
      * @brief Handle data bundle delete all button click event
      */
     void handleDataBundleDeleteAllButtonClick();
+
+    /**
+     * @brief Handle credits button click event
+     */
+    void handleCreditsButtonClick();
 
     /**
      * @brief User should be stopped when recording is still ongoing and they want to click on any bundle related buttons

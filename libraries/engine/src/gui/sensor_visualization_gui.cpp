@@ -35,9 +35,9 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : s
     ui_btnPrevLabel = nullptr;
     ui_btnNext = nullptr;
     ui_btnNextLabel = nullptr;
+    ui_btnBackGroup = nullptr;
     ui_btnBack = nullptr;
     ui_btnBackLabel = nullptr;
-    ui_btnBackGroup = nullptr;
     ui_btnBackCornerBottomLeft = nullptr;
     ui_btnBackCornerTopRight = nullptr;
     ui_RecordGroup = nullptr;
@@ -70,6 +70,9 @@ SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : s
     ui_SettingsDataBundleShowButtonLabel = nullptr;
     ui_SettingsDataBundleDeleteAllButton = nullptr;
     ui_SettingsDataBundleDeleteAllButtonLabel = nullptr;
+    ui_SettingsCreditsLabel = nullptr;
+    ui_SettingsCreditsButton = nullptr;
+    ui_SettingsCreditsButtonLabel = nullptr;
     ui_LogoGroup = nullptr;
     ui_LogoCornerBottomLeft = nullptr;
     ui_LogoCornerFillBottomLeft = nullptr;
@@ -407,7 +410,7 @@ void SensorVisualizationGui::addControlButtonsToWidget(lv_obj_t *parentWidget)
                         {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
         // // logMessage("Back button pressed - returning to menu\n");
-        switchToWiki(); }, LV_EVENT_CLICKED, this);
+        self->handleBackButtonClick(); }, LV_EVENT_CLICKED, this);
 
     ui_btnBackLabel = lv_label_create(ui_btnBack);
     lv_label_set_text(ui_btnBackLabel, "Back");
@@ -1037,6 +1040,14 @@ void SensorVisualizationGui::updateChart()
     }
 }
 
+void SensorVisualizationGui::handleBackButtonClick(){
+    if(recording){
+        handleStillRecording();
+        return;
+    }
+    switchToWiki();
+}
+
 void SensorVisualizationGui::handlePauseButtonClick()
 {
     paused = !paused;
@@ -1321,24 +1332,61 @@ void SensorVisualizationGui::handleSettingsButtonClick(lv_obj_t *recordGroup, lv
     lv_obj_set_height(ui_SettingsDataBundleDeleteAllButtonLabel, LV_SIZE_CONTENT);
     lv_obj_set_align(ui_SettingsDataBundleDeleteAllButtonLabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_SettingsDataBundleDeleteAllButtonLabel, "Delete All Data Bundles!!");
+
+    ui_SettingsCreditsLabel = lv_label_create(ui_SettingsGroup);
+    lv_obj_set_width(ui_SettingsCreditsLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_SettingsCreditsLabel, LV_SIZE_CONTENT);
+    lv_obj_set_x(ui_SettingsCreditsLabel, 10);
+    lv_obj_set_y(ui_SettingsCreditsLabel, 37);
+    lv_obj_set_align(ui_SettingsCreditsLabel, LV_ALIGN_LEFT_MID);
+    lv_label_set_text(ui_SettingsCreditsLabel, "About Icons:");
+
+    ui_SettingsCreditsButton = lv_btn_create(ui_SettingsGroup);
+    lv_obj_set_width(ui_SettingsCreditsButton, 200);
+    lv_obj_set_height(ui_SettingsCreditsButton, 20);
+    lv_obj_set_x(ui_SettingsCreditsButton, 17);
+    lv_obj_set_y(ui_SettingsCreditsButton, 60);
+    lv_obj_set_align(ui_SettingsCreditsButton, LV_ALIGN_LEFT_MID);
+    lv_obj_set_style_radius(ui_SettingsCreditsButton, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_SettingsCreditsButton, [](lv_event_t *e)
+                        {
+        auto * self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        self->handleCreditsButtonClick(); }, LV_EVENT_CLICKED, this);
+
+    ui_SettingsCreditsButtonLabel = lv_label_create(ui_SettingsCreditsButton);
+    lv_obj_set_width(ui_SettingsCreditsButtonLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_SettingsCreditsButtonLabel, LV_SIZE_CONTENT);
+    lv_obj_set_align(ui_SettingsCreditsButtonLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_SettingsCreditsButtonLabel, "View About Icons");
 }
 
 void SensorVisualizationGui::handleDataBundleShowButtonClick(){
     if(recording){
         handleStillRecording();
-        //Still not implemented
-        //self->showDataBundlesList();
         return;
     }
+    hideSettingsPanel();
+    //Still not implemented
+    //self->showDataBundlesList();
 }
 
 void SensorVisualizationGui::handleDataBundleDeleteAllButtonClick(){
     if(recording){
         handleStillRecording();
-        //Still not implemented
-        //self->deleteAllDataBundles();
         return;
     }
+    hideSettingsPanel();
+    //Still not implemented
+    //self->deleteAllDataBundles();
+}
+
+void SensorVisualizationGui::handleCreditsButtonClick(){
+    if(recording){
+        handleStillRecording();
+        return;
+    }
+    hideSettingsPanel();
+    switchToCreditsScreen();
 }
 
 void SensorVisualizationGui::handleStillRecording(){
@@ -1388,7 +1436,6 @@ void SensorVisualizationGui::hideSettingsPanel()
 {
     if (ui_SettingsOverlay != nullptr)
     {
-        // Deleting the parent (Overlay) automatically deletes all children
         lv_obj_del(ui_SettingsOverlay);
         ui_SettingsOverlay = nullptr;
     }
