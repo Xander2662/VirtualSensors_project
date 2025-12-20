@@ -118,6 +118,8 @@ private:
     lv_obj_t *ui_LogoOutlay;                             ///< Decorative outlay for logo panel
     lv_obj_t *ui_LogoImage;                              ///< Logo image widget
     lv_obj_t *ui_ShadowOverlay;                          ///< Shadow overlay for dialog
+    lv_obj_t *ui_Alert;                                  ///< Alert dialog container
+    lv_obj_t *ui_AlertLabel;                             ///< Alert dialog label
 
     /**
      * @brief Add navigation buttons to a widget
@@ -297,8 +299,9 @@ public:
 
     /**
      * @brief Handle record button click event
+     * @param message Message to display on alert (this handle is called in different ways). Can be empty (default is "Record was saved (view settings)")
      */
-    void handleRecordButtonClick();
+    void handleRecordButtonClick(const char *message);
 
     /**
      * @brief opens a confirmation dialog to clear the current sensor's history data
@@ -368,6 +371,17 @@ public:
      * @brief Hide the sensor visualization screen
      */
     void hideVisualization();
+
+    /**
+     * @brief Show alert
+     * @param message The alert message to display
+     */
+    void showAlert(const char *message);
+
+    /**
+     * @brief Hide alert
+     */
+    void hideAlert();
 };
 
 #endif // SENSOR_VISUALIZATION_GUI_HPP

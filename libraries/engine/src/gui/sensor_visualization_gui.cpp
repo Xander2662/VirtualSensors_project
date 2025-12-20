@@ -573,7 +573,7 @@ void SensorVisualizationGui::addRecordPanelToWidget(lv_obj_t *parentWidget)
     lv_obj_add_event_cb(ui_btnRecord, [](lv_event_t *e)
                         {
         auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
-        self->handleRecordButtonClick(); }, LV_EVENT_CLICKED, this);
+        self->handleRecordButtonClick(nullptr); }, LV_EVENT_CLICKED, this);
 
     ui_recordImage = lv_img_create(ui_btnRecord);
     lv_img_set_src(ui_recordImage, &ui_img_recordicon_png);
@@ -1080,7 +1080,7 @@ void SensorVisualizationGui::handleSyncButtonClick()
     logMessage("Sync button clicked. Sync %s\n", success ? "succeeded" : "failed");
 }
 
-void SensorVisualizationGui::handleRecordButtonClick()
+void SensorVisualizationGui::handleRecordButtonClick(const char *message)
 {
     if (!currentSensor)
         return;
@@ -1107,6 +1107,10 @@ void SensorVisualizationGui::handleRecordButtonClick()
         lv_obj_set_style_bg_color(ui_btnNext, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_clear_flag(ui_btnPrev, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_clear_flag(ui_btnNext, LV_OBJ_FLAG_CLICKABLE);
+    }
+
+    if(!recording){
+        showAlert(message ? message : "Record was saved (view settings)");
     }
 }
 
@@ -1145,7 +1149,7 @@ void SensorVisualizationGui::handleClearButtonClick()
                     //self->scrapeCurrentRecording();
 
                     // instead just tester for now
-                    self->handleRecordButtonClick();
+                    self->handleRecordButtonClick("Recording discarded as requested");
                 }
                 else{
                     // Clear sensor history
@@ -1413,13 +1417,13 @@ void SensorVisualizationGui::handleStillRecording(){
             const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
             if (btnText && strcmp(btnText, "Save") == 0)
             {
-                self->handleRecordButtonClick();
+                self->handleRecordButtonClick(nullptr);
                 // still not implemented
                 //self->saveCurrentRecording();
             }
             else if (btnText && strcmp(btnText, "Discard") == 0)
             {
-                self->handleRecordButtonClick();
+                self->handleRecordButtonClick("Recording discarded as requested");
                 // still not implemented
                 //self->scrapeCurrentRecording();
             }
@@ -1517,4 +1521,42 @@ void SensorVisualizationGui::hideVisualization()
 
     lv_obj_add_flag(ui_SensorWidget, LV_OBJ_FLAG_HIDDEN);
     // logMessage("Hiding sensor visualization\n");
+}
+
+void SensorVisualizationGui::showAlert(const char *message){
+    if(message == nullptr || !initialized || !ui_SensorWidget) 
+        return;
+    
+    ui_Alert = lv_obj_create(ui_SensorWidget);
+    lv_obj_remove_style_all(ui_Alert);
+    lv_obj_set_width(ui_Alert, 400);
+    lv_obj_set_height(ui_Alert, 40);
+    lv_obj_set_x(ui_Alert, 0);
+    lv_obj_set_y(ui_Alert, 10);
+    lv_obj_set_align(ui_Alert, LV_ALIGN_TOP_MID);
+    lv_obj_clear_flag(ui_Alert, LV_OBJ_FLAG_SCROLLABLE);    
+    lv_obj_set_style_radius(ui_Alert, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Alert, lv_color_hex(0x4C9ED3), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Alert, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_Alert, [](lv_event_t *e){
+        auto * self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        self->hideAlert(); }, LV_EVENT_CLICKED, this);
+
+    ui_AlertLabel = lv_label_create(ui_Alert);
+    lv_obj_set_width(ui_AlertLabel, LV_SIZE_CONTENT); 
+    lv_obj_set_height(ui_AlertLabel, LV_SIZE_CONTENT);   
+    lv_obj_set_align(ui_AlertLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_AlertLabel, message);
+    lv_obj_set_style_text_font(ui_AlertLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_AlertLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    
+    lv_obj_del_delayed(ui_Alert, 3000); // Auto hide after 3 seconds
+}
+
+void SensorVisualizationGui::hideAlert(){
+    if(ui_Alert == nullptr) 
+        return;
+
+    lv_obj_del(ui_Alert);
+    ui_Alert = nullptr;
 }
