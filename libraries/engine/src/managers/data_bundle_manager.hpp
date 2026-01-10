@@ -11,56 +11,119 @@
 #ifndef DATA_BUNDLE_MANAGER_H
 #define DATA_BUNDLE_MANAGER_H
 
-#include <vector>
-#include <string>
-#include <cstdio>
-
-// Standard C++ Structures
-struct BundleMetadata {
-    std::string startDate;
-    std::string sensorName;
-    std::string filePath;
-};
-
-struct StorageStatus {
-    uint64_t totalKBytes;
-    uint64_t usedKBytes;
-    uint64_t freeKBytes;
-    bool isDetected;
-};
+#include "data_bundle_types.hpp"
+#include "SD.h"
 
 class DataBundleManager {
 private:
-    std::vector<BundleMetadata> bundles;
-    bool isMounted;
-    bool isRecording;
+    bool initialized = false;                 ///< Initialization state flag
     
-    std::string tempFilePath;
-    std::string currentSensorName;
-    std::string currentStartDate;
+    std::vector<std::string> DataBundleNames;  ///< All Data Bundle Names saved (DHT11_01.csv)
 
-    void saveManifest();
-    void loadManifest();
-    std::vector<std::string> splitString(const std::string& str, char delimiter);
+    BundleMetadata currentBundleMetaData;     ///< Current Bundle that is being recorded
+    std::vector<DataPoint> currentBundleData; ///< Current Bundle Data that are being recorded 
+
+    const char* root = "/DataBundles/"; ///<The directory where all databundles are saved
+
+    // HELPERS
+
+    std::string readLine(File &file);
+
+    std::array<std::string,3> parseCSVLine(std::string line);
 
 public:
+    /**
+     * @brief Private constructor for singleton pattern
+     */
     DataBundleManager();
-    
-    // Hardware Init
-    bool initStorage(); 
 
-    // Pure C++ Recording Logic
-    bool startRecording(const std::string& sensorName, const std::string& date);
-    bool logData(const std::string& time, const std::string& partName, const std::string& value);
-    void stopAndSaveRecording();
-    void discardCurrentRecording();
+    /**
+     * @brief Destructor
+     */
+    ~DataBundleManager();
 
-    // Management
-    void deleteBundle(int index);
-    void deleteAllBundles();
-    int getBundleCount();
-    std::vector<BundleMetadata> getBundlesForPage(int pageIndex);
-    StorageStatus getStorageStatus();
+    /**
+     * @brief Initialize the data bundle manager and SD card
+     * @return True if initialization was successful, false otherwise
+     */
+    bool init();
+
+    /**
+     * @brief Initialize directories such as DataBundles
+     * @return True if init was succesful, false otherwise
+     */
+    bool initDirectories();
+
+    /**
+     * @brief Check if the manager has been initialized
+     * @return True if initialized, false otherwise
+     */
+    bool isInitialized() const { return initialized; }
+
+    // *********************
+    // Current record events
+    // *********************
+
+    bool startRecording(std::string sName);
+
+    // called when updated data comes
+    bool saveNewDataPoint(std::string partName, std::string value);
+
+    bool saveRecording();
+
+    void scrapRecording();
+
+    // All DataBundle events
+
+    std::array<DataBundleBuffer,6> showDataBundles(unsigned char page);
+
+    bool deleteAllDataBundles();
+
+    // maybe?
+
+    bool renameDataBundle();
+
+    // Single Databundle events
+
+    void deleteDataBundle(std::string filePath);
+
+    bool exportDataBundle();
+
+    /**
+     * @brief Remove the oldest data bundle
+     * Called when storage is full
+     */
+    void removeOldestDataBundle();
+
+    // CHECKER
+
+    /**
+     * @brief Check if the data bundle storage is full
+     * There are max 30 data bundles allowed to be stored
+     * @return True if full, false otherwise
+     */
+    bool isDataBundleFull();
+
+    // DEBUG
+
+    void listAllBundles();
+
+    void printCSV(std::string filename);
+
+    // GETTERS
+
+    bool getAllDataBundleNames();
+
+    BundleMetadata getBundleMetaData(unsigned char index);
+
+    // each databundle has as a preview chart with first 10 values from one of the sensor parts
+    std::array<std::string,10> getBundleDataValuePreview(unsigned char index);
+
+    /**
+     * @brief Prints size of SD and its used size in bytes
+     */
+    void getSDInfo();
+
 };
 
 #endif

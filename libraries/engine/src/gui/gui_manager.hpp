@@ -21,20 +21,24 @@
 #include "sensor_wiki_gui.hpp"
 #include "crash_gui.hpp"
 #include "credits_gui.hpp"
+#include "app_selection_gui.hpp"
+#include "communication_selection_gui.hpp"
 
 /**
  * @brief Enumeration for different GUI states
  */
 enum class GuiState
 {
-    MENU,                  ///< Main menu with pin assignment
-    VISUALIZATION,         ///< Sensor data visualization
-    DATA_BUNDLE_SELECTION, ///< Data bundles visualization
-    WIKI,                  ///< Sensor documentation/wiki
-    READY,                 ///< No active GUI
-    CRASH,                 ///< Crash screen
-    CREDITS,               ///< Credits screen
-    NONE                   ///< Not ready / No active GUI
+    MENU,                    ///< Main menu with pin assignment
+    VISUALIZATION,           ///< Sensor data visualization
+    DATA_BUNDLE_SELECTION,   ///< Data bundles visualization
+    WIKI,                    ///< Sensor documentation/wiki
+    READY,                   ///< No active GUI
+    CRASH,                   ///< Crash screen
+    CREDITS,                 ///< Credits screen
+    APP_SELECTION,           ///< App selection screen
+    COMMUNICATION_SELECTION, ///< Communication selection screen
+    NONE                     ///< Not ready / No active GUI
 };
 
 /**
@@ -46,16 +50,18 @@ enum class GuiState
 class GuiManager
 {
 private:
-    SensorManager &sensorManager;                  ///< Reference to sensor manager
-    MenuGui menuGui;                               ///< Menu and pin assignment component
-    SensorVisualizationGui vizGui;                 ///< Sensor visualization component
-    DataBundleSelectionGui dataBundleSelectionGui; ///< Data bundle selection component
-    SensorWikiGui wikiGui;                         ///< Sensor wiki component
-    CrashGui crashGui;                             ///< Crash screen component
-    CreditsGui creditsGui;                         ///< Credits screen component
+    SensorManager &sensorManager;                        ///< Reference to sensor manager
+    MenuGui menuGui;                                     ///< Menu and pin assignment component
+    SensorVisualizationGui vizGui;                       ///< Sensor visualization component
+    DataBundleSelectionGui dataBundleSelectionGui;       ///< Data bundle selection component
+    SensorWikiGui wikiGui;                               ///< Sensor wiki component
+    CrashGui crashGui;                                   ///< Crash screen component
+    CreditsGui creditsGui;                               ///< Credits screen component
+    AppSelectionGui appSelectionGui;                     ///< App selection component
+    CommunicationSelectionGui communicationSelectionGui; ///< Communication selection component
 
-    GuiState currentState;                         ///< Current GUI state
-    bool initialized;                              ///< Initialization flag
+    GuiState currentState; ///< Current GUI state
+    bool initialized;      ///< Initialization flag
 
     /**
      * @brief Hide all GUI components
@@ -127,13 +133,28 @@ public:
     void showCreditsScreen();
 
     /**
+     * @brief Switch to app selection screen
+     */
+    void showAppSelectionScreen();
+
+    /**
+     * @brief Switch to communication selection screen
+     */
+    void showCommunicationSelectionScreen();
+
+    /**
      * @brief Switch content to specified GUI state
      *
      * This method switches to the specified GuiState and manages
      * SensorManager running state accordingly:
+     * - APP_SELECTION: stops sensors (setRunning(false))
+     * - COMMUNICATION_SELECTION: stops sensors (setRunning(false))
      * - MENU: stops sensors (setRunning(false))
      * - VISUALIZATION: starts sensors (setRunning(true))
      * - WIKI: no sensor state change
+     * - DATA_BUNDLE_SELECTION: stops sensors (setRunning(false))
+     * - CREDITS: stops sensors (setRunning(false))
+     * - CRASH: stops sensors (setRunning(false))
      *
      * @param targetState The GUI state to switch to
      */
@@ -185,6 +206,18 @@ public:
      * @return Reference to SensorManager
      */
     SensorManager &getSensorManager() { return sensorManager; }
+
+    /**
+     * @brief Get reference to app selection GUI component
+     * @return Reference to AppSelectionGui
+     */
+    AppSelectionGui &getAppSelectionGui() { return appSelectionGui; }
+
+    /**
+     * @brief Get reference to communication selection GUI component
+     * @return Reference to CommunicationSelectionGui
+     */
+    CommunicationSelectionGui &getCommunicationSelectionGui() { return communicationSelectionGui; }
 };
 
 #endif // GUI_MANAGER_HPP

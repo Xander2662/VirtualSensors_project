@@ -65,4 +65,18 @@ extern void switchToDataBundleSelection();
  */
 extern void switchToCreditsScreen();
 
+/**
+ * @brief Switch to application selection screen
+ * 
+ * This function switches the GUI to the application selection screen.
+ */
+extern void switchToAppSelectionScreen();
+
+/**
+ * @brief Switch to communication selection screen
+ * 
+ * This function switches the GUI to the communication selection screen.
+ */
+extern void switchToCommunicationSelectionScreen();
+
 #endif // GUI_CALLBACKS_HPP

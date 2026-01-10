@@ -27,6 +27,8 @@ GuiManager::GuiManager(SensorManager &manager)
       wikiGui(manager),
       crashGui(),
       creditsGui(),
+      appSelectionGui(),
+      communicationSelectionGui(),
       currentState(GuiState::NONE),
       initialized(false) {
 }
@@ -53,6 +55,8 @@ bool GuiManager::init(std::string configFile) {
         dataBundleSelectionGui.init();
         wikiGui.init();
         creditsGui.init();
+        appSelectionGui.init();
+        communicationSelectionGui.init();
     }
     catch (const Exception &e) {
         showCrashScreen(e.flush());
@@ -89,6 +93,8 @@ void GuiManager::hideAllComponents() {
     wikiGui.hideWiki();
     crashGui.hideCrash();
     creditsGui.hideCredits();
+    communicationSelectionGui.hideCommunicationSelection();
+    appSelectionGui.hideAppSelection();
 }
 
 void GuiManager::showMenu() {
@@ -167,6 +173,34 @@ void GuiManager::showCreditsScreen() {
     //logMessage("Switched to CREDITS state\n");
 }
 
+void GuiManager::showAppSelectionScreen() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    // app selection gui is deleted after hidden    
+    appSelectionGui.init();
+    currentState = GuiState::APP_SELECTION;
+    // logMessage("Switched to APP_SELECTION state\n");
+}
+
+void GuiManager::showCommunicationSelectionScreen() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    // communication selectio gui is deleted after hidden
+    communicationSelectionGui.init();
+    currentState = GuiState::COMMUNICATION_SELECTION;
+    // logMessage("Switched to COMMUNICATION_SELECTION state\n");
+}
+
 void GuiManager::switchContent(GuiState targetState) {
     if (!initialized) {
         // logMessage("GuiManager not initialized\n");
@@ -213,6 +247,14 @@ void GuiManager::switchContent(GuiState targetState) {
 
         case GuiState::CREDITS:
             showCreditsScreen();
+            break;
+
+        case GuiState::APP_SELECTION:
+            showAppSelectionScreen();
+            break;
+
+        case GuiState::COMMUNICATION_SELECTION:
+            showCommunicationSelectionScreen();
             break;
 
         default:
@@ -263,6 +305,14 @@ void GuiManager::redraw() {
             // Credits doesn't need periodic redraw - it's static
             break;
 
+        case GuiState::APP_SELECTION:
+            // App selection doesn't need periodic redraw - it's event-driven
+            break;
+
+        case GuiState::COMMUNICATION_SELECTION:
+            // Communication selection doesn't need periodic redraw - it's event-driven
+            break;
+            
         default:
             break;
     }

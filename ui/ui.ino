@@ -9,7 +9,6 @@
 #include <ui.h>
 #include <expt.hpp>
 #include <engine.hpp>  // include engine header
-#include <gui/gui_manager.hpp>  // include new GUI manager
 #include <gui/gui_callbacks.hpp>  // include GUI callback declarations
 
 /*Don't forget to set Sketchbook location in File/Preferences to the path of your UI project (the parent foder of this INO file)*/
@@ -151,6 +150,7 @@ void my_touchpad_read (lv_indev_drv_t * indev_driver, lv_indev_data_t * data)
 
 SensorManager sensorManager;  // Create SensorManager instance
 GuiManager guiManager(sensorManager);  // Create GUI manager instance
+DataBundleManager dataBundleManager; // Create DataBundleManager instance
 
 // Global GUI screen switching functions for use by GUI components
 void switchToMenu() {
@@ -175,6 +175,14 @@ void switchToCrashScreen(const std::string &reason) {
 
 void switchToCreditsScreen() {
     guiManager.switchContent(GuiState::CREDITS);
+}
+
+void switchToAppSelectionScreen() {
+    guiManager.switchContent(GuiState::APP_SELECTION);
+}
+
+void switchToCommunicationSelectionScreen() {
+    guiManager.switchContent(GuiState::COMMUNICATION_SELECTION);
 }
 
 void setup ()
@@ -220,16 +228,24 @@ void setup ()
 
     ui_init(); 
     lv_timer_handler();
+    
+    dataBundleManager.init();
+    
     // Initialize the new GUI manager
     if(!guiManager.init())  // Optionally pass config file
     {
         return;
     }
 
+
     // Wait a moment to show the boot screen
     delay(2000);
-    switchToWiki(); // Start in wiki screen
-   
+    #ifndef VISENSORS_DEBUG
+    switchToAppSelectionScreen(); // Start in app selection screen
+    #else
+    switchToWiki(); // Start in wiki screen for debugging
+    #endif
+    
     //splashMessage("Hello from Elecrow DIS08070H!");
     Serial.println( "Setup done" );
 }
