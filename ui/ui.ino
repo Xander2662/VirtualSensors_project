@@ -149,8 +149,8 @@ void my_touchpad_read (lv_indev_drv_t * indev_driver, lv_indev_data_t * data)
 
 
 SensorManager sensorManager;  // Create SensorManager instance
-GuiManager guiManager(sensorManager);  // Create GUI manager instance
 DataBundleManager dataBundleManager; // Create DataBundleManager instance
+GuiManager guiManager(sensorManager, dataBundleManager);  // Create GUI manager instance
 
 // Global GUI screen switching functions for use by GUI components
 void switchToMenu() {
@@ -228,10 +228,8 @@ void setup ()
 
     ui_init(); 
     lv_timer_handler();
-    
-    dataBundleManager.init();
-    
-    // Initialize the new GUI manager
+
+    // Initialize the GUI manager
     if(!guiManager.init())  // Optionally pass config file
     {
         return;

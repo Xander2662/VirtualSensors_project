@@ -19,11 +19,12 @@ const int CYCLE_SYNC_MS = 100;
 const int LOOP_SYNC_TH = CYCLE_SYNC_MS/CYCLE_DRAW_MS;
 int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 
-GuiManager::GuiManager(SensorManager &manager) 
+GuiManager::GuiManager(SensorManager &manager, DataBundleManager &dataBundleManager) 
     : sensorManager(manager), 
+      dataBundleManager(dataBundleManager),
       menuGui(manager), 
-      vizGui(manager),
-      dataBundleSelectionGui(),
+      vizGui(manager, dataBundleManager),
+      dataBundleSelectionGui(dataBundleManager),
       wikiGui(manager),
       crashGui(),
       creditsGui(),
@@ -48,6 +49,12 @@ bool GuiManager::init(std::string configFile) {
             crashGui.showCrash("SensorManager initialization failed!");
             return false;
         }             
+
+        if(!dataBundleManager.init())
+        {
+            crashGui.showCrash("DataBundleManager initialization failed!");
+            return false;
+        }
 
         // Initialize all GUI components
         menuGui.init();

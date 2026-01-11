@@ -18,6 +18,7 @@
 
 #include "gui_callbacks.hpp"
 #include "../managers/manager.hpp"
+#include "../managers/data_bundle_manager.hpp"
 #include "../exceptions/data_exceptions.hpp"
 
 /**
@@ -34,6 +35,7 @@ class SensorVisualizationGui
 {
 private:
     SensorManager &sensorManager;        ///< Reference to the sensor manager instance
+    DataBundleManager &dataBundleManager;///< Reference to the databundle manager instance
     BaseSensor *currentSensor = nullptr; ///< Currently visualized sensor
 
     /// Static buffers for chart data
@@ -234,7 +236,7 @@ public:
      * @brief Constructor
      * @param sensorManager Reference to the sensor manager instance
      */
-    SensorVisualizationGui(SensorManager &sensorManager);
+    SensorVisualizationGui(SensorManager &sensorManager, DataBundleManager &dataBundleManager);
 
     /**
      * @brief Destructor

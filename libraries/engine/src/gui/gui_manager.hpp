@@ -51,6 +51,7 @@ class GuiManager
 {
 private:
     SensorManager &sensorManager;                        ///< Reference to sensor manager
+    DataBundleManager &dataBundleManager;                ///< Reference to data bundle manager
     MenuGui menuGui;                                     ///< Menu and pin assignment component
     SensorVisualizationGui vizGui;                       ///< Sensor visualization component
     DataBundleSelectionGui dataBundleSelectionGui;       ///< Data bundle selection component
@@ -72,8 +73,9 @@ public:
     /**
      * @brief Constructor
      * @param manager Reference to the SensorManager instance
+     * @param dataBundleManager reference to the DataBundleManager instance
      */
-    explicit GuiManager(SensorManager &manager);
+    explicit GuiManager(SensorManager &manager, DataBundleManager &dataBundleManager);
 
     /**
      * @brief Initialize the unified GUI manager and all components
@@ -206,6 +208,12 @@ public:
      * @return Reference to SensorManager
      */
     SensorManager &getSensorManager() { return sensorManager; }
+
+    /**
+     * @brief Get reference to data bundle manager
+     * @return Reference to DataBundleManager
+     */
+    DataBundleManager &getDataBundleManager() { return dataBundleManager; }
 
     /**
      * @brief Get reference to app selection GUI component

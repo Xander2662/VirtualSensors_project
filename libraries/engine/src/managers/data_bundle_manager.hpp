@@ -75,7 +75,7 @@ public:
 
     // All DataBundle events
 
-    std::array<DataBundleBuffer,6> showDataBundles(unsigned char page);
+    std::array<DataBundleBuffer,6> getDataBundles(unsigned char page);
 
     bool deleteAllDataBundles();
 
@@ -117,7 +117,7 @@ public:
     BundleMetadata getBundleMetaData(unsigned char index);
 
     // each databundle has as a preview chart with first 10 values from one of the sensor parts
-    std::array<std::string,10> getBundleDataValuePreview(unsigned char index);
+    std::array<const char *,10> getBundleDataValuePreview(unsigned char index);
 
     /**
      * @brief Prints size of SD and its used size in bytes

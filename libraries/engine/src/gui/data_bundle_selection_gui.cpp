@@ -13,7 +13,7 @@
 #include "../helpers.hpp"
 #include "./images/ui_images.h"
 
-DataBundleSelectionGui::DataBundleSelectionGui()
+DataBundleSelectionGui::DataBundleSelectionGui(DataBundleManager &dataBundleManager) : dataBundleManager(dataBundleManager)
 {
 ui_DataBundlesWidget = nullptr;
 ui_DataBundlePageWatcher = nullptr;
@@ -117,18 +117,24 @@ void DataBundleSelectionGui::constructDataBundleSelection()
         lv_obj_set_align(ui_DataBundlePageWatcherCell[i], LV_ALIGN_BOTTOM_MID);
         lv_obj_set_style_radius(ui_DataBundlePageWatcherCell[i], 100, LV_PART_MAIN);
         lv_obj_set_style_border_width(ui_DataBundlePageWatcherCell[i], 2, LV_PART_MAIN);
-        lv_obj_set_style_bg_color(ui_DataBundlePageWatcherCell[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+        lv_obj_set_style_bg_color(ui_DataBundlePageWatcherCell[i], lv_color_hex(0x009BFF), LV_PART_MAIN);
         lv_obj_set_style_border_color(ui_DataBundlePageWatcherCell[i], lv_color_hex(0x009BFF), LV_PART_MAIN);
     }   
+
+    addControlButtonsToWidget(ui_DataBundlesWidget);
+    addLogoPanelToWidget(ui_DataBundlesWidget);
+    addNavButtonsToWidget(ui_DataBundlesWidget);
+
+    updateBundles();
 }   
 
-void DataBundleSelectionGui::createDataBundle(int i)
+void DataBundleSelectionGui::createDataBundle(unsigned char i, const char *dataBundleName, const char *time, const char *date, std::array<const char *,10> values)
 {
-    // 1. Safety Checks
-    if (i < 0 || i >= 6) return;          // Out of bounds
-    if (ui_DataBundle[i] != NULL) return; // Already exists
+    if (i < 0 || i >= 5) return;
 
-    // 2. Determine Position based on Index
+    if(!ui_DataBundle[i])
+    {
+    // Determine Position based on Index
     int x_pos = 0;
     int y_pos = 0;
 
@@ -298,6 +304,16 @@ void DataBundleSelectionGui::createDataBundle(int i)
     lv_img_set_src(ui_DataBundleFooterButtonClearImage[i], &ui_img_trashicon_png);
     lv_obj_set_align(ui_DataBundleFooterButtonClearImage[i], LV_ALIGN_CENTER);
     lv_img_set_zoom(ui_DataBundleFooterButtonClearImage[i], 81);
+    }
+
+    lv_label_set_text(ui_DataBundleHeaderLabel[i], dataBundleName);
+    lv_label_set_text(ui_DataBundleFooterLabelDate[i], date);
+    lv_label_set_text(ui_DataBundleFooterLabelTime[i], time);
+    for (int j = 0; j < 10; j++)
+    {
+        lv_chart_set_next_value(ui_DataBundleChart[i], ui_DataBundleChart_series_1[i], convertStringToType<int>(values[j]));
+    }
+
 }
 
 void DataBundleSelectionGui::addNavButtonsToWidget(lv_obj_t *parentWidget)
@@ -528,4 +544,88 @@ void DataBundleSelectionGui::hideDataBundles()
         return;
 
     lv_obj_add_flag(ui_DataBundlesWidget, LV_OBJ_FLAG_HIDDEN);
+}
+
+void DataBundleSelectionGui::hideSpecificDataBundle(unsigned char index){
+    if(ui_DataBundle[index])
+        lv_obj_del(ui_DataBundle[index]);
+
+    ui_DataBundle[index] = nullptr;
+    ui_DataBundleHeaderGroup[index] = nullptr;
+    ui_DataBundleHeaderCornerBottomLeft[index] = nullptr;
+    ui_DataBundleHeaderCornerBottomRight[index] = nullptr;
+    ui_DataBundleHeader[index] = nullptr;
+    ui_DataBundleHeaderLabel[index] = nullptr;
+    ui_DataBundleChart[index] = nullptr;
+    ui_DataBundleChart_series_1[index] = nullptr;
+    ui_DataBundleFooterGroup[index] = nullptr;
+    ui_DataBundleFooterBridge[index] = nullptr;
+    ui_DataBundleFooterBridgeFill[index] = nullptr;
+    ui_DataBundleFooterTimerGroup[index] = nullptr;
+    ui_DataBundleFooterDateCornerTopLeft[index] = nullptr;
+    ui_DataBundleFooterDateCornerTopRight[index] = nullptr;
+    ui_DataBundleFooterDate[index] = nullptr;
+    ui_DataBundleFooterLabelDate[index] = nullptr;
+    ui_DataBundleFooterLabelTime[index] = nullptr;
+    ui_DataBundleFooterButtonsGroup[index] = nullptr;
+    ui_DataBundleFooterButtonsCornerTopLeft[index] = nullptr;
+    ui_DataBundleFooterButtonsCornerTopRight[index] = nullptr;
+    ui_DataBundleFooterButtons[index] = nullptr;
+    ui_DataBundleFooterButtonExport[index] = nullptr;
+    ui_DataBundleFooterButtonExportImage[index] = nullptr;
+    ui_DataBundleFooterButtonClear[index] = nullptr;
+    ui_DataBundleFooterButtonClearImage[index] = nullptr;
+}
+
+void DataBundleSelectionGui::goToNextPage(){
+    currentPage = (currentPage+1)%5;
+    updateBundles();
+}
+
+void DataBundleSelectionGui::goToPreviousPage(){
+    currentPage = (currentPage == 0) ? 5 - 1 : currentPage - 1;
+    updateBundles();
+}
+
+void DataBundleSelectionGui::updateWatcherCells(){
+    for(unsigned char i=0;i<5;i++){
+        if(i == currentPage){
+            lv_obj_set_style_bg_color(ui_DataBundlePageWatcherCell[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+            lv_obj_set_style_border_color(ui_DataBundlePageWatcherCell[i], lv_color_hex(0x009BFF), LV_PART_MAIN);
+        }
+        else{
+            lv_obj_set_style_bg_color(ui_DataBundlePageWatcherCell[i], lv_color_hex(0x009BFF), LV_PART_MAIN);
+            lv_obj_set_style_border_color(ui_DataBundlePageWatcherCell[i], lv_color_hex(0x009BFF), LV_PART_MAIN);
+        }
+    }
+}
+
+void DataBundleSelectionGui::updateBundles(){
+    
+    std::array<DataBundleBuffer,6> currentDataBundles = dataBundleManager.getDataBundles(currentPage);
+
+    for(unsigned char i=0;i<6;i++){
+
+        if(currentDataBundles[i].metaBuffer.sensorName.empty())
+        {
+            if(ui_DataBundle[i]){
+                hideSpecificDataBundle(i);
+            }
+            continue;
+        }
+        else
+        {
+            createDataBundle(
+                i, 
+                currentDataBundles[i].metaBuffer.sensorName.c_str(), 
+                currentDataBundles[i].startTime, 
+                currentDataBundles[i].metaBuffer.startDate.c_str(),
+                currentDataBundles[i].dataBuffer
+            );
+
+            continue;
+        }
+    }
+
+    updateWatcherCells();
 }

@@ -57,7 +57,7 @@ bool DataBundleManager::init()
 
     logMessage("DataBundle Manager initialized successfully");
 
-    #ifdef DEBUG
+    #ifdef VISENSORS_DEBUG
     getSDInfo();
     listAllBundles();
     #endif
@@ -81,7 +81,7 @@ bool DataBundleManager::initDirectories()
         logMessage("Created /DataBundles directory");
     }
 
-    #ifdef DEBUG
+    #ifdef VISENSORS_DEBUG
     // log.txt creation test
     File myFile = SD.open("/DataBundles/log.txt", FILE_WRITE);
 
@@ -203,7 +203,7 @@ void DataBundleManager::scrapRecording()
     currentBundleData.clear();
 }
 
-std::array<DataBundleBuffer,6> DataBundleManager::showDataBundles(unsigned char page)
+std::array<DataBundleBuffer,6> DataBundleManager::getDataBundles(unsigned char page)
 {
     std::array<DataBundleBuffer,6> buff;
     for(unsigned char i=0;i<6||i<DataBundleNames.size()-(6*page);i++){
@@ -401,9 +401,9 @@ BundleMetadata DataBundleManager::getBundleMetaData(unsigned char index){
     return {sensorName,fullPath,""};
 }
 
-std::array<std::string,10> DataBundleManager::getBundleDataValuePreview(unsigned char index){
+std::array<const char *,10> DataBundleManager::getBundleDataValuePreview(unsigned char index){
     std::string fullPath = std::string(root) + DataBundleNames[index];
-    std::array<std::string,10> temp;
+    std::array<const char *,10> temp;
     std::array<std::string,3> dataParsed;
 
     File file = SD.open(fullPath.c_str(), FILE_READ);
@@ -413,7 +413,7 @@ std::array<std::string,10> DataBundleManager::getBundleDataValuePreview(unsigned
     // dataParsed[0] = sensorPart, dataParsed[1] = value, dataParsed[2] = time
     dataParsed = parseCSVLine(line);
     const char *sensorPart = dataParsed[0].c_str();
-    temp[0] = dataParsed[1];
+    temp[0] = dataParsed[1].c_str();
 
     for (unsigned char i=1;i<10;i++) {
         line = readLine(file);
@@ -426,8 +426,8 @@ std::array<std::string,10> DataBundleManager::getBundleDataValuePreview(unsigned
 
         dataParsed = parseCSVLine(line);
 
-        if(sensorPart == dataParsed[0]){
-            temp[i] = dataParsed[1];
+        if(sensorPart == dataParsed[0].c_str()){
+            temp[i] = dataParsed[1].c_str();
             continue;
         }
     }

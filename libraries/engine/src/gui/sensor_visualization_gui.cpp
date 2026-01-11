@@ -13,7 +13,8 @@
 #include "../helpers.hpp"
 #include "./images/ui_images.h"
 
-SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager) : sensorManager(sensorManager)
+SensorVisualizationGui::SensorVisualizationGui(SensorManager &sensorManager, DataBundleManager &dataBundleManager) 
+                                              : sensorManager(sensorManager), dataBundleManager(dataBundleManager)
 {
     // Initialize all GUI pointers to nullptr
     ui_SensorWidget = nullptr;

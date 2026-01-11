@@ -18,6 +18,7 @@
 
 #include "gui_callbacks.hpp"
 #include "../managers/manager.hpp"
+#include "../managers/data_bundle_manager.hpp"
 #include "../exceptions/data_exceptions.hpp"
 
 /**
@@ -32,7 +33,11 @@
 class DataBundleSelectionGui
 {
 private:
+    DataBundleManager &dataBundleManager;///< Reference to the databundle manager instance
+
     bool initialized = false; ///< Initialization state flag
+
+    unsigned char currentPage = 0;
 
     lv_obj_t *ui_DataBundlesWidget;                         ///< DataBundlesWidget
     lv_obj_t *ui_DataBundlePageWatcher;                     ///< Page watcher bar
@@ -100,11 +105,21 @@ private:
      */
     void hideShadowOverlay();
 
+    /**
+     * @brief update data bundles currently shown
+     */
+    void updateBundles();
+
+    /**
+     * @brief update watcher cells to indicate which page is currently active
+     */
+    void updateWatcherCells();
+
 public:
     /**
      * @brief Constructor
      */
-    DataBundleSelectionGui();
+    DataBundleSelectionGui(DataBundleManager &dataBundleManager);
 
     /**
      * @brief Destructor
@@ -123,9 +138,13 @@ public:
 
     /**
      * @brief Create a single data bundle container
-     * @param index The index of the data bundle to create
+     * @param i The index of the data bundle to create
+     * @param dataBundleName Name of the data bundle
+     * @param time The time it was created
+     * @param date The date it was created
+     * @param values The values shown in the visual chart
      */
-    void createDataBundle(int index);
+    void createDataBundle(unsigned char i, const char *dataBundleName, const char *time, const char *date, std::array<const char *,10> values);
 
     /**
      * @brief Go to the previous page in the list
@@ -156,6 +175,12 @@ public:
      * @brief Hide the data bundle selection screen
      */
     void hideDataBundles();
+
+    /**
+     * @brief Hides specific Data Bundle
+     * Made so that it hides the bundle that exceeds current number of shown data bundles
+     */
+    void hideSpecificDataBundle(unsigned char index);
 };
 
 #endif // DATA_BUNDLES_GUI_HPP
