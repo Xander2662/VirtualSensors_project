@@ -31,6 +31,14 @@ private:
 
     std::array<std::string,3> parseCSVLine(std::string line);
 
+    // GETTERS
+
+    BundleMetadata getBundleMetaData(unsigned char index);
+
+    // each databundle has as a preview chart with first 10 values from one of the sensor parts
+    std::array<std::string,10> getBundleDataValuePreview(unsigned char index);
+    
+
 public:
     /**
      * @brief Private constructor for singleton pattern
@@ -60,6 +68,12 @@ public:
      */
     bool isInitialized() const { return initialized; }
 
+    /**
+     * @brief loads all data bundle names from SD
+     * @return True if initialized, false otherwise
+     */
+    bool loadAllDataBundleNames();
+
     // *********************
     // Current record events
     // *********************
@@ -85,7 +99,7 @@ public:
 
     // Single Databundle events
 
-    void deleteDataBundle(std::string filePath);
+    void deleteDataBundle(unsigned char index);
 
     bool exportDataBundle();
 
@@ -110,20 +124,14 @@ public:
 
     void printCSV(std::string filename);
 
-    // GETTERS
-
-    bool getAllDataBundleNames();
-
-    BundleMetadata getBundleMetaData(unsigned char index);
-
-    // each databundle has as a preview chart with first 10 values from one of the sensor parts
-    std::array<const char *,10> getBundleDataValuePreview(unsigned char index);
-
     /**
      * @brief Prints size of SD and its used size in bytes
      */
     void getSDInfo();
 
+    // public GETTERS
+
+    unsigned char getDataBundleAmount() {return DataBundleNames.size();}
 };
 
 #endif

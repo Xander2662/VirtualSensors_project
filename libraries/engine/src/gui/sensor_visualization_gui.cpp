@@ -1054,15 +1054,12 @@ void SensorVisualizationGui::handlePauseButtonClick()
     paused = !paused;
     if (paused)
     {
-        // we cannot stop entirely since sync wouldnt work
-        //sensorManager.setRunning(false);
         lv_obj_set_style_bg_color(ui_btnPause, lv_color_hex(0xE55858), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_add_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
     }
     else
     {
-        //sensorManager.setRunning(true);
         lv_obj_set_style_bg_color(ui_btnPause, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnSync, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_clear_flag(ui_btnSync, LV_OBJ_FLAG_CLICKABLE);
@@ -1078,7 +1075,7 @@ void SensorVisualizationGui::handleSyncButtonClick()
         return;
 
     bool success = syncCurrentSensor();
-    logMessage("Sync button clicked. Sync %s\n", success ? "succeeded" : "failed");
+    //logMessage("Sync button clicked. Sync %s\n", success ? "succeeded" : "failed");
 }
 
 void SensorVisualizationGui::handleRecordButtonClick(const char *message)
@@ -1086,14 +1083,11 @@ void SensorVisualizationGui::handleRecordButtonClick(const char *message)
     if (!currentSensor)
         return;
 
-
-    recording = !recording;
-
     //logMessage("Record button clicked. Current recording state: %s\n", recording ? "ON" : "OFF");
 
-    if (!recording)
+    if (recording)
     {
-        // currentSensor->startRecording();
+        dataBundleManager.saveRecording();
         lv_obj_set_style_bg_color(ui_btnRecord, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnPrev, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnNext, lv_color_hex(0x009BFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1102,13 +1096,15 @@ void SensorVisualizationGui::handleRecordButtonClick(const char *message)
     }
     else
     {
-        // currentSensor->stopRecording();
+        dataBundleManager.startRecording(currentSensor->Type);
         lv_obj_set_style_bg_color(ui_btnRecord, lv_color_hex(0xE55858), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnPrev, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_btnNext, lv_color_hex(0x949494), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_clear_flag(ui_btnPrev, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_clear_flag(ui_btnNext, LV_OBJ_FLAG_CLICKABLE);
     }
+
+    recording = !recording;
 
     if(!recording){
         showAlert(message ? message : "Record was saved (view settings)");
@@ -1145,11 +1141,8 @@ void SensorVisualizationGui::handleClearButtonClick()
             if (btnText && strcmp(btnText, "Yes") == 0)
             {
                 if(self->recording){
-                    // Scrape current recording
-                    // still not implemented
-                    //self->scrapeCurrentRecording();
+                    self->dataBundleManager.scrapRecording();
 
-                    // instead just tester for now
                     self->handleRecordButtonClick("Recording discarded as requested");
                 }
                 else{
@@ -1371,18 +1364,47 @@ void SensorVisualizationGui::handleDataBundleShowButtonClick(){
         return;
     }
     hideSettingsPanel();
-    //Still not implemented
-    //self->showDataBundlesList();
+    
+    switchToDataBundleSelection();
 }
 
 void SensorVisualizationGui::handleDataBundleDeleteAllButtonClick(){
-    if(recording){
-        handleStillRecording();
-        return;
-    }
-    hideSettingsPanel();
-    //Still not implemented
-    //self->deleteAllDataBundles();
+    static const char *btns[] = {"Yes", ""};
+    showShadowOverlay();
+    // Clear button has different behavior based on recording state
+    char const* message = "Are you sure you want DELETE ALL BUNDLES?";
+
+    // Show confirmation dialog before clearing history
+    lv_obj_t *confirmDialog = lv_msgbox_create(lv_scr_act(), "Confirm Clear (Bundles)", message, btns, true);
+    lv_obj_set_width(confirmDialog, 250);
+    lv_obj_center(confirmDialog);
+    lv_obj_move_foreground(confirmDialog);
+    lv_obj_add_event_cb(confirmDialog, [](lv_event_t *e)
+                        {
+        auto self = static_cast<SensorVisualizationGui*>(lv_event_get_user_data(e));
+        lv_event_code_t code = lv_event_get_code(e);
+
+        if (code == LV_EVENT_VALUE_CHANGED)
+        {
+            lv_obj_t *msgbox = lv_event_get_current_target(e);
+            const char *btnText = lv_msgbox_get_active_btn_text(msgbox);
+            if (btnText && strcmp(btnText, "Yes") == 0)
+            {
+                if(self->recording){
+                    self->handleStillRecording();
+                    return;
+                }
+                self->hideSettingsPanel();
+
+                self->dataBundleManager.deleteAllDataBundles();
+            }
+            self->hideShadowOverlay();
+            lv_obj_del(msgbox);
+        }
+        else if (code == LV_EVENT_DELETE)
+        {
+            self->hideShadowOverlay();
+        } }, LV_EVENT_ALL, this);
 }
 
 void SensorVisualizationGui::handleCreditsButtonClick(){
@@ -1419,14 +1441,14 @@ void SensorVisualizationGui::handleStillRecording(){
             if (btnText && strcmp(btnText, "Save") == 0)
             {
                 self->handleRecordButtonClick(nullptr);
-                // still not implemented
-                //self->saveCurrentRecording();
+
+                self->dataBundleManager.saveRecording();
             }
             else if (btnText && strcmp(btnText, "Discard") == 0)
             {
                 self->handleRecordButtonClick("Recording discarded as requested");
-                // still not implemented
-                //self->scrapeCurrentRecording();
+                
+                self->dataBundleManager.scrapRecording();
             }
             self->hideShadowOverlay();
             lv_obj_del(msgbox);

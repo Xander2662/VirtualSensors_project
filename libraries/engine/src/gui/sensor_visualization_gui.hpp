@@ -172,6 +172,10 @@ private:
         {
             std::string s = sensor->getValue<std::string>(key);
             curr = convertStringToType<T>(s);
+
+            if(recording){
+                dataBundleManager.saveNewDataPoint(key, s);
+            }   
         }
         catch (const std::exception &e)
         {

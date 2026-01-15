@@ -78,7 +78,7 @@ bool DataBundleManager::initDirectories()
             logMessage("Error: Failed to create /DataBundles directory");
             return false;
         }
-        logMessage("Created /DataBundles directory");
+        //logMessage("Created /DataBundles directory");
     }
 
     #ifdef VISENSORS_DEBUG
@@ -174,18 +174,15 @@ bool DataBundleManager::saveRecording()
         saved.println("PartName;Value;Time");
         for (unsigned int i = 0; i < currentBundleData.size(); i++)
         {
-            saved.printf("%s;%s;%s\n", currentBundleData[i].partName, currentBundleData[i].value, currentBundleData[i].time);
+            saved.printf("%s;%s;%s\n", currentBundleData[i].partName.c_str(), currentBundleData[i].value.c_str(), currentBundleData[i].time.c_str());
         }
-        
-        // Add to list of saved bundles
-        DataBundleNames.push_back(saved.name());
 
         saved.close(); // Save and close
-        logMessage("Created %s successfully", currentBundleMetaData.filePath);
+        //logMessage("Created %s successfully", currentBundleMetaData.filePath.c_str());
     }
     else
     {
-        logMessage("Error: Failed to create %s", currentBundleMetaData.filePath);
+        logMessage("Error: Failed to create %s", currentBundleMetaData.filePath.c_str());
         return false;
     }
 
@@ -206,7 +203,7 @@ void DataBundleManager::scrapRecording()
 std::array<DataBundleBuffer,6> DataBundleManager::getDataBundles(unsigned char page)
 {
     std::array<DataBundleBuffer,6> buff;
-    for(unsigned char i=0;i<6||i<DataBundleNames.size()-(6*page);i++){
+    for(unsigned char i=0;i<6&&i<DataBundleNames.size()-(6*page);i++){
         buff[i].metaBuffer = getBundleMetaData(i+(page*6));
         buff[i].dataBuffer = getBundleDataValuePreview(i+(page*6));
     }
@@ -239,14 +236,7 @@ bool DataBundleManager::deleteAllDataBundles()
 
     for (const auto &file : filesToDelete)
     {
-        if (SD.remove(file.c_str()))
-        {
-            logMessage("Deleted: %s", file);
-        }
-        else
-        {
-            logMessage("Failed to delete: %s", file);
-        }
+        SD.remove(file.c_str());
     }
 
     DataBundleNames.clear();
@@ -254,13 +244,13 @@ bool DataBundleManager::deleteAllDataBundles()
     return true;
 }
 
-bool DataBundleManager::getAllDataBundleNames()
+bool DataBundleManager::loadAllDataBundleNames()
 {
     DataBundleNames.clear();
 
     File dir = SD.open(root);
     if (!dir || !dir.isDirectory()) {
-        logMessage("Error: Failed to open /DataBundles directory whilst getting bundle names");
+        logMessage("Error: Failed to open /DataBundles/ directory whilst getting bundle names");
         return false;
     }
 
@@ -271,6 +261,8 @@ bool DataBundleManager::getAllDataBundleNames()
         std::string fileName = dir.getNextFileName().c_str();
         if (fileName.empty())
             break;
+
+        fileName = fileName.substr(strlen(root));   
 
         DataBundleNames.push_back(fileName);
     }
@@ -385,7 +377,7 @@ void DataBundleManager::printCSV(std::string filename)
 }
 
 BundleMetadata DataBundleManager::getBundleMetaData(unsigned char index){
-    std::string fullPath = std::string(root) + DataBundleNames[index];
+    std::string fullPath = root + DataBundleNames[index];
 
     File file = SD.open(fullPath.c_str(), FILE_READ);
 
@@ -401,19 +393,36 @@ BundleMetadata DataBundleManager::getBundleMetaData(unsigned char index){
     return {sensorName,fullPath,""};
 }
 
-std::array<const char *,10> DataBundleManager::getBundleDataValuePreview(unsigned char index){
+std::array<std::string,10> DataBundleManager::getBundleDataValuePreview(unsigned char index){
     std::string fullPath = std::string(root) + DataBundleNames[index];
-    std::array<const char *,10> temp;
-    std::array<std::string,3> dataParsed;
 
+    //logMessage("Full path to the file is %s",fullPath.c_str());
+    std::array<std::string,10> temp;
+    for(int k=0; k<10; k++) temp[k] = "0";
+    
     File file = SD.open(fullPath.c_str(), FILE_READ);
+    
+    if (!file)
+    {
+        logMessage("Error: Could not open file %s", fullPath.c_str());
+        return temp;
+    }
+    
+    std::string header = readLine(file);
+    logMessage("DEBUG: Header: '%s'", header.c_str());
 
-    // need to only save data from one of the sensor parts
     std::string line = readLine(file);
+    logMessage("DEBUG: First Data Line: '%s'", line.c_str());
+
+    if(line.empty()) {
+        file.close();
+        return temp;
+    }
+
     // dataParsed[0] = sensorPart, dataParsed[1] = value, dataParsed[2] = time
-    dataParsed = parseCSVLine(line);
-    const char *sensorPart = dataParsed[0].c_str();
-    temp[0] = dataParsed[1].c_str();
+    std::array<std::string,3> dataParsed = parseCSVLine(line);
+    std::string sensorPart = dataParsed[0];
+    temp[0] = dataParsed[1];
 
     for (unsigned char i=1;i<10;i++) {
         line = readLine(file);
@@ -426,13 +435,13 @@ std::array<const char *,10> DataBundleManager::getBundleDataValuePreview(unsigne
 
         dataParsed = parseCSVLine(line);
 
-        if(sensorPart == dataParsed[0].c_str()){
-            temp[i] = dataParsed[1].c_str();
+        if(sensorPart == dataParsed[0]){
+            temp[i] = dataParsed[1];
             continue;
         }
     }
 
-    file.close();
+    file.close();   
     return temp;
 }
 
@@ -440,8 +449,13 @@ bool DataBundleManager::isDataBundleFull(){
     return (DataBundleNames.size()>=30)? 1 : 0;
 }
 
-void DataBundleManager::deleteDataBundle(std::string filePath){
-    SD.remove(filePath.c_str());
+void DataBundleManager::deleteDataBundle(unsigned char index){
+    if(index >= DataBundleNames.size())
+        return;
+
+    std::string fullPath = std::string(root) + DataBundleNames[index];
+    SD.remove(fullPath.c_str());
+    DataBundleNames.erase(DataBundleNames.begin() + index);
 }
 
 std::string DataBundleManager::readLine(File &file) {

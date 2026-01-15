@@ -18,7 +18,7 @@ struct DataPoint {
 
 // Buffer that is returned to the GUI with 6 or less current bundles
 struct DataBundleBuffer {
-    BundleMetadata              metaBuffer;
-    std::array<const char *,10> dataBuffer;
-    const char *                startTime;
+    BundleMetadata             metaBuffer;
+    std::array<std::string,10> dataBuffer;
+    std::string                startTime;
 };

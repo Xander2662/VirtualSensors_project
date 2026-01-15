@@ -115,6 +115,12 @@ private:
      */
     void updateWatcherCells();
 
+    // not needed
+    /**
+     * @brief update nav buttons based on available pages 
+     */
+    void updateNavButtons();
+
 public:
     /**
      * @brief Constructor
@@ -144,7 +150,7 @@ public:
      * @param date The date it was created
      * @param values The values shown in the visual chart
      */
-    void createDataBundle(unsigned char i, const char *dataBundleName, const char *time, const char *date, std::array<const char *,10> values);
+    void createDataBundle(unsigned char i, const char *dataBundleName, const char *time, const char *date, std::array<std::string,10> values);
 
     /**
      * @brief Go to the previous page in the list
@@ -158,13 +164,15 @@ public:
 
     /**
      * @brief opens a confirmation dialog to clear the current data bundle
+     * @param index the bundle that will be cleared
      */
-    void handleClearButtonClick();
+    void handleClearButtonClick(unsigned char index);
 
     /**
      * @brief clears the current data bundle upon confirmation
+     * @param index the bundle that will be cleared
      */
-    void handleClearConfirmButtonClick();
+    void handleClearConfirmButtonClick(unsigned char index);
 
     /**
      * @brief Show the data bundle selection screen

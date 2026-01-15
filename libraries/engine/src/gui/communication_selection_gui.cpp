@@ -26,8 +26,19 @@ void CommunicationSelectionGui::init(void)
     {
         return;
     }
-    constructCommunicationSelection();
-    initialized = true;
+
+    try
+    {
+        // // logMessage("Initializing CommunicationSelectionGui...\n");
+        constructCommunicationSelection();
+        initialized = true;
+        // // logMessage("CommunicationSelectionGui initialization completed!\n");
+    }
+    catch (const std::exception &e)
+    {
+        // // logMessage("CommunicationSelectionGui initialization failed: %s\n", e.what());
+        initialized = false;
+    }
 }
 
 void CommunicationSelectionGui::constructCommunicationSelection(void)
@@ -35,7 +46,7 @@ void CommunicationSelectionGui::constructCommunicationSelection(void)
     ui_Widget = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(ui_Widget);
     lv_obj_set_width(ui_Widget, 800);
-    lv_obj_set_height(ui_Widget, 80);
+    lv_obj_set_height(ui_Widget, 480);
     lv_obj_set_align(ui_Widget, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Widget, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
                       LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
@@ -50,7 +61,7 @@ void CommunicationSelectionGui::constructCommunicationSelection(void)
     lv_obj_set_width(ui_ConnectionLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_ConnectionLabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_ConnectionLabel, 0);
-    lv_obj_set_y(ui_ConnectionLabel, 0);
+    lv_obj_set_y(ui_ConnectionLabel, 40);
     lv_obj_set_align(ui_ConnectionLabel, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_ConnectionLabel, "Select your connection");
     lv_obj_clear_flag(ui_ConnectionLabel,
@@ -68,10 +79,10 @@ void CommunicationSelectionGui::constructCommunicationSelection(void)
     lv_obj_set_y(ui_CableButton, 0);
     lv_obj_set_align(ui_CableButton, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_CableButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_CableButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_CableButton, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
     lv_obj_add_event_cb(ui_CableButton, [](lv_event_t * e) {
         if (e->code == LV_EVENT_CLICKED) {
-            switchToMenu();
+            switchToWiki();
         }
     }, LV_EVENT_ALL, nullptr);
 
@@ -82,7 +93,7 @@ void CommunicationSelectionGui::constructCommunicationSelection(void)
     lv_obj_set_align(ui_CableImage, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_CableImage, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_CableImage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_zoom(ui_CableImage, 30);
+    lv_img_set_zoom(ui_CableImage, 340);
 
     ui_BluetoothButton = lv_btn_create(ui_Widget);
     lv_obj_set_width(ui_BluetoothButton, 220);
@@ -107,14 +118,18 @@ void CommunicationSelectionGui::constructCommunicationSelection(void)
     lv_obj_set_align(ui_BluetoothImage, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_BluetoothImage, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_BluetoothImage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_zoom(ui_BluetoothImage, 80);
+    lv_img_set_zoom(ui_BluetoothImage, 480);
     lv_obj_set_style_img_recolor(ui_BluetoothImage, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_img_recolor_opa(ui_BluetoothImage, 50, LV_PART_MAIN | LV_STATE_DEFAULT);
-
 }
 
 void CommunicationSelectionGui::hideCommunicationSelection(void)
 {
+    if(!initialized)
+    {
+        return;
+    }
+
     if(ui_Widget) lv_obj_del(ui_Widget);
 
     ui_Widget = NULL;
@@ -124,4 +139,5 @@ void CommunicationSelectionGui::hideCommunicationSelection(void)
     ui_BluetoothButton = NULL;
     ui_BluetoothImage = NULL;
 
+    initialized = false;
 }

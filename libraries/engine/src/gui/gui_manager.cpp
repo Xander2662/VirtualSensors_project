@@ -61,9 +61,10 @@ bool GuiManager::init(std::string configFile) {
         vizGui.init();
         dataBundleSelectionGui.init();
         wikiGui.init();
-        creditsGui.init();
-        appSelectionGui.init();
-        communicationSelectionGui.init();
+        // These GUIs are initialized on demand
+        // crashGui.init();
+        // appSelectionGui.init();
+        // communicationSelectionGui.init();
     }
     catch (const Exception &e) {
         showCrashScreen(e.flush());
@@ -141,9 +142,11 @@ void GuiManager::showDataBundleSelection() {
 
     sensorManager.setRunning(false);
     hideAllComponents();
+    
+    //logMessage("Switched to DATA_BUNDLE_SELECTION state\n");
+    
     dataBundleSelectionGui.showDataBundles();
     currentState = GuiState::DATA_BUNDLE_SELECTION;
-    // logMessage("Switched to DATA_BUNDLE_SELECTION state\n");
 }
 
 void GuiManager::showWiki() {
