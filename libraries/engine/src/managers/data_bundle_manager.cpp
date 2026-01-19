@@ -178,6 +178,11 @@ bool DataBundleManager::saveRecording()
         }
 
         saved.close(); // Save and close
+
+        if(isDataBundleFull()){
+        removeOldestDataBundle();
+        }
+
         //logMessage("Created %s successfully", currentBundleMetaData.filePath.c_str());
     }
     else
