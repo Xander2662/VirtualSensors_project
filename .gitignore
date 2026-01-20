@@ -1,1 +1,36 @@
+# Ignore virtual environments and IDE settings
 /.vscode
+
+# Ignore virtual environment folders
+/.venv
+
+# Ignore build artifacts
+/build/
+
+# Ignore C++ object files, executables and libraries
+*.o
+*.obj
+*.exe
+*.out
+*.lib
+*.a
+
+# Ignore Python bytecode
+*.pyc
+*.pyo
+
+# Ignore Python cache directories
+__pycache__/
+
+# Ignore logs
+*.log
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore IDE specific files
+*.swp
+*.swo
+*.DS_Store
+
