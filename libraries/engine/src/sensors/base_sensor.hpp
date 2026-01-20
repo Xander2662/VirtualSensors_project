@@ -685,6 +685,21 @@ public:
     }
 
     /**
+     * @brief Clear history of all sensor value parameters.
+     */
+    void clearHistory()
+    {
+        for (auto &v : Values)
+        {
+            for(int i=0;i<HISTORY_CAP;i++){
+                v.second.History[i] = "0";
+                //logMessage("Clearing history value %s for key %s\n", v.second.History[i], v.first.c_str());
+            }
+            v.second.lastHistoryIndex = 0;
+        }
+    }
+
+    /**
      * @brief Synchronize with the real sensor.
      *
      * @throws Exception if synchronization fails.

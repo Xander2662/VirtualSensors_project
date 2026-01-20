@@ -58,6 +58,7 @@ void CrashGui::buildCrashGui() {
     lv_obj_set_height(ui_CrashWidget, lv_pct(100));
     lv_obj_set_align(ui_CrashWidget, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_CrashWidget, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_radius(ui_CrashWidget, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_flag(ui_CrashWidget, LV_OBJ_FLAG_HIDDEN); // Start hidden
     
     // Set red background

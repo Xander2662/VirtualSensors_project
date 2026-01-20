@@ -19,12 +19,17 @@ const int CYCLE_SYNC_MS = 100;
 const int LOOP_SYNC_TH = CYCLE_SYNC_MS/CYCLE_DRAW_MS;
 int LOOP_SYNC_COUNTER = LOOP_SYNC_TH;
 
-GuiManager::GuiManager(SensorManager &manager) 
+GuiManager::GuiManager(SensorManager &manager, DataBundleManager &dataBundleManager) 
     : sensorManager(manager), 
+      dataBundleManager(dataBundleManager),
       menuGui(manager), 
-      vizGui(manager),
+      vizGui(manager, dataBundleManager),
+      dataBundleSelectionGui(dataBundleManager),
       wikiGui(manager),
       crashGui(),
+      creditsGui(),
+      appSelectionGui(),
+      communicationSelectionGui(),
       currentState(GuiState::NONE),
       initialized(false) {
 }
@@ -45,10 +50,21 @@ bool GuiManager::init(std::string configFile) {
             return false;
         }             
 
+        if(!dataBundleManager.init())
+        {
+            crashGui.showCrash("DataBundleManager initialization failed!");
+            return false;
+        }
+
         // Initialize all GUI components
         menuGui.init();
         vizGui.init();
-        wikiGui.init();  
+        dataBundleSelectionGui.init();
+        wikiGui.init();
+        // These GUIs are initialized on demand
+        // crashGui.init();
+        // appSelectionGui.init();
+        // communicationSelectionGui.init();
     }
     catch (const Exception &e) {
         showCrashScreen(e.flush());
@@ -81,8 +97,12 @@ void GuiManager::hideAllComponents() {
 
     menuGui.hideMenu();
     vizGui.hideVisualization();
+    dataBundleSelectionGui.hideDataBundles();
     wikiGui.hideWiki();
     crashGui.hideCrash();
+    creditsGui.hideCredits();
+    communicationSelectionGui.hideCommunicationSelection();
+    appSelectionGui.hideAppSelection();
 }
 
 void GuiManager::showMenu() {
@@ -114,6 +134,21 @@ void GuiManager::showVisualization() {
     // logMessage("Switched to VISUALIZATION state\n");
 }
 
+void GuiManager::showDataBundleSelection() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    
+    //logMessage("Switched to DATA_BUNDLE_SELECTION state\n");
+    
+    dataBundleSelectionGui.showDataBundles();
+    currentState = GuiState::DATA_BUNDLE_SELECTION;
+}
+
 void GuiManager::showWiki() {
     if (!initialized) {
         // logMessage("GuiManager not initialized\n");
@@ -133,6 +168,47 @@ void GuiManager::showCrashScreen(const std::string &reason) {
     hideAllComponents();
 
     crashGui.showCrash(reason);   
+}
+
+void GuiManager::showCreditsScreen() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    creditsGui.showCredits();
+    currentState = GuiState::CREDITS;
+    //logMessage("Switched to CREDITS state\n");
+}
+
+void GuiManager::showAppSelectionScreen() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    // app selection gui is deleted after hidden    
+    appSelectionGui.init();
+    currentState = GuiState::APP_SELECTION;
+    // logMessage("Switched to APP_SELECTION state\n");
+}
+
+void GuiManager::showCommunicationSelectionScreen() {
+    if (!initialized) {
+        // logMessage("GuiManager not initialized\n");
+        return;
+    }
+
+    sensorManager.setRunning(false);
+    hideAllComponents();
+    // communication selectio gui is deleted after hidden
+    communicationSelectionGui.init();
+    currentState = GuiState::COMMUNICATION_SELECTION;
+    // logMessage("Switched to COMMUNICATION_SELECTION state\n");
 }
 
 void GuiManager::switchContent(GuiState targetState) {
@@ -158,6 +234,11 @@ void GuiManager::switchContent(GuiState targetState) {
             // logMessage("Switched content to VISUALIZATION\n");
             break;
             
+        case GuiState::DATA_BUNDLE_SELECTION:
+            showDataBundleSelection();
+            // logMessage("DATA_BUNDLE_SELECTION not implemented, switched content to MENU\n");
+            break;
+
         case GuiState::WIKI:
             showWiki();
             // Don't change sensor running state for wiki
@@ -172,6 +253,18 @@ void GuiManager::switchContent(GuiState targetState) {
 
         case GuiState::CRASH:
             showCrashScreen("Unexpected error");
+            break;
+
+        case GuiState::CREDITS:
+            showCreditsScreen();
+            break;
+
+        case GuiState::APP_SELECTION:
+            showAppSelectionScreen();
+            break;
+
+        case GuiState::COMMUNICATION_SELECTION:
+            showCommunicationSelectionScreen();
             break;
 
         default:
@@ -205,12 +298,29 @@ void GuiManager::redraw() {
             }
             break;
             
+        case GuiState::DATA_BUNDLE_SELECTION:
+            // Data bundle selection doesn't need periodic redraw - it's event-driven
+            // Each bundle is added after the end of visualsiation recording
+            break;
+
         case GuiState::MENU:
             // Menu doesn't need periodic redraw - it's event-driven
             break;
             
         case GuiState::WIKI:
             // Wiki doesn't need periodic redraw - it's event-driven
+            break;
+            
+        case GuiState::CREDITS:
+            // Credits doesn't need periodic redraw - it's static
+            break;
+
+        case GuiState::APP_SELECTION:
+            // App selection doesn't need periodic redraw - it's event-driven
+            break;
+
+        case GuiState::COMMUNICATION_SELECTION:
+            // Communication selection doesn't need periodic redraw - it's event-driven
             break;
             
         default:
