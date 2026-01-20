@@ -1,5 +1,6 @@
 # Ignore virtual environments and IDE settings
-/.vscode
+/.vscode/launch.json
+/.vscode/settings.json
 
 # Ignore virtual environment folders
 /.venv

@@ -1,54 +1,116 @@
-# Arduino project for Elecrow DIS08070H ESP32 HMI with 7" Resistive Touch Display
+# SignalTwin ✨🧬
 
+SignalTwin Display is a lightweight **HMI/visualization client** for exploring sensor data in real time 🖥️.
+It focuses on **raw vs. processed comparisons**, **interactive inspection**, and **data capture** for later analysis
+— while educational modules live *above* this layer (e.g., in EduBoxHub or external course content).
 
-## Prerequisites
+## 🧩 Target Hardware
 
-1. Arduino-IDE should be installed on your system. (The build and board was tested with v1.8.19.)
-2. In `Tools`/`Boards Manager` select and install `esp32` board-support package. (Contains the ESP toolchains for the board's Tensilica Xtensa ESP32 MCU. The board was tested with 2.0.17, the included LovyanGFX didn't like 3.0.0 and above.)
-3. (The essence of `LovyanGFX` with the display-driver is included in the local `libraries` folder of this board-template, but if you want to us Arduino's built-in one you can delete it and install to Arduino-IDE with `Tools`/`Manage Libraries`.)
+![SignalTwin Display – Use-case](docs/img/panel_apps.png)
 
+SignalTwin Display is designed and tested for the **Elecrow ESP32 Display 7" HMI (ESP32-S3 + RGB TFT + Touch, LVGL-ready)**:
 
-## Board settings (retained between Arduino-IDE sessions)
+- 🔗 Distributor / purchase link:  
+  https://www.elecrow.com/esp32-display-7-inch-hmi-display-rgb-tft-lcd-touch-screen-support-lvgl.html
 
-1. In `Tools` select `ESP32 Arduino` / `ESP32S3 Dev Module` as board
-2. Set the parameters for your board: Flash-mode to `QIO 80MHz`, Flash-size to `4MB`, PSRAM to `OPI PSRAM`, (Partition-scheme to `Huge App` with 3MB app and 1MB SPIFFS partitions)
-3. If you'll want to upload to the device from Arduino-IDE, select the programmer tool and port in `Tools` menu: Arduino-IDE uses the `esptool` of ESP-IDF in the background.
-4. (The `partitions.csv` file in `ui` subfolder of this sketch-folder beside `ui.ino` should override the `Huge App`/etc. partitioning scheme setting, for example to give bigger app-partition. But with v2 of esp32 package this seems not effective.)
+---
 
+## 🚀 Core Capabilities
 
-## Compilation
+### 🔎 Sensor Data Exploration
+- 📊 Real-time visualization of **raw/real values** and derived/processed values (side-by-side comparison).
+- 👀 Interactive browsing of streams and channels for quick inspection and debugging.
+- 🌐 Designed as a generic viewer: **theoretically supports any sensor** as long as the upstream platform can provide it.
 
-1. Open the `.ino` file in Arduino
-2. Go to File/Preferences and set Sketchbook location to the path of your UI project (where this README is located). The setting is retained between Arduino-IDE sessions.
-3. Update the libraries accourding *Libraries versions*
-4. Build the project
+### 💾 Logging & Export
+- 💽 Recording into **DataBundle** for structured capture sessions.
+- 📝 Export to **CSV on SD card** for offline analysis (Python/Excel/Matlab workflows).
 
-# Libraries versions
+### 📚 Sensor Knowledge Base (Wiki)
+- 📖 Built-in **Wiki** of sensors: quick reference for principles, typical ranges, pitfalls, and usage notes.
+- ➕ Extensible content model (add new sensors without coupling to firmware logic).
 
-1. LovyanGFX: 1.20
-2. LVGL: 8.3.11 (depends on SquareLine studio)
+---
 
-## Burning
+## 🔗 Connectivity Model
 
-If the built-in Arduino-IDE chip-programmer is working you can go with it.
+SignalTwin Display does not read sensors directly in the general case.
+It requires an upstream source that speaks our open protocol:
 
-(If you want to make a backup before overwriting the flash in the device, you can use esptool's read command like: `esptool.py -b 460800 read_flash 0 ALL Backup.bin`.)
+### 🔌 Supported Upstream Sources
+- 🖥️ **PC connection (emulator / host tooling)**
+- 🧩 **EduBoxHub** platform
+- 🔧 **Custom hardware** implementing the same protocol
 
-If it's not working on your system, there are two ways depending on esp32 package version used:
+### 📡 Protocol: VSCP (Virtual Sensors Communication Protocol)
+Communication is done via a **text-based, REST-like protocol**:
 
-### esp32-3.0.0 (and above):
-You can find the built merged .bin file in the folder (like `tmp`) where Arduino-IDE puts the builds.
-The whole .bin (the merged 4MB one containing all partitions) can be burnt to the board by the ESP-IDF command: `esptool.py -b 460800 write_flash 0 ui.ino.merged.bin`
+- 📚 Spec / reference repo: https://github.com/sgtkingo/VirtualSensors_protocol
 
-### A faster way, working with esp32-2.0.17 too (flashing just the application):
-You can find the built ELF's flashable version in a `ui.ino.bin` file in the folder (like `tmp`) where Arduino-IDE puts the builds.
-This `ui.ino.bin` file can be burnt to the board's app0 partition at offset 0x10000 by the ESP-IDF command: `esptool.py  write_flash  0x10000 ui.ino.bin`. (Offset might differ with other patition scheme, get app0 offset by `esptool.py read_flash 0x8000 0xc00 ptable.img` and `gen_esp32part.py ptable.img`.)
+---
 
+## ⚙️ Configuration & I/O (Bidirectional)
 
-## Misc. notes
+Beyond passive viewing, SignalTwin Display supports operational control via the upstream platform:
 
-With this board-template you might encounter some Parallel-RGB vs LVGL-flush synchronization issues if you use computing-heavy or alpha-channel graphic contents like big shadows. According to our research it comes from low-level IO code in Arduino-IDE related to the display-driver, probably GDMA-priority related pixeldata-delays to the ESP32S3's LCD-controller. (ESP-IDF version doesn't have this problem.)
+- 🔌 **Dynamic pin mapping**: set which physical pins a real sensor is connected to (runtime configuration).
+- 🔁 **Bidirectional messaging**:
+  - 📈 sensor reads (telemetry / streaming),
+  - 🎚️ actuator control (sending values/commands),
+  - 🛠️ configuration pushes (calibration, sampling, modes).
 
+---
 
-2024 SquareLine
+## 📖 Documentation
 
+- 🧩 **Installation & deployment** are in **INSTALL.md** (toolchain, flashing, SD layout, emulator wiring).
+- Recommended (optional) docs to add:
+  - 🧱 `docs/ARCHITECTURE.md` — dataflow & message types (VSCP mapping)
+  - 🗃️ `docs/FORMATS.md` — DataBundle + CSV schema
+  - 📝 `docs/WIKI_GUIDE.md` — how to add/edit sensor Wiki entries
+
+---
+
+## 🧭 Typical Workflow
+
+1. 🔗 Connect SignalTwin Display to **PC Emulator** or **EduBoxHub** (or a VSCP-capable custom device).
+2. 🔎 Select a sensor/channel and inspect **raw vs. processed** outputs.
+3. 💾 Record a session into **DataBundle** and export **CSV to SD**.
+4. 📊 Analyze captured data offline (Python/Excel/Matlab).
+
+---
+
+## 🗂️ Repository Structure (Recommended)
+
+- 🖼️ `ui/` — firmware + UI logic + .INO file (LVGL app)
+- 📚 `libraries` — all headers and libraries (engine) 
+- 🐍 `emulator` — Python-based emulator for testing
+- 📄 `docs/` — diagrams, screenshots, Wiki sources
+- 📦 `bin` — exported binary files
+- 🧾 `data` — data files files (configurations, CSV)
+- 📝 `RELEASE_NOTES` — latest release notes
+- 📄 `LICENSE` — MIT
+
+---
+
+## 🐞 Troubleshooting 
+
+- ❌ If you can connect but see no data: verify the upstream device speaks **VSCP** and is streaming the expected channels.
+- 💽 If SD export fails: check card formatting and required folder structure (see `INSTALL.md`).
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome, especially:
+- 📈 additional visualizations (plots, trend views, event markers),
+- 🧱 DataBundle/CSV improvements and schema stability,
+- 📖 new sensor Wiki pages.
+
+📨 Please include: device/source type (PC/EduBoxHub/custom), VSCP message example, and expected output.
+
+---
+
+## 📄 License
+
+MIT — see `LICENSE`.
