@@ -17,6 +17,7 @@
 
 #include "gui/gui_manager.hpp"
 #include "managers/manager.hpp"
+#include "managers/data_bundle_manager.hpp"
 
 #endif // ENGINE_HPP
 
